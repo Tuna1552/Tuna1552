@@ -45,56 +45,6 @@
       user-select: none;
     }
 
-    /* BALONLAR */
-    .balloon {
-      position: absolute;
-      width: 60px;
-      height: 80px;
-      cursor: pointer;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease;
-      user-select: none;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 22px;
-      color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      z-index: 900; /* countdown üstünde, kalpler altında */
-      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      background: radial-gradient(circle at 50% 40%, #ff6f91, #d32f6f);
-    }
-    .balloon span {
-      margin-bottom: 10px;
-      display: none;
-      user-select: none;
-      pointer-events: none;
-    }
-    .balloon.clicked span {
-      display: block;
-    }
-    .balloon:hover {
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 8px #ff6f91);
-    }
-    .balloon::after {
-      content: "";
-      position: absolute;
-      bottom: -15px;
-      left: 50%;
-      width: 2px;
-      height: 25px;
-      background: #444;
-      transform: translateX(-50%);
-      border-radius: 1px;
-    }
-
-    @keyframes floatBalloon {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(-150px); opacity: 1; }
-    }
-
     /* Kalpler */
     .heart {
       position: fixed;
@@ -161,15 +111,13 @@
 
     // 29 Mayıs 00:00 hedef tarihi ayarla
     const hedefTarih = new Date();
-    // Eğer bugün 29 Mayıs veya sonrası ise gelecek yıl
     if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
       hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
     }
-    hedefTarih.setMonth(4); // Mayıs (0 bazlı)
+    hedefTarih.setMonth(4);
     hedefTarih.setDate(29);
     hedefTarih.setHours(0, 0, 0, 0);
 
-    // Geri sayım fonksiyonu
     function updateCountdown() {
       const now = new Date();
       const fark = hedefTarih - now;
@@ -194,30 +142,6 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // BALONLAR
-    const balonSayisi = 8;
-    const balonRenkleri = [
-      '#ff6f91', '#ff9671', '#ffc75f', '#d65f5f', '#a0c1b8', '#6a4c93', '#c06c84', '#355c7d'
-    ];
-
-    for(let i=0; i < balonSayisi; i++){
-      const balon = document.createElement('div');
-      balon.className = 'balloon';
-      balon.style.background = `radial-gradient(circle at 50% 40%, ${balonRenkleri[i]}, darken(${balonRenkleri[i]}, 20%))`;
-      balon.style.left = (Math.random() * (window.innerWidth - 80)) + 'px';
-      balon.style.bottom = (Math.random() * 100 + 20) + 'px'; // sayfa içinde biraz yukarıdan başlasın
-      balon.style.opacity = '1';
-      balon.style.animation = `floatBalloon 5s linear forwards`;
-      balon.style.animationDelay = (i * 0.6) + 's';
-      balon.innerHTML = '<span>17</span>';
-
-      balon.addEventListener('click', () => {
-        balon.classList.toggle('clicked');
-      });
-
-      document.body.appendChild(balon);
-    }
-
     // KALPLER
     function createHeart() {
       const heart = document.createElement('div');
@@ -233,7 +157,7 @@
 
     setInterval(createHeart, 400);
 
-    // KANFETİ
+    // KONFETİ
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
@@ -294,7 +218,6 @@
       loop();
     }
 
-    // Müzik kullanıcı tıklamasıyla başlar
     document.body.addEventListener("click", () => {
       music.play().catch(() => {});
     }, { once: true });
