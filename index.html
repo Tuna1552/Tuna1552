@@ -20,6 +20,19 @@
       user-select: none;
       position: relative;
       text-align: center;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* Aydınlık tema */
+    body.light {
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      color: #333;
+    }
+
+    /* Karanlık tema */
+    body.dark {
+      background: linear-gradient(to right, #333, #555);
+      color: #fff;
     }
 
     h1 {
@@ -77,6 +90,16 @@
     }
     #play-music-btn:active {
       transform: scale(0.95);
+    }
+
+    /* Tema seçici */
+    #theme-selector {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 1.2em;
+      border-radius: 5px;
+      border: 1px solid #ff007f;
+      color: #ff007f;
     }
 
     /* Carousel container */
@@ -202,9 +225,15 @@
     }
   </style>
 </head>
-<body>
+<body class="light"> <!-- Varsayılan tema -->
 
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
+
+  <label for="theme-selector">Tema Seç:</label>
+  <select id="theme-selector">
+    <option value="light">Aydınlık Tema</option>
+    <option value="dark">Karanlık Tema</option>
+  </select>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
 
@@ -243,6 +272,7 @@
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
   const nextBtn = carousel.querySelector('.carousel-button.next');
+  const themeSelector = document.getElementById('theme-selector');
 
   // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
   const hedefTarih = new Date();
@@ -348,73 +378,80 @@
   // Konfeti animasyonu
   function startConfetti() {
     const canvas = document.getElementById('confetti-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const confettiCount = 150;
-const confettis = [];
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const confettiCount = 150;
+    const confettis = [];
 
-class Confetti {
-  constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * -canvas.height;
-    this.size = (Math.random() * 7) + 3;
-    this.speed = (Math.random() * 3) + 2;
-    this.angle = Math.random() * 2 * Math.PI;
-    this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-    this.spin = (Math.random() - 0.5) * 0.1;
-  }
+    class Confetti {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height;
+        this.size = (Math.random() * 7) + 3;
+        this.speed = (Math.random() * 3) + 2;
+        this.angle = Math.random() * 2 * Math.PI;
+        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        this.spin = (Math.random() - 0.5) * 0.1;
+      }
 
-  update() {
-    this.y += this.speed;
-    this.angle += this.spin;
+      update() {
+        this.y += this.speed;
+        this.angle += this.spin;
 
-    if (this.y > canvas.height) {
-      this.y = -this.size;
-      this.x = Math.random() * canvas.width;
+        if (this.y > canvas.height) {
+          this.y = -this.size;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.restore();
+      }
     }
+
+    for(let i=0; i<confettiCount; i++) {
+      confettis.push(new Confetti());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettis.forEach(c => {
+        c.update();
+        c.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
   }
 
-  draw() {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
-    ctx.fillStyle = this.color;
-    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-    ctx.restore();
-  }
-}
-
-for(let i=0; i<confettiCount; i++) {
-  confettis.push(new Confetti());
-}
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  confettis.forEach(c => {
-    c.update();
-    c.draw();
+  // Müzik kontrolü
+  playBtn.addEventListener('click', () => {
+    music.play().then(() => {
+      playBtn.style.display = 'none';
+      countdownElement.style.display = 'block';
+      carousel.style.display = 'inline-block';
+      showSlide(0);
+      startSlideShow();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }).catch(err => {
+      alert('Müziği başlatmak için etkileşim gerekiyor.');
+      console.error(err);
+    });
   });
-  requestAnimationFrame(animate);
-}
 
-animate();
-}
+  // Tema seçici
+  themeSelector.addEventListener('change', (event) => {
+    document.body.className = event.target.value; // Seçilen temayı uygula
+  });
 
-// Müzik kontrolü
-playBtn.addEventListener('click', () => {
-music.play().then(() => {
-playBtn.style.display = 'none';
-countdownElement.style.display = 'block';
-carousel.style.display = 'inline-block';
-showSlide(0);
-startSlideShow();
-updateCountdown();
-setInterval(updateCountdown, 1000);
-}).catch(err => {
-alert('Müziği başlatmak için etkileşim gerekiyor.');
-console.error(err);
-});
-});
-
-</script> </body> </html> ```
+</script> 
+</body> 
+</html>
