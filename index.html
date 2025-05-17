@@ -395,22 +395,23 @@ let particles = [];
   animate();
 }
 
-// Müzik otomatik oynatma (bazı tarayıcılarda kullanıcı etkileşimi gerekir)
-function playMusic() {
-  music.play().catch(() => {
-    console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
-  });
-}
-</script> function playMusic() {
-  const music = document.getElementById('music');
-  music.play().then(() => {
-    console.log('Müzik başladı 🎵');
-  }).catch((error) => {
-    console.warn('Tarayıcı otomatik çalmayı engelledi:', error);
-  });
-}
+<!-- konfeti, kalpler, carousel gibi tüm JS fonksiyonları burada -->
 
-window.addEventListener('load', () => {
-  playMusic();
-});
+<script>
+  // en sona bu kısım gelsin:
+  function playMusic() {
+    const music = document.getElementById('music');
+    music.play().then(() => {
+      console.log('Müzik başladı 🎵');
+    }).catch((error) => {
+      console.warn('Tarayıcı otomatik çalmayı engelledi:', error);
+    });
+  }
+
+  window.addEventListener('load', () => {
+    showSlide(currentIndex);
+    startSlideShow();
+    playMusic(); // Otomatik müzik çal
+  });
+
 </script> </body> </html> ```
