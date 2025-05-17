@@ -61,7 +61,7 @@
       /* Dinamik genişlik ve yükseklik için inline style ile JS ayarlayacak */
       width: auto;
       height: auto;
-      transition: width 0.5s ease, height 0.5s ease;
+      transition: width 0.8s ease, height 0.8s ease;
       display: inline-block; /* Doğal boyuta göre */
     }
 
@@ -171,6 +171,10 @@
 
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
   <div id="countdown">Yükleniyor...</div>
+<button id="play-music-btn" style="margin-top:20px; padding:10px 20px; font-size:1.2em; border:none; border-radius:8px; background:#ff1493; color:#fff; cursor:pointer;">
+  Müzik Çal ▶️
+</button>
+
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
   <!-- Carousel -->
@@ -185,10 +189,11 @@
   </div>
 
   <!-- Müzik -->
-  <audio id="music" preload="auto" loop>
-    <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg" />
-    Tarayıcınız ses çaları desteklemiyor.
-  </audio>
+<audio id="music" preload="auto" loop controls>
+  <source src="until_i_found_you.mp3" type="audio/mpeg" />
+  Tarayıcınız ses çaları desteklemiyor.
+</audio>
+
 
   <!-- Konfeti için canvas -->
   <canvas id="confetti-canvas"></canvas>
@@ -226,7 +231,7 @@
       const saniye = Math.floor((fark / 1000) % 60);
 
       countdownElement.textContent =
-        📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye;
+        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
     }
 
     setInterval(updateCountdown, 1000);
@@ -344,7 +349,7 @@ let particles = [];
       this.size = randomRange(5, 12);
       this.speedY = randomRange(1, 3);
       this.speedX = randomRange(-0.5, 0.5);
-      this.color = hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%);
+      this.color = `hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%)`;
       this.opacity = randomRange(0.7, 1);
       this.rotation = randomRange(0, 360);
       this.rotationSpeed = randomRange(-5, 5);
@@ -397,4 +402,4 @@ function playMusic() {
     console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
   });
 }
-</script> </body> </html> 
+</script> </body> </html> ```
