@@ -49,20 +49,23 @@
       height: 80px;
       background-color: #ff69b4;
       border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      cursor: pointer;
+      cursor: default;
       color: white;
       font-weight: bold;
-      font-size: 20px;
+      font-size: 28px;
       line-height: 80px;
       text-align: center;
       user-select: none;
-      transition: transform 0.3s ease;
       z-index: 20;
+      transition: transform 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .balloon:hover {
       transform: scale(1.1);
     }
-    /* Kalp */
+    /* Kalpler */
     .heart {
       position: fixed;
       bottom: 100px;
@@ -79,6 +82,30 @@
       user-select: none;
       z-index: 20;
     }
+    .heart:nth-child(1) {
+      right: 20px;
+      bottom: 100px;
+      width: 60px;
+      height: 60px;
+      animation-delay: 0s;
+    }
+    .heart:nth-child(2) {
+      right: 90px;
+      bottom: 130px;
+      width: 45px;
+      height: 45px;
+      background: #ff4081;
+      animation-delay: 0.7s;
+    }
+    .heart:nth-child(3) {
+      right: 55px;
+      bottom: 60px;
+      width: 50px;
+      height: 50px;
+      background: #ff1a75;
+      animation-delay: 1.4s;
+    }
+
     @keyframes heartbeat {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.2); }
@@ -102,14 +129,24 @@
       .balloon {
         width: 40px;
         height: 55px;
-        font-size: 16px;
+        font-size: 24px;
         bottom: 10px !important;
       }
       .heart {
-        width: 40px;
-        height: 40px;
-        bottom: 70px;
-        right: 10px;
+        width: 40px !important;
+        height: 40px !important;
+      }
+      .heart:nth-child(1) {
+        right: 10px !important;
+        bottom: 70px !important;
+      }
+      .heart:nth-child(2) {
+        right: 70px !important;
+        bottom: 100px !important;
+      }
+      .heart:nth-child(3) {
+        right: 40px !important;
+        bottom: 40px !important;
       }
     }
   </style>
@@ -129,7 +166,9 @@
   <!-- Konfeti için canvas -->
   <canvas id="confetti-canvas"></canvas>
 
-  <!-- Kalp -->
+  <!-- Kalpler -->
+  <div class="heart"></div>
+  <div class="heart"></div>
   <div class="heart"></div>
 
   <!-- Balonlar -->
@@ -182,27 +221,18 @@
     updateCountdown();
 
     // Balonların yavaş yukarı çıkışı
-    const balloonSpeed = 10; // piksel cinsinden, 5 saniyede yükselecek mesafe (ör: 50px/sn)
-    balloons.forEach((balloon, i) => {
+    balloons.forEach((balloon) => {
       let bottomPos = 20; // başlangıç bottom px
-      balloon.addEventListener('click', () => {
-        balloon.textContent = '17';
-        setTimeout(() => {
-          balloon.textContent = '🎈';
-        }, 2000);
-      });
       function rise() {
-        bottomPos += 0.3; // çok yavaş yükselme
+        bottomPos += 0.3; // yavaş yükselme
         if (bottomPos > window.innerHeight + 80) {
-          bottomPos = -80; // ekran dışına çıkınca başa al
+          bottomPos = -80; // tekrar başa dön
         }
         balloon.style.bottom = bottomPos + 'px';
         requestAnimationFrame(rise);
       }
       rise();
     });
-
-    // Kalp animasyonu zaten css animation ile
 
     // Konfeti efekti
     function startConfetti() {
@@ -266,15 +296,3 @@
 
     // Müzik oynatma fonksiyonu
     function playMusic() {
-      music.play().catch(() => {
-        // Otomatik çalınmazsa, kullanıcı tıklayana kadar bekle
-        document.body.addEventListener("click", () => {
-          music.play();
-        }, { once: true });
-      });
-    }
-
-  </script>
-
-</body>
-</html>
