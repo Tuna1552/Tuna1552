@@ -254,7 +254,7 @@
 
 <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
 <div id="countdown" aria-live="polite" aria-atomic="true">Yükleniyor...</div>
-<button id="startMusicBtn" aria-pressed="false" aria-label="Müzik Çal">Müzik Çal ▶️</button>
+<button id="startMusicBtn" aria-pressed="false" aria-label="Müzik Çal">Müziği Çal</button>
 
 <div id="message" role="alert" aria-live="assertive">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
@@ -370,24 +370,6 @@
 
   showSlide(0);
 
-  // ===== Müzik Çal Butonu =====
-  const startMusicBtn = document.getElementById('startMusicBtn');
-  const music = document.getElementById('music');
-
-  startMusicBtn.addEventListener('click', () => {
-    if (music.paused) {
-      music.play().then(() => {
-        startMusicBtn.textContent = 'Müziği Durdur ⏸️';
-        startMusicBtn.setAttribute('aria-pressed', 'true');
-      }).catch(err => {
-        alert('Müzik çalma izni gerekebilir.');
-      });
-    } else {
-      music.pause();
-      startMusicBtn.textContent = 'Müzik Çal ▶️';
-      startMusicBtn.setAttribute('aria-pressed', 'false');
-    }
-  });
 
   // ===== Konfeti Animasyonu =====
   const confettiCanvas = document.getElementById('confetti-canvas');
