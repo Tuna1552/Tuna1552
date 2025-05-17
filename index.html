@@ -9,40 +9,64 @@
       color: #333;
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      padding: 50px;
+      padding: 50px 20px;
       overflow: hidden;
       position: relative;
-      height: 100vh;
       margin: 0;
+      height: 100vh;
     }
     h1 {
       font-size: 3em;
       margin-bottom: 0.5em;
-      position: relative;
-      z-index: 1000;
       user-select: none;
+      z-index: 1000;
+      position: relative;
     }
     #countdown {
-      position: relative;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 12px;
-      padding: 15px 30px;
-      display: inline-block;
-      font-weight: 700;
       font-size: 2em;
+      font-weight: bold;
+      background: rgba(255,255,255,0.85);
+      padding: 10px 25px;
+      border-radius: 12px;
       color: #ff007f;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
-      user-select: none;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+      display: inline-block;
+      z-index: 1000;
+      position: relative;
     }
     #message {
       font-size: 2em;
-      margin-top: 2em;
       color: #ff1493;
+      margin-top: 2em;
       display: none;
-      position: relative;
       z-index: 1000;
-      user-select: none;
+      position: relative;
+    }
+
+    /* SLAYT STİLİ */
+    .slideshow-container {
+      max-width: 600px;
+      position: relative;
+      margin: 40px auto;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .slide {
+      display: none;
+    }
+    .slide img {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+    }
+    .fade {
+      animation: fadeEffect 1.5s ease-in-out;
+    }
+    @keyframes fadeEffect {
+      from {opacity: 0;}
+      to {opacity: 1;}
     }
 
     /* Kalpler */
@@ -67,26 +91,20 @@
       background-color: #ff1493;
       border-radius: 50%;
     }
-    .heart::before {
-      top: -15px;
-      left: 0;
-    }
-    .heart::after {
-      left: 15px;
-      top: 0;
-    }
+    .heart::before { top: -15px; left: 0; }
+    .heart::after { top: 0; left: 15px; }
+
     @keyframes floatUp {
       0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
       100% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
     }
 
-    /* Canvas konfeti z-index */
     canvas#confetti-canvas {
       position: fixed;
       top: 0;
       left: 0;
       pointer-events: none;
-      z-index: 950; /* balonların altında */
+      z-index: 950;
     }
   </style>
 </head>
@@ -95,13 +113,22 @@
   <div id="countdown">Yükleniyor...</div>
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
+  <!-- Slideshow (Fotoğraflar) -->
+  <div class="slideshow-container">
+    <div class="slide fade"><img src="https://scontent.fadb2-1.fna.fbcdn.net/v/t1.15752-9/494819372_1066121202072965_1680778509594423854_n.jpg" /></div>
+    <div class="slide fade"><img src="https://scontent.fadb2-1.fna.fbcdn.net/v/t1.15752-9/494817528_1369412577724238_4956819316562406313_n.jpg" /></div>
+    <div class="slide fade"><img src="https://scontent.fadb2-1.fna.fbcdn.net/v/t1.15752-9/494356990_1489931545325305_3234616978248098870_n.jpg" /></div>
+    <div class="slide fade"><img src="https://scontent.fadb2-2.fna.fbcdn.net/v/t1.15752-9/494359050_663652366483290_6533068607204712589_n.jpg" /></div>
+    <div class="slide fade"><img src="https://scontent.fadb2-2.fna.fbcdn.net/v/t1.15752-9/494359689_711413374907384_5940252502151222067_n.jpg" /></div>
+  </div>
+
   <!-- Müzik -->
   <audio id="music" preload="auto">
     <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg" />
     Tarayıcınız ses çaları desteklemiyor.
   </audio>
 
-  <!-- Konfeti için canvas -->
+  <!-- Konfeti -->
   <canvas id="confetti-canvas"></canvas>
 
   <script>
@@ -109,19 +136,17 @@
     const messageElement = document.getElementById('message');
     const music = document.getElementById('music');
 
-    // 29 Mayıs 00:00 hedef tarihi ayarla
     const hedefTarih = new Date();
     if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
       hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
     }
-    hedefTarih.setMonth(4);
+    hedefTarih.setMonth(4); // Mayıs
     hedefTarih.setDate(29);
     hedefTarih.setHours(0, 0, 0, 0);
 
     function updateCountdown() {
       const now = new Date();
       const fark = hedefTarih - now;
-
       if (fark <= 0) {
         countdownElement.style.display = "none";
         messageElement.style.display = "block";
@@ -129,42 +154,47 @@
         music.play().catch(() => {});
         return;
       }
-
       const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
       const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
       const dakika = Math.floor((fark / (1000 * 60)) % 60);
       const saniye = Math.floor((fark / 1000) % 60);
-
-      countdownElement.innerHTML =
-        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+      countdownElement.innerHTML = `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
     }
 
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // KALPLER
+    // Slayt Gösterisi
+    let slideIndex = 0;
+    function showSlides() {
+      const slides = document.getElementsByClassName("slide");
+      for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+      }
+      slideIndex++;
+      if (slideIndex > slides.length) slideIndex = 1;
+      slides[slideIndex - 1].style.display = "block";
+      setTimeout(showSlides, 3000); // 3 saniyede bir
+    }
+    showSlides();
+
+    // Kalpler
     function createHeart() {
       const heart = document.createElement('div');
       heart.classList.add('heart');
       heart.style.left = Math.random() * window.innerWidth + 'px';
       heart.style.top = window.innerHeight + 30 + 'px';
       document.body.appendChild(heart);
-
-      setTimeout(() => {
-        heart.remove();
-      }, 6000);
+      setTimeout(() => heart.remove(), 6000);
     }
-
     setInterval(createHeart, 400);
 
-    // KONFETİ
+    // Konfeti
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
-      let W = window.innerWidth;
-      let H = window.innerHeight;
-      canvas.width = W;
-      canvas.height = H;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
       const particles = [];
       const particleCount = 150;
@@ -172,20 +202,20 @@
 
       for (let i = 0; i < particleCount; i++) {
         particles.push({
-          x: Math.random() * W,
-          y: Math.random() * H - H,
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
           r: Math.random() * 6 + 4,
           d: Math.random() * particleCount,
           color: colors[Math.floor(Math.random() * colors.length)],
           tilt: Math.floor(Math.random() * 10) - 10,
           tiltAngle: 0,
-          tiltAngleIncremental: (Math.random() * 0.07) + .05
+          tiltAngleIncremental: (Math.random() * 0.07) + 0.05
         });
       }
 
       function draw() {
-        ctx.clearRect(0, 0, W, H);
-        particles.forEach((p) => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
           ctx.beginPath();
           ctx.lineWidth = p.r;
           ctx.strokeStyle = p.color;
@@ -193,19 +223,17 @@
           ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
           ctx.stroke();
         });
-
         update();
       }
 
       function update() {
-        particles.forEach((p) => {
+        particles.forEach(p => {
           p.y += Math.cos(p.d) + 1 + p.r / 2;
           p.tiltAngle += p.tiltAngleIncremental;
           p.tilt = Math.sin(p.tiltAngle) * 15;
-
-          if (p.y > H) {
+          if (p.y > canvas.height) {
             p.y = -10;
-            p.x = Math.random() * W;
+            p.x = Math.random() * canvas.width;
           }
         });
       }
@@ -214,14 +242,13 @@
         draw();
         requestAnimationFrame(loop);
       }
-
       loop();
     }
 
+    // İlk tıklamada müziği başlat
     document.body.addEventListener("click", () => {
       music.play().catch(() => {});
     }, { once: true });
-
   </script>
 </body>
 </html>
