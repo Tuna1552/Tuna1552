@@ -401,4 +401,16 @@ function playMusic() {
     console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
   });
 }
-</script> </body> </html> ```
+</script> function playMusic() {
+  const music = document.getElementById('music');
+  music.play().then(() => {
+    console.log('Müzik başladı 🎵');
+  }).catch((error) => {
+    console.warn('Tarayıcı otomatik çalmayı engelledi:', error);
+  });
+}
+
+window.addEventListener('load', () => {
+  playMusic();
+});
+ </body> </html> ```
