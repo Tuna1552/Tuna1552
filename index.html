@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>🎉 Ece'nin Doğum Günü 🎉</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      color: #333;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 50px;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+    }
+    #countdown {
+      font-size: 2em;
+      margin-top: 1em;
+      color: #ff007f;
+    }
+    #message {
+      font-size: 2em;
+      margin-top: 2em;
+      color: #ff1493;
+      display: none;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
+  <div id="countdown">Yükleniyor...</div>
+  <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
+
+  <!-- Müzik -->
+  <audio id="music" preload="auto">
+    <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg">
+    Tarayıcınız ses çaları desteklemiyor.
+  </audio>
+
+  <!-- Konfeti için canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <script>
+    const countdownElement = document.getElementById('countdown');
+    const messageElement = document.getElementById('message');
+    const music = document.getElementById('music');
+
+    // 29 Mayıs 00:00 hedefi
+    const hedefTarih = new Date();
+    hedefTarih.setFullYear(
+      hedefTarih.getMonth() === 4 && hedefTarih.getDate() >= 29
+        ? hedefTarih.getFullYear() + 1
+        : hedefTarih.getFullYear()
+    );
+    hedefTarih.setMonth(4); // Mayıs
+    hedefTarih.setDate(29);
+    hedefTarih.setHours(0, 0, 0, 0);
+
+    function updateCountdown() {
+      const now = new Date();
+      const fark = hedefTarih - now;
+
+      if (fark <= 0) {
+        countdownElement.style.display = "none";
+        messageElement.style.display = "block";
+        startConfetti();
+        music.play();
+        return;
+      }
+
+      const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
+      const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
+      const dakika = Math.floor((fark / (1000 * 60)) % 60);
+      const saniye = Math.floor((fark / 1000) % 60);
+
+      countdownElement.innerHTML =
+        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Tarayıcı otomatik müziğe izin vermez, bu yüzden kullanıcı tıklayınca başlasın
+    document.body.addEventListener("click", () => {
+      music.play().catch(() => {});
+    }, { once: true });
+
+    // Konfeti efekti
+    function startConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      let W = window.innerWidth;
+      let H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+
+      const particles = [];
+      const particleCount = 150;
+      const colors = ['#ff0a54', '#ff477e', '#ff7096', '#ff85a1', '#fbb1bd'];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H - H,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * particleCount,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.floor(Math.random() * 10) - 10,
+          tiltAngle: 0,
+          tiltAngleIncremental: (Math.random() * 0.07) + .05
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach((p, i) => {
+          ctx.beginPath();
+          ctx.lineWidth = p.r;
+          ctx.strokeStyle = p.color;
+          ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+          ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+          ctx.stroke();
+        });
+
+        update();
+      }
+
+      function update() {
+        particles.forEach((p, i) => {
+          p.y += Math.cos(p.d) + 1 + p.r / 2;
+          p.tiltAngle += p.tiltAngleIncremental;
+          p.tilt = Math.sin(p.tiltAngle) * 15;
+
+          if (p.y > H) {
+            p.y = -10;
+            p.x = Math.random() * W;
+          }
+        });
+      }
+
+      function loop() {
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      loop();
+    }
+  </script>
+
+</body>
+</html>
