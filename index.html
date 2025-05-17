@@ -7,15 +7,19 @@
     /* Genel stil */
     body {
       margin: 0;
-      padding: 50px 20px;
+      padding: 0;
       background: linear-gradient(to right, #fbc2eb, #a6c1ee);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: #333;
-      text-align: center;
       overflow-x: hidden;
       height: 100vh;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       user-select: none;
+      position: relative;
+      text-align: center;
     }
 
     h1 {
@@ -23,28 +27,56 @@
       margin-bottom: 0.5em;
       z-index: 1000;
       position: relative;
+      color: #ff1493;
+      text-shadow: 0 0 8px #ff69b4;
     }
 
     #countdown {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 12px;
-      padding: 15px 30px;
-      display: inline-block;
+      padding: 20px 40px;
       font-weight: 700;
       font-size: 2em;
       color: #ff007f;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
+      box-shadow: 0 0 25px rgba(255, 0, 127, 0.7);
+      margin-top: 10px;
+      user-select: text;
+      min-width: 350px;
+      transition: opacity 0.5s ease;
+      display: none;
+    }
+
+    #message {
+      font-size: 2.2em;
+      margin-top: 2em;
+      color: #ff1493;
+      text-shadow: 0 0 8px #ff69b4;
+      display: none;
       position: relative;
       z-index: 1000;
     }
 
-    #message {
-      font-size: 2em;
-      margin-top: 2em;
-      color: #ff1493;
-      display: none;
-      position: relative;
-      z-index: 1000;
+    /* Buton */
+    #play-music-btn {
+      padding: 15px 40px;
+      font-size: 1.5em;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(45deg, #ff1493, #ff69b4);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.7);
+      transition: background 0.3s ease, transform 0.3s ease;
+      user-select: none;
+      margin-top: 20px;
+      z-index: 1100;
+    }
+    #play-music-btn:hover {
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      transform: scale(1.05);
+    }
+    #play-music-btn:active {
+      transform: scale(0.95);
     }
 
     /* Carousel container */
@@ -53,16 +85,15 @@
       margin: 40px auto 0;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       background: #fff;
       user-select: none;
       z-index: 1000;
-
-      /* Dinamik genişlik ve yükseklik için inline style ile JS ayarlayacak */
       width: auto;
       height: auto;
       transition: width 0.8s ease, height 0.8s ease;
-      display: inline-block; /* Doğal boyuta göre */
+      display: inline-block;
+      max-width: 90vw;
     }
 
     /* Slides */
@@ -76,6 +107,7 @@
       top: 0;
       left: 0;
       user-select: none;
+      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
     }
 
     .carousel-slide.active {
@@ -94,7 +126,7 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.85);
       border: none;
       border-radius: 50%;
       width: 50px;
@@ -102,7 +134,7 @@
       cursor: pointer;
       font-size: 2em;
       color: #ff007f;
-      box-shadow: 0 0 10px rgba(255,0,127,0.5);
+      box-shadow: 0 0 15px rgba(255,0,127,0.7);
       transition: background 0.3s ease;
       user-select: none;
       z-index: 1100;
@@ -111,6 +143,7 @@
     .carousel-button:hover {
       background: #ff007f;
       color: #fff;
+      box-shadow: 0 0 20px #ff007f;
     }
 
     .carousel-button.prev {
@@ -164,22 +197,26 @@
       left: 0;
       pointer-events: none;
       z-index: 950;
+      width: 100vw;
+      height: 100vh;
     }
   </style>
 </head>
 <body>
 
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
-  <div id="countdown">Yükleniyor...</div>
-<button id="play-music-btn" style="margin-top:20px; padding:10px 20px; font-size:1.2em; border:none; border-radius:8px; background:#ff1493; color:#fff; cursor:pointer;">
- 🎵 Müziği Başlat
-</button>
 
-  <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
+  <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
+
+  <div id="countdown" aria-live="polite"></div>
+
+  <div id="message" role="alert" aria-live="assertive">
+    🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖
+  </div>
 
   <!-- Carousel -->
-  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
-   <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel" style="display:none;">
+    <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
     <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
     <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
     <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
@@ -189,217 +226,195 @@
   </div>
 
   <!-- Müzik -->
-<audio id="music" preload="auto" loop controls>
-  <source src="until_i_found_you.mp3" type="audio/mpeg" />
-  Tarayıcınız ses çaları desteklemiyor.
-</audio>
-
+  <audio id="music" preload="auto" loop>
+    <source src="until_i_found_you.mp3" type="audio/mpeg" />
+    Tarayıcınız ses çaları desteklemiyor.
+  </audio>
 
   <!-- Konfeti için canvas -->
   <canvas id="confetti-canvas"></canvas>
 
-  <script>
-    const countdownElement = document.getElementById('countdown');
-    const messageElement = document.getElementById('message');
-    const music = document.getElementById('music');
+<script>
+  const countdownElement = document.getElementById('countdown');
+  const messageElement = document.getElementById('message');
+  const music = document.getElementById('music');
+  const playBtn = document.getElementById('play-music-btn');
+  const carousel = document.getElementById('carousel');
+  const slides = carousel.querySelectorAll('.carousel-slide');
+  const prevBtn = carousel.querySelector('.carousel-button.prev');
+  const nextBtn = carousel.querySelector('.carousel-button.next');
 
-    // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
-    const hedefTarih = new Date();
-    if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
-      hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
-    }
-    hedefTarih.setMonth(4);
-    hedefTarih.setDate(29);
-    hedefTarih.setHours(0, 0, 0, 0);
+  // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
+  const hedefTarih = new Date();
+  if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
+    hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
+  }
+  hedefTarih.setMonth(4);
+  hedefTarih.setDate(29);
+  hedefTarih.setHours(0, 0, 0, 0);
 
-    // Geri sayım fonksiyonu
-    function updateCountdown() {
-      const now = new Date();
-      const fark = hedefTarih - now;
+  // Geri sayım fonksiyonu
+  function updateCountdown() {
+    const now = new Date();
+    const fark = hedefTarih - now;
 
-      if (fark <= 0) {
-        countdownElement.style.display = "none";
-        messageElement.style.display = "block";
-        startConfetti();
-        playMusic();
-        return;
-      }
-
-      const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
-      const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
-      const dakika = Math.floor((fark / (1000 * 60)) % 60);
-      const saniye = Math.floor((fark / 1000) % 60);
-
-      countdownElement.textContent =
-        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+    if (fark <= 0) {
+      countdownElement.style.display = "none";
+      messageElement.style.display = "block";
+      startConfetti();
+      return;
     }
 
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
+    const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
+    const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
+    const dakika = Math.floor((fark / (1000 * 60)) % 60);
+    const saniye = Math.floor((fark / 1000) % 60);
 
-    // Carousel kontrol
-    const carousel = document.getElementById('carousel');
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const prevBtn = carousel.querySelector('.carousel-button.prev');
-    const nextBtn = carousel.querySelector('.carousel-button.next');
-    let currentIndex = 0;
-    let slideInterval;
+    countdownElement.textContent = 
+      `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+  }
 
-    // Resim yüklenince container'ı doğal boyutuna göre ayarlama fonksiyonu
-    function adjustCarouselSize(img) {
-      const naturalWidth = img.naturalWidth;
-      const naturalHeight = img.naturalHeight;
-      carousel.style.width = naturalWidth + 'px';
-      carousel.style.height = naturalHeight + 'px';
-    }
+  let slideInterval;
+  let currentIndex = 0;
 
-    // Slayt göster
-    function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === index);
-      });
-      currentIndex = index;
+  function adjustCarouselSize(img) {
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+    carousel.style.width = naturalWidth + 'px';
+    carousel.style.height = naturalHeight + 'px';
+  }
 
-      const activeImage = slides[currentIndex];
-      if (!activeImage.complete) {
-        activeImage.onload = () => {
-          adjustCarouselSize(activeImage);
-        };
-      } else {
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
+    currentIndex = index;
+
+    const activeImage = slides[currentIndex];
+    if (!activeImage.complete) {
+      activeImage.onload = () => {
         adjustCarouselSize(activeImage);
-      }
-    }
-
-    function nextSlide() {
-      let nextIndex = currentIndex + 1;
-      if (nextIndex >= slides.length) nextIndex = 0;
-      showSlide(nextIndex);
-    }
-
-    function prevSlide() {
-      let prevIndex = currentIndex - 1;
-      if (prevIndex < 0) prevIndex = slides.length - 1;
-      showSlide(prevIndex);
-    }
-
-    prevBtn.addEventListener('click', () => {
-      prevSlide();
-      resetInterval();
-    });
-
-    nextBtn.addEventListener('click', () => {
-      nextSlide();
-      resetInterval();
-    });
-
-    function startSlideShow() {
-      slideInterval = setInterval(nextSlide, 5000);
-    }
-
-    function resetInterval() {
-      clearInterval(slideInterval);
-      startSlideShow();
-    }
-
-    // İlk slaytı göster ve otomatik geçiş başlat
-    window.addEventListener('load', () => {
-      showSlide(currentIndex);
-      startSlideShow();
-    });
-
-    // Kalp animasyonları
-    function createHeart() {
-      const heart = document.createElement('div');
-      heart.classList.add('heart');
-      heart.style.left = Math.random() * window.innerWidth + 'px';
-      heart.style.top = window.innerHeight + 30 + 'px';
-      document.body.appendChild(heart);
-
-      setTimeout(() => {
-        heart.remove();
-      }, 6000);
-    }
-
-    setInterval(createHeart, 400);
-
-    // Konfeti animasyonu
-    function startConfetti() {
-      const canvas = document.getElementById('confetti-canvas');
-      const ctx = canvas.getContext('2d');
-let width, height;
-let particles = [];
-  function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-
-  function randomRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  class Particle {
-    constructor() {
-      this.x = randomRange(0, width);
-      this.y = randomRange(-height, 0);
-      this.size = randomRange(5, 12);
-      this.speedY = randomRange(1, 3);
-      this.speedX = randomRange(-0.5, 0.5);
-      this.color = `hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%)`;
-      this.opacity = randomRange(0.7, 1);
-      this.rotation = randomRange(0, 360);
-      this.rotationSpeed = randomRange(-5, 5);
-    }
-
-    update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-      this.rotation += this.rotationSpeed;
-      if (this.y > height) {
-        this.y = randomRange(-height, 0);
-        this.x = randomRange(0, width);
-      }
-    }
-
-    draw() {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rotation * Math.PI / 180);
-      ctx.fillStyle = this.color;
-      ctx.globalAlpha = this.opacity;
-      ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
-      ctx.restore();
+      };
+    } else {
+      adjustCarouselSize(activeImage);
     }
   }
 
-  function initParticles(count) {
-    particles = [];
-    for(let i=0; i<count; i++) {
-      particles.push(new Particle());
-    }
+  function nextSlide() {
+    let nextIndex = currentIndex + 1;
+    if (nextIndex >= slides.length) nextIndex = 0;
+    showSlide(nextIndex);
   }
 
-  function animate() {
-    ctx.clearRect(0, 0, width, height);
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    requestAnimationFrame(animate);
+  function prevSlide() {
+    let prevIndex = currentIndex - 1;
+    if (prevIndex < 0) prevIndex = slides.length - 1;
+    showSlide(prevIndex);
   }
 
-  initParticles(150);
-  animate();
-}
-
-// Müzik otomatik oynatma (bazı tarayıcılarda kullanıcı etkileşimi gerekir)
-function playMusic() {
-  music.play().catch(() => {
-    console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
+  prevBtn.addEventListener('click', () => {
+    prevSlide();
+    resetInterval();
   });
+
+  nextBtn.addEventListener('click', () => {
+    nextSlide();
+    resetInterval();
+  });
+
+  function startSlideShow() {
+    slideInterval = setInterval(nextSlide, 5000);
+  }
+
+  function resetInterval() {
+    clearInterval(slideInterval);
+    startSlideShow();
+  }
+
+  // Kalp animasyonları
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.top = window.innerHeight + 30 + 'px';
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 6000);
+  }
+  setInterval(createHeart, 400);
+
+  // Konfeti animasyonu
+  function startConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const confettiCount = 150;
+const confettis = [];
+
+class Confetti {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * -canvas.height;
+    this.size = (Math.random() * 7) + 3;
+    this.speed = (Math.random() * 3) + 2;
+    this.angle = Math.random() * 2 * Math.PI;
+    this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+    this.spin = (Math.random() - 0.5) * 0.1;
+  }
+
+  update() {
+    this.y += this.speed;
+    this.angle += this.spin;
+
+    if (this.y > canvas.height) {
+      this.y = -this.size;
+      this.x = Math.random() * canvas.width;
+    }
+  }
+
+  draw() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+    ctx.restore();
+  }
 }
+
+for(let i=0; i<confettiCount; i++) {
+  confettis.push(new Confetti());
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  confettis.forEach(c => {
+    c.update();
+    c.draw();
+  });
+  requestAnimationFrame(animate);
+}
+
+animate();
+}
+
+// Müzik kontrolü
+playBtn.addEventListener('click', () => {
+music.play().then(() => {
+playBtn.style.display = 'none';
+countdownElement.style.display = 'block';
+carousel.style.display = 'inline-block';
+showSlide(0);
+startSlideShow();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+}).catch(err => {
+alert('Müziği başlatmak için etkileşim gerekiyor.');
+console.error(err);
+});
+});
+
 </script> </body> </html> ```
