@@ -398,7 +398,6 @@ let particles = [];
 <!-- konfeti, kalpler, carousel gibi tüm JS fonksiyonları burada -->
 
 <script>
-  // en sona bu kısım gelsin:
   function playMusic() {
     const music = document.getElementById('music');
     music.play().then(() => {
@@ -411,7 +410,20 @@ let particles = [];
   window.addEventListener('load', () => {
     showSlide(currentIndex);
     startSlideShow();
-    playMusic(); // Otomatik müzik çal
-  });
 
-</script> </body> </html> ```
+    // Otomatik müzik başlatma (kullanıcı etkileşimi gerekebilir)
+    const playBtn = document.getElementById("play-music-btn");
+    playBtn.addEventListener("click", () => {
+      playMusic();
+      playBtn.style.display = "none";
+    });
+
+    // Eğer geri sayım sona ermişse müzik otomatik çalınır
+    const now = new Date();
+    if (now >= hedefTarih) {
+      playMusic();
+    }
+  });
+</script>
+</body>
+</html>
