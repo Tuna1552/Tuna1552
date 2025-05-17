@@ -2,152 +2,140 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🎉 Ece'nin Doğum Günü 🎉</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
     body {
-      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
-      color: #333;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      padding: 50px 20px 80px;
       margin: 0;
-      overflow-x: hidden;
-      overflow-y: hidden;
+      background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      text-align: center;
+      overflow: hidden;
+      height: 100vh;
+      position: relative;
     }
+
     h1 {
-      font-size: 3em;
-      margin-bottom: 0.5em;
-      user-select: none;
+      font-family: 'Pacifico', cursive;
+      font-size: 3.5em;
+      margin-top: 1rem;
+      color: #ff1493;
+      text-shadow: 0 0 10px #ff66b2;
     }
+
     #countdown {
       font-size: 2em;
       margin-top: 1em;
       color: #ff007f;
-      padding: 10px 0;
-      user-select: none;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
     }
+
     #message {
       font-size: 2em;
       margin-top: 2em;
       color: #ff1493;
       display: none;
-      user-select: none;
+      text-shadow: 0 0 10px #ff66b2;
     }
-    canvas {
+
+    /* Kalpler için */
+    .heart {
       position: fixed;
-      top: 0;
-      left: 0;
+      width: 30px;
+      height: 30px;
+      background-color: #ff1493;
+      transform: rotate(-45deg);
+      left: 50%;
+      top: 50%;
       pointer-events: none;
-      z-index: 999;
+      animation: floatUp 6s linear infinite;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 3px #ff69b4);
+      z-index: 998;
     }
-    /* BALONLAR */
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #ff1493;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: -15px;
+      left: 0;
+    }
+    .heart::after {
+      left: 15px;
+      top: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(-45deg);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-400px) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    /* Balonlar */
     .balloon {
-      position: fixed;
-      bottom: 20px;
+      position: absolute;
+      bottom: -150px;
       width: 60px;
       height: 80px;
-      background-color: #ff69b4;
+      background: radial-gradient(circle at 50% 40%, #ff6f91, #d32f6f);
       border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      cursor: default;
-      color: white;
-      font-weight: bold;
-      font-size: 28px;
-      line-height: 80px;
-      text-align: center;
-      user-select: none;
-      z-index: 20;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
       transition: transform 0.3s ease;
+      user-select: none;
       display: flex;
+      align-items: flex-end;
       justify-content: center;
-      align-items: center;
+      font-weight: bold;
+      font-size: 22px;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .balloon span {
+      margin-bottom: 10px;
+      display: none;
+    }
+    .balloon.clicked span {
+      display: block;
     }
     .balloon:hover {
       transform: scale(1.1);
+      filter: drop-shadow(0 0 8px #ff6f91);
     }
-    /* Kalpler */
-    .heart {
+
+    /* Balon ipi */
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      width: 2px;
+      height: 25px;
+      background: #444;
+      transform: translateX(-50%);
+      border-radius: 1px;
+    }
+
+    /* Canvas */
+    canvas#confetti-canvas {
       position: fixed;
-      bottom: 100px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background: #ff0066;
-      clip-path: polygon(
-        50% 15%, 61% 17%, 70% 25%, 75% 35%, 75% 50%, 
-        70% 60%, 60% 70%, 50% 80%, 40% 70%, 30% 60%, 
-        25% 50%, 25% 35%, 30% 25%, 39% 17%
-      );
-      animation: heartbeat 1.5s infinite;
-      user-select: none;
-      z-index: 20;
-    }
-    .heart:nth-child(1) {
-      right: 20px;
-      bottom: 100px;
-      width: 60px;
-      height: 60px;
-      animation-delay: 0s;
-    }
-    .heart:nth-child(2) {
-      right: 90px;
-      bottom: 130px;
-      width: 45px;
-      height: 45px;
-      background: #ff4081;
-      animation-delay: 0.7s;
-    }
-    .heart:nth-child(3) {
-      right: 55px;
-      bottom: 60px;
-      width: 50px;
-      height: 50px;
-      background: #ff1a75;
-      animation-delay: 1.4s;
-    }
-
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-
-    /* Responsive mobil uyumluluk */
-    @media (max-width: 600px) {
-      body {
-        padding: 20px 10px 70px;
-      }
-      h1 {
-        font-size: 2em;
-      }
-      #countdown {
-        font-size: 1.5em;
-        padding: 10px 0;
-      }
-      #message {
-        font-size: 1.5em;
-      }
-      .balloon {
-        width: 40px;
-        height: 55px;
-        font-size: 24px;
-        bottom: 10px !important;
-      }
-      .heart {
-        width: 40px !important;
-        height: 40px !important;
-      }
-      .heart:nth-child(1) {
-        right: 10px !important;
-        bottom: 70px !important;
-      }
-      .heart:nth-child(2) {
-        right: 70px !important;
-        bottom: 100px !important;
-      }
-      .heart:nth-child(3) {
-        right: 40px !important;
-        bottom: 40px !important;
-      }
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 999;
     }
   </style>
 </head>
@@ -166,75 +154,53 @@
   <!-- Konfeti için canvas -->
   <canvas id="confetti-canvas"></canvas>
 
-  <!-- Kalpler -->
-  <div class="heart"></div>
-  <div class="heart"></div>
-  <div class="heart"></div>
-
-  <!-- Balonlar -->
-  <div class="balloon" style="left: 10%;">🎈</div>
-  <div class="balloon" style="left: 30%;">🎈</div>
-  <div class="balloon" style="left: 50%;">🎈</div>
-  <div class="balloon" style="left: 70%;">🎈</div>
-  <div class="balloon" style="left: 90%;">🎈</div>
-
   <script>
     const countdownElement = document.getElementById('countdown');
     const messageElement = document.getElementById('message');
     const music = document.getElementById('music');
-    const balloons = document.querySelectorAll('.balloon');
 
-    // 29 Mayıs 00:00 hedefi (bu yıl veya gelecek yıl)
+    // 29 Mayıs 00:00 hedefi
     const hedefTarih = new Date();
-    const now = new Date();
-    if (now.getMonth() > 4 || (now.getMonth() === 4 && now.getDate() >= 29)) {
-      hedefTarih.setFullYear(now.getFullYear() + 1);
-    } else {
-      hedefTarih.setFullYear(now.getFullYear());
-    }
-    hedefTarih.setMonth(4); // Mayıs (0 tabanlı)
+    hedefTarih.setFullYear(
+      hedefTarih.getMonth() === 4 && hedefTarih.getDate() >= 29
+        ? hedefTarih.getFullYear() + 1
+        : hedefTarih.getFullYear()
+    );
+    hedefTarih.setMonth(4); // Mayıs
     hedefTarih.setDate(29);
     hedefTarih.setHours(0, 0, 0, 0);
 
     function updateCountdown() {
       const now = new Date();
-      const diff = hedefTarih - now;
+      const fark = hedefTarih - now;
 
-      if (diff <= 0) {
+      if (fark <= 0) {
         countdownElement.style.display = "none";
         messageElement.style.display = "block";
         startConfetti();
-        playMusic();
+        startHearts();
+        if(music.paused) music.play().catch(() => {});
         return;
       }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
+      const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
+      const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
+      const dakika = Math.floor((fark / (1000 * 60)) % 60);
+      const saniye = Math.floor((fark / 1000) % 60);
 
       countdownElement.innerHTML =
-        `📅 ${days} gün, 🕒 ${hours} saat, ⏰ ${minutes} dakika, ⏳ ${seconds} saniye`;
+        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
     }
 
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Balonların yavaş yukarı çıkışı
-    balloons.forEach((balloon) => {
-      let bottomPos = 20; // başlangıç bottom px
-      function rise() {
-        bottomPos += 0.3; // yavaş yükselme
-        if (bottomPos > window.innerHeight + 80) {
-          bottomPos = -80; // tekrar başa dön
-        }
-        balloon.style.bottom = bottomPos + 'px';
-        requestAnimationFrame(rise);
-      }
-      rise();
-    });
+    // Kullanıcı tıklaması müziği başlatır (zorunlu)
+    document.body.addEventListener("click", () => {
+      music.play().catch(() => {});
+    }, { once: true });
 
-    // Konfeti efekti
+    // --- KONFETİ ---
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
@@ -262,7 +228,7 @@
 
       function draw() {
         ctx.clearRect(0, 0, W, H);
-        particles.forEach((p) => {
+        particles.forEach((p, i) => {
           ctx.beginPath();
           ctx.lineWidth = p.r;
           ctx.strokeStyle = p.color;
@@ -270,11 +236,12 @@
           ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
           ctx.stroke();
         });
+
         update();
       }
 
       function update() {
-        particles.forEach((p) => {
+        particles.forEach((p, i) => {
           p.y += Math.cos(p.d) + 1 + p.r / 2;
           p.tiltAngle += p.tiltAngleIncremental;
           p.tilt = Math.sin(p.tiltAngle) * 15;
@@ -294,16 +261,76 @@
       loop();
     }
 
-    // Müzik oynatma fonksiyonu
-    function playMusic() {
-      music.play().catch(() => {});
+    // --- KALPLER ---
+    function startHearts() {
+      const numHearts = 20;
+      for(let i=0; i<numHearts; i++){
+        createHeart();
+      }
     }
 
-    // Kullanıcı tıklayınca müzik başlasın (mobil uyumluluk için)
-    document.body.addEventListener("click", () => {
-      playMusic();
-    }, { once: true });
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.style.left = (Math.random() * window.innerWidth) + 'px';
+      heart.style.top = (window.innerHeight + 30) + 'px';
+      heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+      document.body.appendChild(heart);
+
+      let posY = window.innerHeight + 30;
+      const speed = 1 + Math.random() * 2;
+      let opacity = 0.7;
+      let frame;
+
+      function animate() {
+        posY -= speed;
+        heart.style.top = posY + 'px';
+        opacity -= 0.007;
+        heart.style.opacity = opacity;
+        if(posY < -40 || opacity <= 0){
+          document.body.removeChild(heart);
+          createHeart();
+        } else {
+          frame = requestAnimationFrame(animate);
+        }
+      }
+      animate();
+    }
+
+    // --- BALONLAR ---
+    const balonSayisi = 8;
+    const balonRenkleri = [
+      '#ff6f91', '#ff9671', '#ffc75f', '#d65f5f', '#a0c1b8', '#6a4c93', '#c06c84', '#355c7d'
+    ];
+
+    for(let i=0; i < balonSayisi; i++){
+      const balon = document.createElement('div');
+      balon.className = 'balloon';
+      balon.style.background = `radial-gradient(circle at 50% 40%, ${balonRenkleri[i]}, darken(${balonRenkleri[i]}, 20%))`;
+      balon.style.left = (Math.random() * (window.innerWidth - 80)) + 'px';
+      balon.style.animation = `floatBalloon ${10 + Math.random() * 10}s ease-in-out infinite`;
+      balon.style.animationDelay = (Math.random() * 10) + 's';
+      balon.style.bottom = '-150px';
+      balon.innerHTML = '<span>17</span>';
+
+      balon.addEventListener('click', () => {
+        balon.classList.toggle('clicked');
+      });
+
+      document.body.appendChild(balon);
+    }
+
+    // Balon animasyonu için keyframes dinamik oluşturma
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes floatBalloon {
+        0%, 100% { transform: translateY(0) translateX(0); }
+        50% { transform: translateY(-150px) translateX(20px); }
+      }
+    `;
+    document.head.appendChild(style);
 
   </script>
 
-</body
+</body>
+</html>
