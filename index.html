@@ -247,8 +247,8 @@
     <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
     <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
     <img src="https://i.imgur.com/lDN54hn.png" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
-    <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
-    <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
+    <button class="carousel-button prev" aria-label="Önceki fotoğraf" id="prevBtn">&#10094;</button>
+    <button class="carousel-button next" aria-label="Sonraki fotoğraf" id="nextBtn">&#10095;</button>
   </div>
 
   <!-- Quiz Container -->
@@ -279,6 +279,8 @@
   const questionsDiv = document.getElementById('questions');
   const submitQuizBtn = document.getElementById('submit-quiz-btn');
   const quizResult = document.getElementById('quiz-result');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
 
   // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
   const hedefTarih = new Date();
@@ -474,6 +476,7 @@
         answer: "Kedi"
       },
       {
+       
         question: "Ece şuan kaçıncı sınıf?",
         options: ["10", "11", "12", "9"],
         answer: "11"
