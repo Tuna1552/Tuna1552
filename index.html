@@ -66,26 +66,23 @@
     }
 
     /* Slides */
-.carousel-slide {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 20px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-  user-select: none;
-}
+    .carousel-slide {
+      display: none;
+      border-radius: 20px;
+      max-width: 100%;
+      height: auto;
+      transition: opacity 0.7s ease-in-out;
+      position: absolute;
+      top: 0;
+      left: 0;
+      user-select: none;
+    }
 
-.carousel-slide.active {
-  opacity: 1;
-  pointer-events: auto;
-  position: relative;
-}
-
+    .carousel-slide.active {
+      display: block;
+      position: relative;
+      animation: fadeIn 1s ease forwards;
+    }
 
     @keyframes fadeIn {
       from {opacity: 0;}
@@ -175,18 +172,14 @@
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
   <div id="countdown">Yükleniyor...</div>
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
-<!-- PROGRESS BAR BURAYA -->
-<div id="progress-container" style="width: 300px; height: 30px; background: #eee; border-radius: 15px; margin: 20px auto; overflow: hidden;">
-  <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff69b4, #ff1493); border-radius: 15px;"></div>
-</div>
 
   <!-- Carousel -->
   <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
-    <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
-    <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
-    <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
-    <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
-    <img src="https://i.imgur.com/lDN54hn.png" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
+    <img src="https://i.imgur.com/ViwWxQ5.jpg" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
+    <img src="https://i.imgur.com/FOwgAzY.jpg" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
+    <img src="https://i.imgur.com/dKxcwBd.jpg" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
+    <img src="https://i.imgur.com/ChR1WZB.jpg" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
+    <img src="https://i.imgur.com/IeVaxZx.jpg" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
     <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
     <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
   </div>
@@ -233,7 +226,7 @@
       const saniye = Math.floor((fark / 1000) % 60);
 
       countdownElement.textContent =
-        📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye;
+        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
     }
 
     setInterval(updateCountdown, 1000);
@@ -351,7 +344,7 @@ let particles = [];
       this.size = randomRange(5, 12);
       this.speedY = randomRange(1, 3);
       this.speedX = randomRange(-0.5, 0.5);
-      this.color = hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%);
+      this.color = `hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%)`;
       this.opacity = randomRange(0.7, 1);
       this.rotation = randomRange(0, 360);
       this.rotationSpeed = randomRange(-5, 5);
@@ -404,4 +397,4 @@ function playMusic() {
     console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
   });
 }
-</script> </body> </html> 
+</script> </body> </html> ```
