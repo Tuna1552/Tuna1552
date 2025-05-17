@@ -51,32 +51,35 @@
     .carousel {
       position: relative;
       margin: 40px auto 0;
-      max-width: 700px;
-      height: 420px;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       background: #fff;
       user-select: none;
       z-index: 1000;
+
+      /* Dinamik genişlik ve yükseklik için inline style ile JS ayarlayacak */
+      width: auto;
+      height: auto;
+      transition: width 0.5s ease, height 0.5s ease;
+      display: inline-block; /* Doğal boyuta göre */
     }
 
     /* Slides */
     .carousel-slide {
       display: none;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
       border-radius: 20px;
+      max-width: 100%;
+      height: auto;
       transition: opacity 0.7s ease-in-out;
       position: absolute;
       top: 0;
       left: 0;
+      user-select: none;
     }
 
     .carousel-slide.active {
       display: block;
-      opacity: 1;
       position: relative;
       animation: fadeIn 1s ease forwards;
     }
@@ -162,7 +165,6 @@
       pointer-events: none;
       z-index: 950;
     }
-
   </style>
 </head>
 <body>
@@ -172,8 +174,12 @@
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
   <!-- Carousel -->
-  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi">
-    <img src="https://i.imgur.com/lDN54hn.png" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
+    <img src="https://i.imgur.com/ViwWxQ5.jpg" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
+    <img src="https://i.imgur.com/FOwgAzY.jpg" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
+    <img src="https://i.imgur.com/dKxcwBd.jpg" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
+    <img src="https://i.imgur.com/ChR1WZB.jpg" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
+    <img src="https://i.imgur.com/IeVaxZx.jpg" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
     <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
     <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
   </div>
@@ -227,17 +233,36 @@
     updateCountdown();
 
     // Carousel kontrol
-    const slides = document.querySelectorAll('.carousel-slide');
-    const prevBtn = document.querySelector('.carousel-button.prev');
-    const nextBtn = document.querySelector('.carousel-button.next');
+    const carousel = document.getElementById('carousel');
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const prevBtn = carousel.querySelector('.carousel-button.prev');
+    const nextBtn = carousel.querySelector('.carousel-button.next');
     let currentIndex = 0;
     let slideInterval;
 
+    // Resim yüklenince container'ı doğal boyutuna göre ayarlama fonksiyonu
+    function adjustCarouselSize(img) {
+      const naturalWidth = img.naturalWidth;
+      const naturalHeight = img.naturalHeight;
+      carousel.style.width = naturalWidth + 'px';
+      carousel.style.height = naturalHeight + 'px';
+    }
+
+    // Slayt göster
     function showSlide(index) {
       slides.forEach((slide, i) => {
         slide.classList.toggle('active', i === index);
       });
       currentIndex = index;
+
+      const activeImage = slides[currentIndex];
+      if (!activeImage.complete) {
+        activeImage.onload = () => {
+          adjustCarouselSize(activeImage);
+        };
+      } else {
+        adjustCarouselSize(activeImage);
+      }
     }
 
     function nextSlide() {
@@ -248,7 +273,7 @@
 
     function prevSlide() {
       let prevIndex = currentIndex - 1;
-      if (prevIndex < 0) prevIndex = slides.length -1;
+      if (prevIndex < 0) prevIndex = slides.length - 1;
       showSlide(prevIndex);
     }
 
@@ -271,7 +296,11 @@
       startSlideShow();
     }
 
-    startSlideShow();
+    // İlk slaytı göster ve otomatik geçiş başlat
+    window.addEventListener('load', () => {
+      showSlide(currentIndex);
+      startSlideShow();
+    });
 
     // Kalp animasyonları
     function createHeart() {
@@ -292,54 +321,65 @@
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
-      let W = window.innerWidth;
-      let H = window.innerHeight;
-      canvas.width = W;
-      canvas.height = H;
+let width, height;
+let particles = [];
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  }
 
-      const particles = [];
-      const particleCount = 150;
-      const colors = ['#ff0080', '#ff69b4', '#ff1493', '#ff00ff', '#c71585'];
+  window.addEventListener('resize', resize);
+  resize();
+
   function randomRange(min, max) {
     return Math.random() * (max - min) + min;
   }
 
-  function Particle() {
-    this.x = randomRange(0, W);
-    this.y = randomRange(-H, 0);
-    this.size = randomRange(5, 10);
-    this.color = colors[Math.floor(Math.random() * colors.length)];
-    this.speedY = randomRange(1, 4);
-    this.speedX = randomRange(-1.5, 1.5);
-    this.opacity = 1;
-    this.drift = 0;
+  class Particle {
+    constructor() {
+      this.x = randomRange(0, width);
+      this.y = randomRange(-height, 0);
+      this.size = randomRange(5, 12);
+      this.speedY = randomRange(1, 3);
+      this.speedX = randomRange(-0.5, 0.5);
+      this.color = `hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%)`;
+      this.opacity = randomRange(0.7, 1);
+      this.rotation = randomRange(0, 360);
+      this.rotationSpeed = randomRange(-5, 5);
+    }
+
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.rotation += this.rotationSpeed;
+      if (this.y > height) {
+        this.y = randomRange(-height, 0);
+        this.x = randomRange(0, width);
+      }
+    }
+
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation * Math.PI / 180);
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = this.opacity;
+      ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+      ctx.restore();
+    }
   }
 
-  Particle.prototype.update = function() {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    this.opacity -= 0.01;
-
-    if (this.y > H || this.opacity <= 0) {
-      this.x = randomRange(0, W);
-      this.y = randomRange(-H, 0);
-      this.opacity = 1;
+  function initParticles(count) {
+    particles = [];
+    for(let i=0; i<count; i++) {
+      particles.push(new Particle());
     }
-  };
-
-  Particle.prototype.draw = function() {
-    ctx.fillStyle = this.color;
-    ctx.globalAlpha = this.opacity;
-    ctx.fillRect(this.x, this.y, this.size, this.size * 0.4);
-    ctx.globalAlpha = 1;
-  };
-
-  for (let i = 0; i < particleCount; i++) {
-    particles.push(new Particle());
   }
 
   function animate() {
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, width, height);
     particles.forEach(p => {
       p.update();
       p.draw();
@@ -347,14 +387,14 @@
     requestAnimationFrame(animate);
   }
 
+  initParticles(150);
   animate();
 }
 
-// Müzik oynatma fonksiyonu
+// Müzik otomatik oynatma (bazı tarayıcılarda kullanıcı etkileşimi gerekir)
 function playMusic() {
   music.play().catch(() => {
-    // Eğer otomatik oynatma engellenirse kullanıcı tıklayınca oynatılabilir
-    document.body.addEventListener('click', () => music.play());
+    console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
   });
 }
 </script> </body> </html> ```
