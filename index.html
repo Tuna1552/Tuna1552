@@ -1,581 +1,560 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>🎉 Ece'nin Doğum Günü 🎉</title>
-  <style>
-    /* Genel stil */
-    body {
-      margin: 0;
-      padding: 50px 20px;
-      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-      text-align: center;
-      overflow-x: hidden;
-      height: 100vh;
-      position: relative;
-      user-select: none;
-    }
-
-    h1 {
-      font-size: 3em;
-      margin-bottom: 0.5em;
-      z-index: 1000;
-      position: relative;
-    }
-
-    #countdown {
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 12px;
-      padding: 15px 30px;
-      display: inline-block;
-      font-weight: 700;
-      font-size: 2em;
-      color: #ff007f;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
-      position: relative;
-      z-index: 1000;
-    }
-
-    #message {
-      font-size: 2em;
-      margin-top: 2em;
-      color: #ff1493;
-      display: none;
-      position: relative;
-      z-index: 1000;
-    }
-
-    /* Carousel container */
-    .carousel {
-      position: relative;
-      margin: 40px auto 0;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      background: #fff;
-      user-select: none;
-      z-index: 1000;
-
-      /* Dinamik genişlik ve yükseklik için inline style ile JS ayarlayacak */
-      width: auto;
-      height: auto;
-      transition: width 0.8s ease, height 0.8s ease;
-      display: inline-block; /* Doğal boyuta göre */
-    }
-
-    /* Slides */
-    .carousel-slide {
-      display: none;
-      border-radius: 20px;
-      max-width: 100%;
-      height: auto;
-      transition: opacity 0.7s ease-in-out;
-      position: absolute;
-      top: 0;
-      left: 0;
-      user-select: none;
-    }
-
-    .carousel-slide.active {
-      display: block;
-      position: relative;
-      animation: fadeIn 1s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-
-    /* Navigation buttons */
-    .carousel-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.8);
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      cursor: pointer;
-      font-size: 2em;
-      color: #ff007f;
-      box-shadow: 0 0 10px rgba(255,0,127,0.5);
-      transition: background 0.3s ease;
-      user-select: none;
-      z-index: 1100;
-    }
-
-    .carousel-button:hover {
-      background: #ff007f;
-      color: #fff;
-    }
-
-    .carousel-button.prev {
-      left: 15px;
-    }
-
-    .carousel-button.next {
-      right: 15px;
-    }
-
-    /* Kalp animasyonları */
-    .heart {
-      position: fixed;
-      width: 30px;
-      height: 30px;
-      background-color: #ff1493;
-      transform: rotate(-45deg);
-      pointer-events: none;
-      animation: floatUp 6s linear infinite;
-      opacity: 0.8;
-      filter: drop-shadow(0 0 3px #ff69b4);
-      z-index: 900;
-      border-radius: 5px;
-    }
-    .heart::before,
-    .heart::after {
-      content: "";
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      background-color: #ff1493;
-      border-radius: 50%;
-    }
-    .heart::before {
-      top: -15px;
-      left: 0;
-    }
-    .heart::after {
-      left: 15px;
-      top: 0;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
-      100% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
-    }
-
-    /* Canvas konfeti z-index */
-    canvas#confetti-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-      z-index: 950;
-    }
-
-    /* --- Quiz Bölümü Stilleri --- */
-    #open-quiz-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: #ff1493;
-      color: white;
-      border: none;
-      padding: 15px 25px;
-      font-size: 1.2em;
-      border-radius: 30px;
-      box-shadow: 0 6px 15px rgba(255,20,147,0.5);
-      cursor: pointer;
-      z-index: 1200;
-      user-select:none;
-      transition: background 0.3s ease;
-    }
-    #open-quiz-btn:hover {
-      background: #e60073;
-    }
-    #quiz-modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.75);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1300;
-      user-select:none;
-    }
-    #quiz-container {
-      background: #fff;
-      border-radius: 20px;
-      max-width: 500px;
-      width: 90%;
-      padding: 30px 40px;
-      box-shadow: 0 15px 30px rgba(255,20,147,0.3);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-      position: relative;
-    }
-    #quiz-container h2 {
-      text-align:center;
-      color:#ff1493;
-      margin-bottom: 20px;
-    }
-    #quiz-form label {
-      display: block;
-      font-weight: 600;
-      margin: 15px 0 5px;
-      text-align: left;
-      color: #666;
-    }
-    #quiz-form input[type="text"], #quiz-form input[type="number"] {
-      width: 100%;
-      padding: 8px 12px;
-      border: 2px solid #ff1493;
-      border-radius: 8px;
-      font-size: 1em;
-      outline: none;
-      transition: border-color 0.3s ease;
-    }
-    #quiz-form input[type="text"]:focus, #quiz-form input[type="number"]:focus {
-      border-color: #e60073;
-    }
-    #quiz-form button {
-      margin-top: 25px;
-      background: #ff1493;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 1.1em;
-      border-radius: 30px;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.3s ease;
-    }
-    #quiz-form button:hover {
-      background: #e60073;
-    }
-    #quiz-close-btn {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      background: transparent;
-      border: none;
-      font-size: 1.8em;
-      color: #ff1493;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    #quiz-result {
-      margin-top: 20px;
-      font-weight: 700;
-      font-size: 1.3em;
-      color: #ff1493;
-      text-align: center;
-    }
-
-  </style>
+<meta charset="UTF-8" />
+<title>🎉 Ece'nin Doğum Günü & Quiz 🎉</title>
+<style>
+  /* Temel stil ve animasyonlar */
+  body {
+    margin: 0;
+    padding: 50px 20px;
+    background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    text-align: center;
+    overflow-x: hidden;
+    height: 100vh;
+    position: relative;
+    user-select: none;
+  }
+  h1 {
+    font-size: 3em;
+    margin-bottom: 0.5em;
+    z-index: 1000;
+    position: relative;
+  }
+  #countdown {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 12px;
+    padding: 15px 30px;
+    display: inline-block;
+    font-weight: 700;
+    font-size: 2em;
+    color: #ff007f;
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
+    position: relative;
+    z-index: 1000;
+  }
+  #message {
+    font-size: 2em;
+    margin-top: 2em;
+    color: #ff1493;
+    display: none;
+    position: relative;
+    z-index: 1000;
+  }
+  .carousel {
+    position: relative;
+    margin: 40px auto 0;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    background: #fff;
+    user-select: none;
+    z-index: 1000;
+    width: auto;
+    height: auto;
+    transition: width 0.8s ease, height 0.8s ease;
+    display: inline-block;
+  }
+  .carousel-slide {
+    display: none;
+    border-radius: 20px;
+    max-width: 100%;
+    height: auto;
+    transition: opacity 0.7s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    user-select: none;
+  }
+  .carousel-slide.active {
+    display: block;
+    position: relative;
+    animation: fadeIn 1s ease forwards;
+  }
+  @keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  .carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    font-size: 2em;
+    color: #ff007f;
+    box-shadow: 0 0 10px rgba(255,0,127,0.5);
+    transition: background 0.3s ease;
+    user-select: none;
+    z-index: 1100;
+  }
+  .carousel-button:hover {
+    background: #ff007f;
+    color: #fff;
+  }
+  .carousel-button.prev {
+    left: 15px;
+  }
+  .carousel-button.next {
+    right: 15px;
+  }
+  /* Kalp animasyonları */
+  .heart {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-color: #ff1493;
+    transform: rotate(-45deg);
+    pointer-events: none;
+    animation: floatUp 6s linear infinite;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 3px #ff69b4);
+    z-index: 900;
+    border-radius: 5px;
+  }
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #ff1493;
+    border-radius: 50%;
+  }
+  .heart::before {
+    top: -15px;
+    left: 0;
+  }
+  .heart::after {
+    left: 15px;
+    top: 0;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
+    100% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
+  }
+  canvas#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 950;
+  }
+  /* Ortada Müzik Çal Butonu */
+  #startMusicBtn {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
+    font-size: 1.8rem;
+    padding: 20px 50px;
+    border-radius: 50px;
+    border: none;
+    box-shadow: 0 8px 25px rgba(255, 75, 43, 0.7);
+    cursor: pointer;
+    font-weight: 700;
+    user-select: none;
+    transition: transform 0.3s ease;
+    z-index: 9999;
+  }
+  #startMusicBtn:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 12px 30px rgba(255, 75, 43, 0.9);
+  }
+  /* Quiz kutusu sağ alt */
+  #quiz-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(255, 20, 147, 0.7);
+    width: 320px;
+    max-width: 90vw;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #222;
+    z-index: 10000;
+    user-select: none;
+  }
+  #quiz-container h2 {
+    margin-top: 0;
+    color: #ff1493;
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  #quiz-question {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    min-height: 60px;
+  }
+  .quiz-options {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+  }
+  .quiz-options li {
+    margin-bottom: 12px;
+  }
+  .quiz-options button {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 2px solid #ff1493;
+    background: white;
+    color: #ff1493;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  .quiz-options button:hover {
+    background: #ff1493;
+    color: white;
+  }
+  #quiz-result {
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-align: center;
+    color: #ff1493;
+  }
+  #next-question-btn {
+    background: #ff1493;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    user-select: none;
+    display: none;
+    margin: 0 auto;
+    display: block;
+    transition: background 0.3s ease;
+  }
+  #next-question-btn:hover {
+    background: #d60070;
+  }
+</style>
 </head>
 <body>
 
-  <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
-  <div id="countdown">Yükleniyor...</div>
-<button id="play-music-btn" style="margin-top:20px; padding:10px 20px; font-size:1.2em; border:none; border-radius:8px; background:#ff1493; color:#fff; cursor:pointer;">
-  Müzik Çal ▶️
-</button>
+<h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
+<div id="countdown" aria-live="polite" aria-atomic="true">Yükleniyor...</div>
+<button id="startMusicBtn" aria-pressed="false" aria-label="Müzik Çal">Müzik Çal ▶️</button>
 
-  <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
+<div id="message" role="alert" aria-live="assertive">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
-  <!-- Carousel -->
-  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
-   <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
-    <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
-    <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
-    <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
-    <img src="https://i.imgur.com/lDN54hn.png" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
-    <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
-    <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
-  </div>
+<!-- Carousel -->
+<div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
+  <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
+  <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
+  <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
+  <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
+  <img src="https://i.imgur.com/lDN54hn.png" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
+  <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
+  <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
+</div>
 
-  <!-- Müzik -->
-<audio id="music" preload="auto" loop controls>
+<!-- Müzik -->
+<audio id="music" preload="auto" loop>
   <source src="until_i_found_you.mp3" type="audio/mpeg" />
   Tarayıcınız ses çaları desteklemiyor.
 </audio>
 
-  <!-- Konfeti için canvas -->
-  <canvas id="confetti-canvas"></canvas>
+<!-- Konfeti için canvas -->
+<canvas id="confetti-canvas"></canvas>
 
-  <!-- Quiz Butonu -->
-  <button id="open-quiz-btn" aria-label="Ece Hakkında Quiz Aç">🎓 Ece Hakkında Quiz</button>
+<!-- Quiz -->
+<div id="quiz-container" aria-live="polite" aria-atomic="true" role="region">
+  <h2>Doğum Günü Quiz</h2>
+  <div id="quiz-question"></div>
+  <ul class="quiz-options"></ul>
+  <button id="next-question-btn" aria-label="Sonraki Soru">Sonraki Soru ➡️</button>
+  <div id="quiz-result" aria-live="polite"></div>
+</div>
 
-  <!-- Quiz Modal -->
-  <div id="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
-    <div id="quiz-container">
-      <button id="quiz-close-btn" aria-label="Quiz Kapat">&times;</button>
-      <h2 id="quiz-title">Ece Hakkında Quiz</h2>
-      <form id="quiz-form" novalidate>
-        <label for="school">Ece şu anda hangi okulda okuyor?</label>
-        <input type="text" id="school" name="school" required placeholder="Okul adı yazınız..." />
+<script>
+  // ===== Geri Sayım =====
+  const countdownElement = document.getElementById('countdown');
+  const messageElement = document.getElementById('message');
 
-        <label for="birthdate">Doğum tarihi kaçtır? (gg.aa.yyyy)</label>
-        <input type="text" id="birthdate" name="birthdate" required placeholder="29.05.2008" pattern="^\d{2}\.\d{2}\.\d{4}$" />
+  const hedefTarih = new Date();
+  if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
+    hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
+  }
+  hedefTarih.setMonth(4);
+  hedefTarih.setDate(29);
+  hedefTarih.setHours(0, 0, 0, 0);
 
-        <label for="birthyear">Doğum yılı kaçtır?</label>
-        <input type="number" id="birthyear" name="birthyear" required min="1900" max="2100" placeholder="2008" />
+  function updateCountdown() {
+    const now = new Date();
+    const fark = hedefTarih - now;
 
-        <label for="birthday">Doğum günü ayın kaçındadır?</label>
-        <input type="number" id="birthday" name="birthday" required min="1" max="31" placeholder="29" />
-
-        <label for="favcolor">En sevdiği renk nedir?</label>
-        <input type="text" id="favcolor" name="favcolor" required placeholder="Renk yazınız..." />
-
-        <label for="grade">Kaçıncı sınıf?</label>
-        <input type="number" id="grade" name="grade" required min="1" max="20" placeholder="11" />
-
-        <label for="branch">Hangi şube?</label>
-        <input type="text" id="branch" name="branch" required placeholder="11-İ" />
-
-        <label for="schoolnum">Okul numarası kaçtır?</label>
-        <input type="number" id="schoolnum" name="schoolnum" required min="1" max="100000" placeholder="1025" />
-
-        <label for="age">Kaç yaşına girdi?</label>
-        <input type="number" id="age" name="age" required min="1" max="150" placeholder="17" />
-
-        <button type="submit">Cevapları Kontrol Et</button>
-      </form>
-      <div id="quiz-result" aria-live="polite"></div>
-    </div>
-  </div>
-
-  <script>
-    const countdownElement = document.getElementById('countdown');
-    const messageElement = document.getElementById('message');
-    const music = document.getElementById('music');
-
-    // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
-    const hedefTarih = new Date();
-  hedefTarih.setHours(0,0,0,0);
-    hedefTarih.setMonth(4); // Mayıs (0 tabanlı, Mayıs=4)
-    hedefTarih.setDate(29);
-    if (hedefTarih < new Date()) {
-      hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
+    if (fark <= 0) {
+      countdownElement.style.display = "none";
+      messageElement.style.display = "block";
+      startConfetti();
+      return;
     }
 
-    function updateCountdown() {
-      const simdi = new Date();
-      const fark = hedefTarih - simdi;
+    const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
+    const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
+    const dakika = Math.floor((fark / (1000 * 60)) % 60);
+    const saniye = Math.floor((fark / 1000) % 60);
 
-      if (fark <= 0) {
-        countdownElement.style.display = 'none';
-        messageElement.style.display = 'block';
-        return;
-      }
+    countdownElement.textContent =
+      `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
 
-      const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
-      const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
-      const dakika = Math.floor((fark / (1000 * 60)) % 60);
-      const saniye = Math.floor((fark / 1000) % 60);
+  // ===== Carousel =====
+  const carousel = document.getElementById('carousel');
+  const slides = carousel.querySelectorAll('.carousel-slide');
+  const prevBtn = carousel.querySelector('.carousel-button.prev');
+  const nextBtn = carousel.querySelector('.carousel-button.next');
+  let currentIndex = 0;
 
-      countdownElement.textContent = `${gun} gün ${saat} saat ${dakika} dakika ${saniye} saniye kaldı!`;
-    }
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
+  function adjustCarouselSize(img) {
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+    carousel.style.width = naturalWidth + 'px';
+    carousel.style.height = naturalHeight + 'px';
+  }
 
-    // Müzik oynatma butonu
-    const playMusicBtn = document.getElementById('play-music-btn');
-    playMusicBtn.addEventListener('click', () => {
-      if (music.paused) {
-        music.play();
-        playMusicBtn.textContent = 'Müziği Durdur ⏸️';
-      } else {
-        music.pause();
-        playMusicBtn.textContent = 'Müzik Çal ▶️';
-      }
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
     });
+    currentIndex = index;
 
-    // Carousel ayarları
-    const slides = document.querySelectorAll('.carousel-slide');
-    const prevBtn = document.querySelector('.carousel-button.prev');
-    const nextBtn = document.querySelector('.carousel-button.next');
-    const carousel = document.querySelector('.carousel');
-    let currentSlide = 0;
-
-    function showSlide(index) {
-      if (index >= slides.length) currentSlide = 0;
-      else if (index < 0) currentSlide = slides.length -1;
-      else currentSlide = index;
-
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === currentSlide);
-      });
-
-      // Genişlik ve yükseklik güncelle
-      const activeSlide = slides[currentSlide];
-      if (activeSlide) {
-        carousel.style.width = activeSlide.naturalWidth + 'px';
-        carousel.style.height = activeSlide.naturalHeight + 'px';
-      }
-    }
-
-    prevBtn.addEventListener('click', () => {
-      showSlide(currentSlide -1);
-    });
-
-    nextBtn.addEventListener('click', () => {
-      showSlide(currentSlide +1);
-    });
-
-    // İlk slide göster
-    slides[0].addEventListener('load', () => {
-      showSlide(0);
-    });
-    if (slides[0].complete) {
-      showSlide(0);
-    }
-
-    // Kalplerin animasyonu
-    function createHeart() {
-      const heart = document.createElement('div');
-      heart.classList.add('heart');
-      heart.style.left = Math.random() * window.innerWidth + 'px';
-      heart.style.animationDuration = (4 + Math.random() * 2) + 's';
-      heart.style.opacity = Math.random();
-      heart.style.fontSize = (10 + Math.random() * 20) + 'px';
-
-      document.body.appendChild(heart);
-
-      setTimeout(() => {
-        heart.remove();
-      }, 6000);
-    }
-    setInterval(createHeart, 500);
-
-    // Konfeti efektleri
-    const canvas = document.getElementById('confetti-canvas');
-    const ctx = canvas.getContext('2d');
-    let W, H;
-    let confettis = [];
-
-    function resizeCanvas() {
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width = W;
-      canvas.height = H;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    function Confetti() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H - H;
-      this.r = Math.random() * 6 + 4;
-      this.d = Math.random() * 10 + 10;
-      this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
-      this.tilt = Math.floor(Math.random() * 10) - 10;
-      this.tiltAngleIncremental = (Math.random() * 0.07) + 0.05;
-      this.tiltAngle = 0;
-
-      this.draw = function() {
-        ctx.beginPath();
-        ctx.lineWidth = this.r / 2;
-        ctx.strokeStyle = this.color;
-        ctx.moveTo(this.x + this.tilt + this.r / 4, this.y);
-        ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.r / 4);
-        ctx.stroke();
+    const activeImage = slides[currentIndex];
+    if (!activeImage.complete) {
+      activeImage.onload = () => {
+        adjustCarouselSize(activeImage);
       };
+    } else {
+      adjustCarouselSize(activeImage);
     }
+  }
 
-    function initConfetti() {
-      confettis = [];
-      for (let i=0; i<150; i++) {
-        confettis.push(new Confetti());
+  prevBtn.addEventListener('click', () => {
+    let newIndex = currentIndex - 1;
+    if (newIndex < 0) newIndex = slides.length - 1;
+    showSlide(newIndex);
+  });
+  nextBtn.addEventListener('click', () => {
+    let newIndex = (currentIndex + 1) % slides.length;
+    showSlide(newIndex);
+  });
+
+  // Otomatik slayt geçişi
+  let slideInterval = setInterval(() => {
+    let newIndex = (currentIndex + 1) % slides.length;
+    showSlide(newIndex);
+  }, 6000);
+
+  showSlide(0);
+
+  // ===== Müzik Çal Butonu =====
+  const startMusicBtn = document.getElementById('startMusicBtn');
+  const music = document.getElementById('music');
+
+  startMusicBtn.addEventListener('click', () => {
+    if (music.paused) {
+      music.play().then(() => {
+        startMusicBtn.textContent = 'Müziği Durdur ⏸️';
+        startMusicBtn.setAttribute('aria-pressed', 'true');
+      }).catch(err => {
+        alert('Müzik çalma izni gerekebilir.');
+      });
+    } else {
+      music.pause();
+      startMusicBtn.textContent = 'Müzik Çal ▶️';
+      startMusicBtn.setAttribute('aria-pressed', 'false');
+    }
+  });
+
+  // ===== Konfeti Animasyonu =====
+  const confettiCanvas = document.getElementById('confetti-canvas');
+  const ctx = confettiCanvas.getContext('2d');
+  let confettiPieces = [];
+  let confettiAnimationFrame;
+
+  function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  class ConfettiPiece {
+    constructor() {
+      this.x = randomRange(0, window.innerWidth);
+      this.y = randomRange(-window.innerHeight, 0);
+      this.size = randomRange(5, 12);
+      this.speed = randomRange(1, 3);
+      this.angle = randomRange(0, 2 * Math.PI);
+      this.spin = randomRange(0.01, 0.05);
+      this.color = `hsl(${randomRange(0, 360)}, 100%, 70%)`;
+    }
+    update() {
+      this.y += this.speed;
+      this.angle += this.spin;
+      if (this.y > window.innerHeight) {
+        this.y = randomRange(-window.innerHeight, 0);
+        this.x = randomRange(0, window.innerWidth);
       }
     }
-
-    function drawConfetti() {
-      ctx.clearRect(0, 0, W, H);
-      confettis.forEach(c => c.draw());
-      updateConfetti();
+    draw() {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.fillStyle = this.color;
+      ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+      ctx.restore();
     }
+  }
 
-    function updateConfetti() {
-      confettis.forEach(c => {
-        c.tiltAngle += c.tiltAngleIncremental;
-        c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
-        c.x += Math.sin(c.d);
-        c.tilt = Math.sin(c.tiltAngle) * 15;
+  function startConfetti() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    confettiPieces = [];
+    for(let i=0; i<150; i++) {
+      confettiPieces.push(new ConfettiPiece());
+    }
+    if(!confettiAnimationFrame) {
+      confettiLoop();
+    }
+  }
+  function confettiLoop() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiPieces.forEach(piece => {
+      piece.update();
+      piece.draw();
+    });
+    confettiAnimationFrame = requestAnimationFrame(confettiLoop);
+  }
+  window.addEventListener('resize', () => {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  });
 
-        if (c.y > H) {
-          c.x = Math.random() * W;
-          c.y = -20;
-          c.tilt = Math.floor(Math.random() * 10) - 10;
+  // ===== Kalp Animasyonları =====
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.animationDuration = 4 + Math.random() * 4 + 's';
+    heart.style.opacity = Math.random() * 0.6 + 0.4;
+    document.body.appendChild(heart);
+
+    setTimeout(() => {
+      heart.remove();
+    }, 8000);
+  }
+
+  setInterval(createHeart, 300);
+
+  // ===== Quiz Bölümü =====
+  const quizData = [
+    {
+      question: "Ece'nin doğum günü hangi ayda?",
+      options: ["Mart", "Mayıs", "Temmuz", "Aralık"],
+      answer: 1
+    },
+    {
+      question: "Ece'nin en sevdiği renk hangisi?",
+      options: ["Mavi", "Pembe", "Yeşil", "Kırmızı"],
+      answer: 1
+    },
+    {
+      question: "Ece kaç yaşına basıyor?",
+      options: ["10", "12", "13", "15"],
+      answer: 2
+    },
+    {
+      question: "Ece'nin en sevdiği hayvan nedir?",
+      options: ["Kedi", "Köpek", "Tavşan", "Kuğu"],
+      answer: 0
+    },
+    {
+      question: "Ece'nin doğum günü pastasında hangi meyve var?",
+      options: ["Çilek", "Muz", "Kivi", "Portakal"],
+      answer: 0
+    }
+  ];
+
+  const quizContainer = document.getElementById('quiz-container');
+  const quizQuestion = document.getElementById('quiz-question');
+  const quizOptions = quizContainer.querySelector('.quiz-options');
+  const nextQuestionBtn = document.getElementById('next-question-btn');
+  const quizResult = document.getElementById('quiz-result');
+
+  let currentQuizIndex = 0;
+  let score = 0;
+  let answered = false;
+
+  function loadQuiz() {
+    answered = false;
+    nextQuestionBtn.style.display = 'none';
+    quizResult.textContent = '';
+    quizOptions.innerHTML = '';
+    const currentQuiz = quizData[currentQuizIndex];
+    quizQuestion.textContent = currentQuiz.question;
+
+    currentQuiz.options.forEach((option, i) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.textContent = option;
+      btn.setAttribute('aria-label', option);
+      btn.addEventListener('click', () => {
+        if (answered) return;
+        answered = true;
+        if (i === currentQuiz.answer) {
+          score++;
+          btn.style.backgroundColor = '#4caf50';
+          btn.style.color = 'white';
+          quizResult.textContent = "Doğru! 🎉";
+        } else {
+          btn.style.backgroundColor = '#f44336';
+          btn.style.color = 'white';
+          quizResult.textContent = `Yanlış! Doğru cevap: ${currentQuiz.options[currentQuiz.answer]}`;
+          // Doğru cevabı de renklendir
+          quizOptions.querySelectorAll('button')[currentQuiz.answer].style.backgroundColor = '#4caf50';
+          quizOptions.querySelectorAll('button')[currentQuiz.answer].style.color = 'white';
         }
+        nextQuestionBtn.style.display = 'block';
       });
+      li.appendChild(btn);
+      quizOptions.appendChild(li);
+    });
+  }
+
+  nextQuestionBtn.addEventListener('click', () => {
+    currentQuizIndex++;
+    if (currentQuizIndex >= quizData.length) {
+      quizQuestion.textContent = 'Quiz tamamlandı!';
+      quizOptions.innerHTML = '';
+      quizResult.textContent = `Puanınız: ${score} / ${quizData.length}`;
+      nextQuestionBtn.style.display = 'none';
+    } else {
+      loadQuiz();
     }
+  });
 
-    initConfetti();
-    setInterval(drawConfetti, 20);
-
-    // --- Quiz aç/kapa ve kontrol ---
-
-    const openQuizBtn = document.getElementById('open-quiz-btn');
-    const quizModal = document.getElementById('quiz-modal');
-    const quizCloseBtn = document.getElementById('quiz-close-btn');
-    const quizForm = document.getElementById('quiz-form');
-    const quizResult = document.getElementById('quiz-result');
-
-    openQuizBtn.addEventListener('click', () => {
-      quizModal.style.display = 'flex';
-      quizResult.textContent = '';
-      quizForm.reset();
-    });
-
-    quizCloseBtn.addEventListener('click', () => {
-      quizModal.style.display = 'none';
-    });
-
-    quizModal.addEventListener('click', (e) => {
-      if(e.target === quizModal) {
-        quizModal.style.display = 'none';
-      }
-    });
-
-    quizForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const answers = {
-        school: 'X', // okul adı boş bırakabilirsin ya da 'Örnek Okul' yazabilirsin, kontrol istersen burayı düzenle
-        birthdate: '29.05.2008',
-        birthyear: '2008',
-        birthday: '29',
-        favcolor: 'pembe',
-        grade: '11',
-        branch: '11-İ',
-        schoolnum: '1025',
-        age: '17'
-      };
-
-      let score = 0;
-      let total = Object.keys(answers).length;
-      let feedback = [];
-
-      // Okul için case insensitive kontrol (string eşleşme değil ama örnek olsun)
-      if (quizForm.school.value.trim().toLowerCase().includes('okul')) {
-        score++;
-      } else {
-        feedback.push('Okul adı yanlış veya eksik.');
-      }
-
-      if (quizForm.birthdate.value.trim() === answers.birthdate) score++; else feedback.push('Doğum tarihi yanlış.');
-      if (quizForm.birthyear.value.trim() === answers.birthyear) score++; else feedback.push('Doğum yılı yanlış.');
-      if (quizForm.birthday.value.trim() === answers.birthday) score++; else feedback.push('Doğum günü ayın kaçında yanlış.');
-      if (quizForm.favcolor.value.trim().toLowerCase() === answers.favcolor) score++; else feedback.push('En sevdiği renk yanlış.');
-      if (quizForm.grade.value.trim() === answers.grade) score++; else feedback.push('Kaçıncı sınıf yanlış.');
-      if (quizForm.branch.value.trim().toUpperCase() === answers.branch) score++; else feedback.push('Hangi şube yanlış.');
-      if (quizForm.schoolnum.value.trim() === answers.schoolnum) score++; else feedback.push('Okul numarası yanlış.');
-      if (quizForm.age.value.trim() === answers.age) score++; else feedback.push('Kaç yaşına girdi yanlış.');
-
-      quizResult.innerHTML = `<p>Doğru cevap sayısı: ${score} / ${total}</p>`;
-      if (score === total) {
-        quizResult.innerHTML += '<p style="color:#28a745;">Tebrikler! Tüm soruları doğru cevapladınız. 🎉</p>';
-      } else {
-        quizResult.innerHTML += `<p style="color:#dc3545;">Yanlış cevaplar:</p><ul style="text-align:left; color:#dc3545;">${feedback.map(f=>'<li>'+f+'</li>').join('')}</ul>`;
-      }
-    });
-  </script>
-
+  loadQuiz();
+</script>
 </body>
 </html>
