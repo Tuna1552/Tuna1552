@@ -57,7 +57,7 @@
     }
 
     /* Buton */
-    #play-music-btn {
+    #play-music-btn, #start-quiz-btn {
       padding: 15px 40px;
       font-size: 1.5em;
       border: none;
@@ -71,11 +71,11 @@
       margin-top: 20px;
       z-index: 1100;
     }
-    #play-music-btn:hover {
+    #play-music-btn:hover, #start-quiz-btn:hover {
       background: linear-gradient(45deg, #ff69b4, #ff1493);
       transform: scale(1.05);
     }
-    #play-music-btn:active {
+    #play-music-btn:active, #start-quiz-btn:active {
       transform: scale(0.95);
     }
 
@@ -117,7 +117,6 @@
       z-index: 1000;
       width: auto;
       height: auto;
-      transition: width 0.8s ease, height 0.8s ease;
       display: inline-block;
       max-width: 90vw;
     }
@@ -128,12 +127,9 @@
       border-radius: 20px;
       max-width: 100%;
       height: auto;
-      transition: opacity 0.7s ease-in-out;
       position: absolute;
       top: 0;
       left: 0;
-      user-select: none;
-      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
     }
 
     .carousel-slide.active {
@@ -233,6 +229,7 @@
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
+  <button id="start-quiz-btn" aria-label="Quiz'i Başlat" style="display:none;">🎉 Ece'nin Quizini Başlat</button>
 
   <div id="countdown" aria-live="polite"></div>
 
@@ -241,8 +238,8 @@
   </div>
 
   <!-- Carousel -->
-  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel" style="display:none;">
-    <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
+    <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide active" />
     <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
     <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
     <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
@@ -254,8 +251,8 @@
   <!-- Quiz Container -->
   <div id="quiz-container">
     <h2>🎉 Ece'nin Quizine Hoş Geldiniz! 🎉</h2>
-    <div id="questions"></div>
-    <button id="submit-quiz-btn">Quiz'i Gönder</button>
+    <div id="question-container"></div>
+    <button id="next-question-btn">İleri</button>
     <div id="quiz-result" style="margin-top: 20px;"></div>
   </div>
 
@@ -273,11 +270,11 @@
   const messageElement = document.getElementById('message');
   const music = document.getElementById('music');
   const playBtn = document.getElementById('play-music-btn');
+  const startQuizBtn = document.getElementById('start-quiz-btn');
   const carousel = document.getElementById('carousel');
-  const slides = carousel.querySelectorAll('.carousel-slide');
   const quizContainer = document.getElementById('quiz-container');
-  const questionsDiv = document.getElementById('questions');
-  const submitQuizBtn = document.getElementById('submit-quiz-btn');
+  const questionContainer = document.getElementById('question-container');
+  const nextQuestionBtn = document.getElementById('next-question-btn');
   const quizResult = document.getElementById('quiz-result');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
@@ -312,271 +309,193 @@
       `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
   }
 
-  let slideInterval;
-  let currentIndex = 0;
+  // Quiz soruları
+  const questions = [
+    {
+      question: "Ece şuanda karatede hangi kuşakta?",
+      options: ["A) Kahverengi", "B) Siyah", "C) Mavi", "D) Yeşil"],
+      answer: "A) Kahverengi"
+    },
+    {
+      question: "Ece şuanda hangi okulda okuyor?",
+      options: ["A) İzmir Fen Lisesi", "B) Bornova Anadolu Lisesi", "C) Menemen Atatürk Anadolu Lisesi", "D) ODTÜ"],
+      answer: "C) Menemen Atatürk Anadolu Lisesi"
+    },
+    {
+      question: "Ecenin en sevdiği hayvan?",
+      options: ["A) Kedi", "B) Köpek", "C) Tavşan", "D) Kuş"],
+      answer: "A) Kedi"
+    },
+    {
+      question: "Ece şuan kaçıncı sınıf?",
+      options: ["A) 10", "B) 11", "C) 12", "D) 9"],
+      answer: "B) 11"
+    },
+    {
+      question: "Ecenin sınıf şubesi nedir?",
+      options: ["A) 11-A", "B) 11-B", "C) 11-C", "D) 11-İ"],
+      answer: "D) 11-İ"
+    },
+    {
+      question: "Ecenin okuduğu bölüm nedir?",
+      options: ["A) Matematik", "B) Dil", "C) Fen", "D) Sosyal Bilgiler"],
+      answer: "B) Dil"
+    },
+    {
+      question: "Ecenin okul numarası kaçtır?",
+      options: ["A) 1028", "B) 1025", "C) 1088", "D) 1005"],
+      answer: "B) 1025"
+    },
+    {
+      question: "Ecenin doğduğu yıl kaçtır?",
+      options: ["A) 2007", "B) 2008", "C) 2009", "D) 2010"],
+      answer: "B) 2008"
+    },
+    {
+      question: "Ece hangi ayda doğmuştur?",
+      options: ["A) Nisan", "B) Mayıs", "C) Haziran", "D) Temmuz"],
+      answer: "B) Mayıs"
+    },
+    {
+      question: "Ecenin en sevdiği arkadaşının ismi nedir?",
+      options: ["A) Ali", "B) Tuna", "C) Ayşe", "D) Mehmet"],
+      answer: "B) Tuna"
+    }
+  ];
 
-  function adjustCarouselSize(img) {
-    const naturalWidth = img.naturalWidth;
-    const naturalHeight = img.naturalHeight;
-    carousel.style.width = naturalWidth + 'px';
-    carousel.style.height = naturalHeight + 'px';
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  // Soruyu göster
+  function showQuestion() {
+    const currentQuestion = questions[currentQuestionIndex];
+    questionContainer.innerHTML = `
+      <div class="question">${currentQuestion.question}</div>
+      ${currentQuestion.options.map(option => `<div class="option"><input type="radio" name="question${currentQuestionIndex}" value="${option}"> ${option}</div>`).join('')}
+    `;
   }
 
-  function showSlide(index) {
-    slides.forEach((slide, i) => {
-      slide.classList.toggle('active', i === index);
-    });
-    currentIndex = index;
+  // Quiz'i başlat
+  startQuizBtn.addEventListener('click', () => {
+    quizContainer.style.display = 'block';
+    startQuizBtn.style.display = 'none';
+    showQuestion();
+  });
 
-    const activeImage = slides[currentIndex];
-    if (!activeImage.complete) {
-      activeImage.onload = () => {
-        adjustCarouselSize(activeImage);
-      };
+  // İleri butonuna tıklandığında
+  nextQuestionBtn.addEventListener('click', () => {
+    const selectedOption = document.querySelector(`input[name="question${currentQuestionIndex}"]:checked`);
+    if (selectedOption) {
+      if (selectedOption.value === questions[currentQuestionIndex].answer) {
+        score++;
+      }
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
     } else {
-      adjustCarouselSize(activeImage);
+      alert('Lütfen bir seçenek seçin.');
+    }
+  });
+
+  // Sonucu göster
+  function showResult() {
+    quizContainer.style.display = 'none';
+    if (score === questions.length) {
+      quizResult.innerHTML = `Quiz tamamlandı! Puanınız: ${score} / ${questions.length}. 🎇 Havai fişekler! 🎇`;
+      startFireworks();
+    } else {
+      quizResult.innerHTML = `Quiz tamamlandı! Puanınız: ${score} / ${questions.length}`;
     }
   }
 
-  function nextSlide() {
-    let nextIndex = currentIndex + 1;
-    if (nextIndex >= slides.length) nextIndex = 0;
-    showSlide(nextIndex);
-  }
-
-  function prevSlide() {
-    let prevIndex = currentIndex - 1;
-    if (prevIndex < 0) prevIndex = slides.length - 1;
-    showSlide(prevIndex);
-  }
-
-  prevBtn.addEventListener('click', () => {
-    prevSlide();
-    resetInterval();
-  });
-
-  nextBtn.addEventListener('click', () => {
-    nextSlide();
-    resetInterval();
-  });
-
-  function startSlideShow() {
-    slideInterval = setInterval(nextSlide, 5000);
-  }
-
-  function resetInterval() {
-    clearInterval(slideInterval);
-    startSlideShow();
-  }
-
-  // Kalp animasyonları
-  function createHeart() {
-    const heart = document.createElement('div');
-    heart.classList.add('heart');
-    heart.style.left = Math.random() * window.innerWidth + 'px';
-    heart.style.top = window.innerHeight + 30 + 'px';
-    document.body.appendChild(heart);
-
-    setTimeout(() => {
-      heart.remove();
-    }, 6000);
-  }
-  setInterval(createHeart, 400);
-
-  // Konfeti animasyonu
-  function startConfetti() {
+  // Havai fişek animasyonu
+  function startFireworks() {
+    // Havai fişek animasyonu için burada kod yazabilirsiniz.
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const confettiCount = 150;
-    const confettis = [];
 
-    class Confetti {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * -canvas.height;
-        this.size = (Math.random() * 7) + 3;
-        this.speed = (Math.random() * 3) + 2;
-        this.angle = Math.random() * 2 * Math.PI;
-        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-        this.spin = (Math.random() - 0.5) * 0.1;
-      }
-
-      update() {
-        this.y += this.speed;
-        this.angle += this.spin;
-
-        if (this.y > canvas.height) {
-          this.y = -this.size;
-          this.x = Math.random() * canvas.width;
-        }
-      }
-
-      draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-        ctx.restore();
+    function createFirework(x, y) {
+      const particles = 100;
+      for (let i = 0; i < particles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = Math.random() * 3 + 2;
+        const particle = {
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 3 + 2,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`
+        };
+        fireworks.push(particle);
       }
     }
 
-    for(let i=0; i<confettiCount; i++) {
-      confettis.push(new Confetti());
-    }
+    const fireworks = [];
+    createFirework(canvas.width / 2, canvas.height / 2);
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      confettis.forEach(c => {
-        c.update();
-        c.draw();
+      fireworks.forEach((firework, index) => {
+        firework.x += firework.vx;
+        firework.y += firework.vy;
+        firework.vy += 0.05; // Yer çekimi
+        ctx.fillStyle = firework.color;
+        ctx.beginPath();
+        ctx.arc(firework.x, firework.y, firework.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Parçacıkların ekrandan çıkması durumunda sil
+        if (firework.y > canvas.height) {
+          fireworks.splice(index, 1);
+        }
       });
+
       requestAnimationFrame(animate);
     }
 
     animate();
   }
 
-  // Müzik kontrolü
+  // Müziği başlat
   playBtn.addEventListener('click', () => {
-    music.play().then(() => {
-      playBtn.style.display = 'none';
-      countdownElement.style.display = 'block';
-      carousel.style.display = 'inline-block';
-      showSlide(0);
-      startSlideShow();
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-      quizContainer.style.display = 'block'; // Quiz'i göster
-      loadQuiz(); // Quiz'i yükle
-    }).catch(err => {
-      alert('Müziği başlatmak için etkileşim gerekiyor.');
-      console.error(err);
-    });
+    music.play();
+    countdownElement.style.display = "block";
+    startQuizBtn.style.display = "block";
+    playBtn.style.display = "none";
+    setInterval(updateCountdown, 1000);
   });
 
-  // Quiz yükleme
-  function loadQuiz() {
-    const questions = [
-      {
-        question: "Ece şuanda karatede hangi kuşakta?",
-        options: ["Kahverengi", "Siyah", "Mavi", "Yeşil"],
-        answer: "Kahverengi"
-      },
-      {
-        question: "Ece şuanda hangi okulda okuyor?",
-        options: ["İzmir Fen Lisesi", "Bornova Anadolu Lisesi", "Menemen Atatürk Anadolu Lisesi", "ODTÜ"],
-        answer: "Menemen Atatürk Anadolu Lisesi"
-      },
-      {
-        question: "Ecenin en sevdiği hayvan?",
-        options: ["Kedi", "Köpek", "Tavşan", "Kuş"],
-        answer: "Kedi"
-      },
-      {
-       
-        question: "Ece şuan kaçıncı sınıf?",
-        options: ["10", "11", "12", "9"],
-        answer: "11"
-      },
-      {
-        question: "Ecenin sınıf şubesi nedir?",
-        options: ["11-A", "11-B", "11-C", "11-İ"],
-        answer: "11-İ"
-      },
-      {
-        question: "Ecenin okuduğu bölüm nedir?",
-        options: ["Matematik", "Dil", "Fen", "Sosyal Bilgiler"],
-        answer: "Dil"
-      },
-      {
-        question: "Ecenin okul numarası kaçtır?",
-        options: ["1028", "1025", "1088", "1005"],
-        answer: "1025"
-      },
-      {
-        question: "Ecenin doğduğu yıl kaçtır?",
-        options: ["2007", "2008", "2009", "2010"],
-        answer: "2008"
-      },
-      {
-        question: "Ece hangi ayda doğmuştur?",
-        options: ["Nisan", "Mayıs", "Haziran", "Temmuz"],
-        answer: "Mayıs"
-      },
-      {
-        question: "Ecenin en sevdiği arkadaşının ismi nedir?",
-        options: ["Ali", "Tuna", "Ayşe", "Mehmet"],
-        answer: "Tuna"
-      }
-    ];
+  // Carousel işlevselliği
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.carousel-slide');
 
-    questions.forEach((q, index) => {
-      const questionDiv = document.createElement('div');
-      questionDiv.classList.add('question');
-      questionDiv.innerHTML = `<p>${index + 1}. ${q.question}</p>`;
-
-      q.options.forEach(option => {
-        const optionDiv = document.createElement('div');
-        optionDiv.classList.add('option');
-        optionDiv.innerHTML = `<label><input type="radio" name="question${index}" value="${option}"> ${option}</label>`;
-        questionDiv.appendChild(optionDiv);
-      });
-
-      questionsDiv.appendChild(questionDiv);
-    });
-
-    submitQuizBtn.addEventListener('click', submitQuiz);
-  }
-
-  function submitQuiz() {
-    const questions = [
-      {
-        answer: "Kahverengi"
-      },
-      {
-        answer: "Menemen Atatürk Anadolu Lisesi"
-      },
-      {
-        answer: "Kedi"
-      },
-      {
-        answer: "11"
-      },
-      {
-        answer: "11-İ"
-      },
-      {
-        answer: "Dil"
-      },
-      {
-        answer: "1025"
-      },
-      {
-        answer: "2008"
-      },
-      {
-        answer: "Mayıs"
-      },
-      {
-        answer: "Tuna"
-      }
-    ];
-
-    let score = 0;
-
-    questions.forEach((q, index) => {
-      const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
-      if (selectedOption && selectedOption.value === q.answer) {
-        score++;
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.remove('active');
+      if (i === index) {
+        slide.classList.add('active');
       }
     });
-
-    quizResult.innerHTML = `Quiz tamamlandı! Puanınız: ${score} / ${questions.length}`;
   }
 
+  nextBtn.addEventListener('click', () => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  });
+
+  prevBtn.addEventListener('click', () => {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  });
+
+  // Sayfa yüklendiğinde geri sayımı başlat
+  updateCountdown();
 </script>
 </body>
 </html>
