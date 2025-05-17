@@ -4,72 +4,121 @@
   <meta charset="UTF-8" />
   <title>🎉 Ece'nin Doğum Günü 🎉</title>
   <style>
+    /* Genel stil */
     body {
-      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
-      color: #333;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 50px 20px;
-      overflow: hidden;
-      position: relative;
       margin: 0;
+      padding: 50px 20px;
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      text-align: center;
+      overflow-x: hidden;
       height: 100vh;
+      position: relative;
+      user-select: none;
     }
+
     h1 {
       font-size: 3em;
       margin-bottom: 0.5em;
-      user-select: none;
-      z-index: 1000;
-      position: relative;
-    }
-    #countdown {
-      font-size: 2em;
-      font-weight: bold;
-      background: rgba(255,255,255,0.85);
-      padding: 10px 25px;
-      border-radius: 12px;
-      color: #ff007f;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
-      display: inline-block;
-      z-index: 1000;
-      position: relative;
-    }
-    #message {
-      font-size: 2em;
-      color: #ff1493;
-      margin-top: 2em;
-      display: none;
       z-index: 1000;
       position: relative;
     }
 
-    /* SLAYT STİLİ */
-    .slideshow-container {
-      max-width: 600px;
+    #countdown {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+      padding: 15px 30px;
+      display: inline-block;
+      font-weight: 700;
+      font-size: 2em;
+      color: #ff007f;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
       position: relative;
-      margin: 40px auto;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       z-index: 1000;
     }
-    .slide {
+
+    #message {
+      font-size: 2em;
+      margin-top: 2em;
+      color: #ff1493;
       display: none;
+      position: relative;
+      z-index: 1000;
     }
-    .slide img {
+
+    /* Carousel container */
+    .carousel {
+      position: relative;
+      margin: 40px auto 0;
+      max-width: 700px;
+      height: 420px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      background: #fff;
+      user-select: none;
+      z-index: 1000;
+    }
+
+    /* Slides */
+    .carousel-slide {
+      display: none;
       width: 100%;
-      height: auto;
-      border-radius: 16px;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+      transition: opacity 0.7s ease-in-out;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
-    .fade {
-      animation: fadeEffect 1.5s ease-in-out;
+
+    .carousel-slide.active {
+      display: block;
+      opacity: 1;
+      position: relative;
+      animation: fadeIn 1s ease forwards;
     }
-    @keyframes fadeEffect {
+
+    @keyframes fadeIn {
       from {opacity: 0;}
       to {opacity: 1;}
     }
 
-    /* Kalpler */
+    /* Navigation buttons */
+    .carousel-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      font-size: 2em;
+      color: #ff007f;
+      box-shadow: 0 0 10px rgba(255,0,127,0.5);
+      transition: background 0.3s ease;
+      user-select: none;
+      z-index: 1100;
+    }
+
+    .carousel-button:hover {
+      background: #ff007f;
+      color: #fff;
+    }
+
+    .carousel-button.prev {
+      left: 15px;
+    }
+
+    .carousel-button.next {
+      right: 15px;
+    }
+
+    /* Kalp animasyonları */
     .heart {
       position: fixed;
       width: 30px;
@@ -80,7 +129,8 @@
       animation: floatUp 6s linear infinite;
       opacity: 0.8;
       filter: drop-shadow(0 0 3px #ff69b4);
-      z-index: 800;
+      z-index: 900;
+      border-radius: 5px;
     }
     .heart::before,
     .heart::after {
@@ -91,14 +141,20 @@
       background-color: #ff1493;
       border-radius: 50%;
     }
-    .heart::before { top: -15px; left: 0; }
-    .heart::after { top: 0; left: 15px; }
-
+    .heart::before {
+      top: -15px;
+      left: 0;
+    }
+    .heart::after {
+      left: 15px;
+      top: 0;
+    }
     @keyframes floatUp {
       0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
       100% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
     }
 
+    /* Canvas konfeti z-index */
     canvas#confetti-canvas {
       position: fixed;
       top: 0;
@@ -106,29 +162,33 @@
       pointer-events: none;
       z-index: 950;
     }
+
   </style>
 </head>
 <body>
+
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
   <div id="countdown">Yükleniyor...</div>
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
-  <!-- Slideshow (Fotoğraflar) -->
-  <div class="slideshow-container">
-    <div class="slide fade"><img src="https://scontent.fadb2-1.fna.fbcdn.net/v/t1.15752-9/494819372_1066121202072965_1680778509594423854_n.jpg" /></div>
-    <div class="slide fade"><img src="https://scontent.fadb2-1.fna.fbcdn.net/v/t1.15752-9/494817528_1369412577724238_4956819316562406313_n.jpg" /></div>
-    <div class="slide fade"><img src="https://scontent.fadb2-1.fna.fbcdn.net/v/t1.15752-9/494356990_1489931545325305_3234616978248098870_n.jpg" /></div>
-    <div class="slide fade"><img src="https://scontent.fadb2-2.fna.fbcdn.net/v/t1.15752-9/494359050_663652366483290_6533068607204712589_n.jpg" /></div>
-    <div class="slide fade"><img src="https://scontent.fadb2-2.fna.fbcdn.net/v/t1.15752-9/494359689_711413374907384_5940252502151222067_n.jpg" /></div>
+  <!-- Carousel -->
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi">
+    <img src="https://i.imgur.com/5eQiV0a.jpg" alt="Ece'nin doğum günü resmi 1" class="carousel-slide active" />
+    <img src="https://i.imgur.com/1ZDzUdO.jpg" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
+    <img src="https://i.imgur.com/2TCjW9q.jpg" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
+    <img src="https://i.imgur.com/yn1K0mZ.jpg" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
+    <img src="https://i.imgur.com/G9Q2QOV.jpg" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
+    <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
+    <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
   </div>
 
   <!-- Müzik -->
-  <audio id="music" preload="auto">
+  <audio id="music" preload="auto" loop>
     <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg" />
     Tarayıcınız ses çaları desteklemiyor.
   </audio>
 
-  <!-- Konfeti -->
+  <!-- Konfeti için canvas -->
   <canvas id="confetti-canvas"></canvas>
 
   <script>
@@ -136,119 +196,169 @@
     const messageElement = document.getElementById('message');
     const music = document.getElementById('music');
 
+    // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
     const hedefTarih = new Date();
     if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
       hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
     }
-    hedefTarih.setMonth(4); // Mayıs
+    hedefTarih.setMonth(4);
     hedefTarih.setDate(29);
     hedefTarih.setHours(0, 0, 0, 0);
 
+    // Geri sayım fonksiyonu
     function updateCountdown() {
       const now = new Date();
       const fark = hedefTarih - now;
+
       if (fark <= 0) {
         countdownElement.style.display = "none";
         messageElement.style.display = "block";
         startConfetti();
-        music.play().catch(() => {});
+        playMusic();
         return;
       }
+
       const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
       const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
       const dakika = Math.floor((fark / (1000 * 60)) % 60);
       const saniye = Math.floor((fark / 1000) % 60);
-      countdownElement.innerHTML = `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+
+      countdownElement.textContent =
+        `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
     }
 
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Slayt Gösterisi
-    let slideIndex = 0;
-    function showSlides() {
-      const slides = document.getElementsByClassName("slide");
-      for (let i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
-      }
-      slideIndex++;
-      if (slideIndex > slides.length) slideIndex = 1;
-      slides[slideIndex - 1].style.display = "block";
-      setTimeout(showSlides, 3000); // 3 saniyede bir
-    }
-    showSlides();
+    // Carousel kontrol
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.carousel-button.prev');
+    const nextBtn = document.querySelector('.carousel-button.next');
+    let currentIndex = 0;
+    let slideInterval;
 
-    // Kalpler
+    function showSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+      currentIndex = index;
+    }
+
+    function nextSlide() {
+      let nextIndex = currentIndex + 1;
+      if (nextIndex >= slides.length) nextIndex = 0;
+      showSlide(nextIndex);
+    }
+
+    function prevSlide() {
+      let prevIndex = currentIndex - 1;
+      if (prevIndex < 0) prevIndex = slides.length -1;
+      showSlide(prevIndex);
+    }
+
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      resetInterval();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      resetInterval();
+    });
+
+    function startSlideShow() {
+      slideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function resetInterval() {
+      clearInterval(slideInterval);
+      startSlideShow();
+    }
+
+    startSlideShow();
+
+    // Kalp animasyonları
     function createHeart() {
       const heart = document.createElement('div');
       heart.classList.add('heart');
       heart.style.left = Math.random() * window.innerWidth + 'px';
       heart.style.top = window.innerHeight + 30 + 'px';
       document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 6000);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 6000);
     }
+
     setInterval(createHeart, 400);
 
-    // Konfeti
+    // Konfeti animasyonu
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      let W = window.innerWidth;
+      let H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
 
       const particles = [];
       const particleCount = 150;
-      const colors = ['#ff0a54', '#ff477e', '#ff7096', '#ff85a1', '#fbb1bd'];
+      const colors = ['#ff0080', '#ff69b4', '#ff1493', '#ff00ff', '#c71585'];
+  function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
 
-      for (let i = 0; i < particleCount; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height,
-          r: Math.random() * 6 + 4,
-          d: Math.random() * particleCount,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          tilt: Math.floor(Math.random() * 10) - 10,
-          tiltAngle: 0,
-          tiltAngleIncremental: (Math.random() * 0.07) + 0.05
-        });
-      }
+  function Particle() {
+    this.x = randomRange(0, W);
+    this.y = randomRange(-H, 0);
+    this.size = randomRange(5, 10);
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+    this.speedY = randomRange(1, 4);
+    this.speedX = randomRange(-1.5, 1.5);
+    this.opacity = 1;
+    this.drift = 0;
+  }
 
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-          ctx.beginPath();
-          ctx.lineWidth = p.r;
-          ctx.strokeStyle = p.color;
-          ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
-          ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
-          ctx.stroke();
-        });
-        update();
-      }
+  Particle.prototype.update = function() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.opacity -= 0.01;
 
-      function update() {
-        particles.forEach(p => {
-          p.y += Math.cos(p.d) + 1 + p.r / 2;
-          p.tiltAngle += p.tiltAngleIncremental;
-          p.tilt = Math.sin(p.tiltAngle) * 15;
-          if (p.y > canvas.height) {
-            p.y = -10;
-            p.x = Math.random() * canvas.width;
-          }
-        });
-      }
-
-      function loop() {
-        draw();
-        requestAnimationFrame(loop);
-      }
-      loop();
+    if (this.y > H || this.opacity <= 0) {
+      this.x = randomRange(0, W);
+      this.y = randomRange(-H, 0);
+      this.opacity = 1;
     }
+  };
 
-    // İlk tıklamada müziği başlat
-    document.body.addEventListener("click", () => {
-      music.play().catch(() => {});
-    }, { once: true });
-  </script>
-</body>
-</html>
+  Particle.prototype.draw = function() {
+    ctx.fillStyle = this.color;
+    ctx.globalAlpha = this.opacity;
+    ctx.fillRect(this.x, this.y, this.size, this.size * 0.4);
+    ctx.globalAlpha = 1;
+  };
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+// Müzik oynatma fonksiyonu
+function playMusic() {
+  music.play().catch(() => {
+    // Eğer otomatik oynatma engellenirse kullanıcı tıklayınca oynatılabilir
+    document.body.addEventListener('click', () => music.play());
+  });
+}
+</script> </body> </html> ```
