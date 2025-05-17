@@ -172,83 +172,69 @@
 </head>
 <body>
 
-<h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
-<div id="countdown">Yükleniyor...</div>
-
+  <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
+  <div id="countdown">Yükleniyor...</div>
+  <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 <!-- PROGRESS BAR BURAYA -->
 <div id="progress-container" style="width: 300px; height: 30px; background: #eee; border-radius: 15px; margin: 20px auto; overflow: hidden;">
   <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff69b4, #ff1493); border-radius: 15px;"></div>
 </div>
 
-<div id="message" style="display:none;">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
+  <!-- Carousel -->
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
+    <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
+    <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
+    <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
+    <img src="https://i.imgur.com/W14BEzn.png" alt="Ece'nin doğum günü resmi 4" class="carousel-slide" />
+    <img src="https://i.imgur.com/lDN54hn.png" alt="Ece'nin doğum günü resmi 5" class="carousel-slide" />
+    <button class="carousel-button prev" aria-label="Önceki fotoğraf">&#10094;</button>
+    <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
+  </div>
 
-<!-- Burada diğer HTML elementlerin (carousel, müzik vb.) olacak -->
+  <!-- Müzik -->
+  <audio id="music" preload="auto" loop>
+    <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg" />
+    Tarayıcınız ses çaları desteklemiyor.
+  </audio>
 
-<script>
-  const countdownElement = document.getElementById('countdown');
-  const messageElement = document.getElementById('message');
-  const progressBar = document.getElementById('progress-bar');
-  const music = document.getElementById('music'); // müzik elementin varsa
+  <!-- Konfeti için canvas -->
+  <canvas id="confetti-canvas"></canvas>
 
-  // Doğum günü tarihi: 29 Mayıs (her yıl)
-  const now = new Date();
-  let hedefTarih = new Date(now.getFullYear(), 4, 29, 0, 0, 0, 0); // ay 0'dan başladığı için Mayıs = 4
+  <script>
+    const countdownElement = document.getElementById('countdown');
+    const messageElement = document.getElementById('message');
+    const music = document.getElementById('music');
 
-  // Eğer bugün 29 Mayıs'tan sonra ise hedef yılı bir sonraki yıl yap
-  if (now > hedefTarih) {
-    hedefTarih = new Date(now.getFullYear() + 1, 4, 29, 0, 0, 0, 0);
-  }
-
-  // Başlangıç tarihi (yılın başı)
-  const baslangicTarih = new Date(hedefTarih.getFullYear(), 0, 1);
-
-  function updateCountdown() {
-    const simdi = new Date();
-    const fark = hedefTarih - simdi;
-
-    if (fark <= 0) {
-      countdownElement.style.display = "none";
-      messageElement.style.display = "block";
-      progressBar.style.width = '100%';  // Bar tamamen dolu
-      // Eğer konfeti ve müzik fonksiyonların varsa çağırabilirsin:
-      // startConfetti();
-      // music.play();
-      return;
+    // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
+    const hedefTarih = new Date();
+    if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
+      hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
     }
+    hedefTarih.setMonth(4);
+    hedefTarih.setDate(29);
+    hedefTarih.setHours(0, 0, 0, 0);
 
-    // Geri kalan süre hesapla
-    const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
-    const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
-    const dakika = Math.floor((fark / (1000 * 60)) % 60);
-    const saniye = Math.floor((fark / 1000) % 60);
+    // Geri sayım fonksiyonu
+    function updateCountdown() {
+      const now = new Date();
+      const fark = hedefTarih - now;
 
-    countdownElement.textContent =
-      📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye;
+      if (fark <= 0) {
+        countdownElement.style.display = "none";
+        messageElement.style.display = "block";
+        startConfetti();
+        playMusic();
+        return;
+      }
 
-    // Yılın başından bugüne kadar geçen süre
-    const gecenSure = simdi - baslangicTarih;
-    // Yılın başından doğum gününe kadar toplam süre
-    const toplamSure = hedefTarih - baslangicTarih;
-    // Yüzde hesapla
-    const yuzde = (gecenSure / toplamSure) * 100;
+      const gun = Math.floor(fark / (1000 * 60 * 60 * 24));
+      const saat = Math.floor((fark / (1000 * 60 * 60)) % 24);
+      const dakika = Math.floor((fark / (1000 * 60)) % 60);
+      const saniye = Math.floor((fark / 1000) % 60);
 
-    // Progress bar genişliğini ayarla
-    progressBar.style.width = yuzde + '%';
-  }
-
-  // Her saniye güncelle
-  setInterval(updateCountdown, 1000);
-  updateCountdown();
-</script>
-
-  // Geri sayımı başlat
-  setInterval(updateCountdown, 1000);
-  updateCountdown();
-
-  // Diğer fonksiyonlar, event listenerlar vb.
-
-</script>
-
+      countdownElement.textContent =
+        📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye;
+    }
 
     setInterval(updateCountdown, 1000);
     updateCountdown();
