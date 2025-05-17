@@ -99,10 +99,11 @@
 
     #quiz-container {
       background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
+      padding: 40px; /* Daha fazla iç boşluk */
       border-radius: 10px;
-      max-width: 600px;
+      max-width: 800px; /* Genişliği artır */
       text-align: center;
+      position: relative;
     }
 
     .quiz-question {
@@ -115,9 +116,10 @@
       margin: 10px 0;
       cursor: pointer;
       background: rgba(255, 255, 255, 0.2);
-      padding: 10px;
+      padding: 15px; /* Daha fazla iç boşluk */
       border-radius: 5px;
       transition: background 0.3s ease;
+      font-size: 1.2em;
     }
 
     .quiz-option:hover {
@@ -128,6 +130,49 @@
       font-size: 1.8em;
       margin-top: 20px;
       display: none;
+    }
+
+    /* Çık Butonu */
+    #close-quiz-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Sonraki Buton Stili */
+    #next-btn {
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.5em;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    #next-btn:hover {
+      background: linear-gradient(45deg, #ff1493, #ff69b4);
+      transform: scale(1.05);
+    }
+
+    #next-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Doğru ve Yanlış Cevaplar için Arka Plan Renkleri */
+    .correct {
+      background-color: rgba(0, 255, 0, 0.5);
+    }
+
+    .incorrect {
+      background-color: rgba(255, 0, 0, 0.5);
     }
 
     /* Carousel container */
@@ -269,9 +314,10 @@
   <!-- Quiz Modal -->
   <div id="quiz-modal">
     <div id="quiz-container">
+      <button id="close-quiz-btn">❌</button>
       <div class="quiz-question" id="quiz-question"></div>
       <div id="quiz-options"></div>
-      <button id="next-btn" style="display:none;">Sonraki</button>
+      <button id="next-btn" style="display:none;">Sonraki Soru</button>
       <div class="quiz-result" id="quiz-result"></div>
     </div>
   </div>
@@ -307,6 +353,7 @@
   const quizOptionsElement = document.getElementById('quiz-options');
   const nextBtn = document.getElementById('next-btn');
   const quizResult = document.getElementById('quiz-result');
+  const closeQuizBtn = document.getElementById('close-quiz-btn');
   const carousel = document.getElementById('carousel');
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
@@ -442,6 +489,7 @@
 
   // Kalp animasyonları
   function createHeart() {
+   
     const heart = document.createElement('div');
     heart.classList.add('heart');
     heart.style.left = Math.random() * window.innerWidth + 'px';
@@ -535,6 +583,10 @@
     showQuestion();
   });
 
+  closeQuizBtn.addEventListener('click', () => {
+    quizModal.style.display = 'none';
+  });
+
   nextBtn.addEventListener('click', () => {
     const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
     if (selectedOption) {
@@ -544,6 +596,11 @@
       } else {
         selectedOption.parentElement.classList.add('incorrect');
       }
+      // Tüm seçenekleri devre dışı bırak
+      const options = document.querySelectorAll('.quiz-option');
+      options.forEach(opt => {
+        opt.querySelector('input').disabled = true;
+      });
     }
     
     currentQuestionIndex++;
