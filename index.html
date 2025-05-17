@@ -169,11 +169,42 @@
 </head>
 <body>
 
-  <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
-  <div id="countdown">Yükleniyor...</div>
-<button id="play-music-btn" style="margin-top:20px; padding:10px 20px; font-size:1.2em; border:none; border-radius:8px; background:#ff1493; color:#fff; cursor:pointer;">
-  Müzik Çal ▶️
+<!-- Buton kısmı aynen -->
+<button id="play-music-btn" style="...">
+  🎵 Müziği Başlat
 </button>
+
+<!-- Audio: controls kaldırıldı -->
+<audio id="music" preload="auto" loop>
+  <source src="until_i_found_you.mp3" type="audio/mpeg" />
+</audio>
+
+<script>
+  const btn = document.getElementById('play-music-btn');
+  const music = document.getElementById('music');
+
+  btn.addEventListener('mouseenter', () => {
+    btn.style.background = 'linear-gradient(45deg, #00e5ff, #d500f9)';
+    btn.style.boxShadow = '0 10px 30px rgba(213, 0, 249, 0.9)';
+    btn.style.transform = 'scale(1.1)';
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    btn.style.background = 'linear-gradient(45deg, #d500f9, #00e5ff)';
+    btn.style.boxShadow = '0 8px 20px rgba(0, 229, 255, 0.8)';
+    btn.style.transform = 'scale(1)';
+  });
+
+  btn.addEventListener('click', () => {
+    playMusic();
+  });
+
+  function playMusic() {
+    music.play().catch(() => {
+      console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
+    });
+  }
+</script>
 
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
