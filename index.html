@@ -165,6 +165,107 @@
       pointer-events: none;
       z-index: 950;
     }
+
+    /* --- Quiz Bölümü Stilleri --- */
+    #open-quiz-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #ff1493;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      font-size: 1.2em;
+      border-radius: 30px;
+      box-shadow: 0 6px 15px rgba(255,20,147,0.5);
+      cursor: pointer;
+      z-index: 1200;
+      user-select:none;
+      transition: background 0.3s ease;
+    }
+    #open-quiz-btn:hover {
+      background: #e60073;
+    }
+    #quiz-modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1300;
+      user-select:none;
+    }
+    #quiz-container {
+      background: #fff;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 90%;
+      padding: 30px 40px;
+      box-shadow: 0 15px 30px rgba(255,20,147,0.3);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      position: relative;
+    }
+    #quiz-container h2 {
+      text-align:center;
+      color:#ff1493;
+      margin-bottom: 20px;
+    }
+    #quiz-form label {
+      display: block;
+      font-weight: 600;
+      margin: 15px 0 5px;
+      text-align: left;
+      color: #666;
+    }
+    #quiz-form input[type="text"], #quiz-form input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 2px solid #ff1493;
+      border-radius: 8px;
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    #quiz-form input[type="text"]:focus, #quiz-form input[type="number"]:focus {
+      border-color: #e60073;
+    }
+    #quiz-form button {
+      margin-top: 25px;
+      background: #ff1493;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 1.1em;
+      border-radius: 30px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+    #quiz-form button:hover {
+      background: #e60073;
+    }
+    #quiz-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      font-size: 1.8em;
+      color: #ff1493;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    #quiz-result {
+      margin-top: 20px;
+      font-weight: 700;
+      font-size: 1.3em;
+      color: #ff1493;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -194,9 +295,50 @@
   Tarayıcınız ses çaları desteklemiyor.
 </audio>
 
-
   <!-- Konfeti için canvas -->
   <canvas id="confetti-canvas"></canvas>
+
+  <!-- Quiz Butonu -->
+  <button id="open-quiz-btn" aria-label="Ece Hakkında Quiz Aç">🎓 Ece Hakkında Quiz</button>
+
+  <!-- Quiz Modal -->
+  <div id="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+    <div id="quiz-container">
+      <button id="quiz-close-btn" aria-label="Quiz Kapat">&times;</button>
+      <h2 id="quiz-title">Ece Hakkında Quiz</h2>
+      <form id="quiz-form" novalidate>
+        <label for="school">Ece şu anda hangi okulda okuyor?</label>
+        <input type="text" id="school" name="school" required placeholder="Okul adı yazınız..." />
+
+        <label for="birthdate">Doğum tarihi kaçtır? (gg.aa.yyyy)</label>
+        <input type="text" id="birthdate" name="birthdate" required placeholder="29.05.2008" pattern="^\d{2}\.\d{2}\.\d{4}$" />
+
+        <label for="birthyear">Doğum yılı kaçtır?</label>
+        <input type="number" id="birthyear" name="birthyear" required min="1900" max="2100" placeholder="2008" />
+
+        <label for="birthday">Doğum günü ayın kaçındadır?</label>
+        <input type="number" id="birthday" name="birthday" required min="1" max="31" placeholder="29" />
+
+        <label for="favcolor">En sevdiği renk nedir?</label>
+        <input type="text" id="favcolor" name="favcolor" required placeholder="Renk yazınız..." />
+
+        <label for="grade">Kaçıncı sınıf?</label>
+        <input type="number" id="grade" name="grade" required min="1" max="20" placeholder="11" />
+
+        <label for="branch">Hangi şube?</label>
+        <input type="text" id="branch" name="branch" required placeholder="11-İ" />
+
+        <label for="schoolnum">Okul numarası kaçtır?</label>
+        <input type="number" id="schoolnum" name="schoolnum" required min="1" max="100000" placeholder="1025" />
+
+        <label for="age">Kaç yaşına girdi?</label>
+        <input type="number" id="age" name="age" required min="1" max="150" placeholder="17" />
+
+        <button type="submit">Cevapları Kontrol Et</button>
+      </form>
+      <div id="quiz-result" aria-live="polite"></div>
+    </div>
+  </div>
 
   <script>
     const countdownElement = document.getElementById('countdown');
@@ -205,23 +347,20 @@
 
     // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
     const hedefTarih = new Date();
-    if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
+  hedefTarih.setHours(0,0,0,0);
+    hedefTarih.setMonth(4); // Mayıs (0 tabanlı, Mayıs=4)
+    hedefTarih.setDate(29);
+    if (hedefTarih < new Date()) {
       hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
     }
-    hedefTarih.setMonth(4);
-    hedefTarih.setDate(29);
-    hedefTarih.setHours(0, 0, 0, 0);
 
-    // Geri sayım fonksiyonu
     function updateCountdown() {
-      const now = new Date();
-      const fark = hedefTarih - now;
+      const simdi = new Date();
+      const fark = hedefTarih - simdi;
 
       if (fark <= 0) {
-        countdownElement.style.display = "none";
-        messageElement.style.display = "block";
-        startConfetti();
-        playMusic();
+        countdownElement.style.display = 'none';
+        messageElement.style.display = 'block';
         return;
       }
 
@@ -230,176 +369,213 @@
       const dakika = Math.floor((fark / (1000 * 60)) % 60);
       const saniye = Math.floor((fark / 1000) % 60);
 
-      countdownElement.textContent =
-        📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye;
+      countdownElement.textContent = `${gun} gün ${saat} saat ${dakika} dakika ${saniye} saniye kaldı!`;
     }
-
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Carousel kontrol
-    const carousel = document.getElementById('carousel');
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const prevBtn = carousel.querySelector('.carousel-button.prev');
-    const nextBtn = carousel.querySelector('.carousel-button.next');
-    let currentIndex = 0;
-    let slideInterval;
-
-    // Resim yüklenince container'ı doğal boyutuna göre ayarlama fonksiyonu
-    function adjustCarouselSize(img) {
-      const naturalWidth = img.naturalWidth;
-      const naturalHeight = img.naturalHeight;
-      carousel.style.width = naturalWidth + 'px';
-      carousel.style.height = naturalHeight + 'px';
-    }
-
-    // Slayt göster
-    function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === index);
-      });
-      currentIndex = index;
-
-      const activeImage = slides[currentIndex];
-      if (!activeImage.complete) {
-        activeImage.onload = () => {
-          adjustCarouselSize(activeImage);
-        };
+    // Müzik oynatma butonu
+    const playMusicBtn = document.getElementById('play-music-btn');
+    playMusicBtn.addEventListener('click', () => {
+      if (music.paused) {
+        music.play();
+        playMusicBtn.textContent = 'Müziği Durdur ⏸️';
       } else {
-        adjustCarouselSize(activeImage);
+        music.pause();
+        playMusicBtn.textContent = 'Müzik Çal ▶️';
+      }
+    });
+
+    // Carousel ayarları
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.carousel-button.prev');
+    const nextBtn = document.querySelector('.carousel-button.next');
+    const carousel = document.querySelector('.carousel');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      if (index >= slides.length) currentSlide = 0;
+      else if (index < 0) currentSlide = slides.length -1;
+      else currentSlide = index;
+
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === currentSlide);
+      });
+
+      // Genişlik ve yükseklik güncelle
+      const activeSlide = slides[currentSlide];
+      if (activeSlide) {
+        carousel.style.width = activeSlide.naturalWidth + 'px';
+        carousel.style.height = activeSlide.naturalHeight + 'px';
       }
     }
 
-    function nextSlide() {
-      let nextIndex = currentIndex + 1;
-      if (nextIndex >= slides.length) nextIndex = 0;
-      showSlide(nextIndex);
-    }
-
-    function prevSlide() {
-      let prevIndex = currentIndex - 1;
-      if (prevIndex < 0) prevIndex = slides.length - 1;
-      showSlide(prevIndex);
-    }
-
     prevBtn.addEventListener('click', () => {
-      prevSlide();
-      resetInterval();
+      showSlide(currentSlide -1);
     });
 
     nextBtn.addEventListener('click', () => {
-      nextSlide();
-      resetInterval();
+      showSlide(currentSlide +1);
     });
 
-    function startSlideShow() {
-      slideInterval = setInterval(nextSlide, 5000);
-    }
-
-    function resetInterval() {
-      clearInterval(slideInterval);
-      startSlideShow();
-    }
-
-    // İlk slaytı göster ve otomatik geçiş başlat
-    window.addEventListener('load', () => {
-      showSlide(currentIndex);
-      startSlideShow();
+    // İlk slide göster
+    slides[0].addEventListener('load', () => {
+      showSlide(0);
     });
+    if (slides[0].complete) {
+      showSlide(0);
+    }
 
-    // Kalp animasyonları
+    // Kalplerin animasyonu
     function createHeart() {
       const heart = document.createElement('div');
       heart.classList.add('heart');
       heart.style.left = Math.random() * window.innerWidth + 'px';
-      heart.style.top = window.innerHeight + 30 + 'px';
+      heart.style.animationDuration = (4 + Math.random() * 2) + 's';
+      heart.style.opacity = Math.random();
+      heart.style.fontSize = (10 + Math.random() * 20) + 'px';
+
       document.body.appendChild(heart);
 
       setTimeout(() => {
         heart.remove();
       }, 6000);
     }
+    setInterval(createHeart, 500);
 
-    setInterval(createHeart, 400);
+    // Konfeti efektleri
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    let confettis = [];
 
-    // Konfeti animasyonu
-    function startConfetti() {
-      const canvas = document.getElementById('confetti-canvas');
-      const ctx = canvas.getContext('2d');
-let width, height;
-let particles = [];
-  function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-  }
+    function resizeCanvas() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-  window.addEventListener('resize', resize);
-  resize();
+    function Confetti() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H - H;
+      this.r = Math.random() * 6 + 4;
+      this.d = Math.random() * 10 + 10;
+      this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+      this.tilt = Math.floor(Math.random() * 10) - 10;
+      this.tiltAngleIncremental = (Math.random() * 0.07) + 0.05;
+      this.tiltAngle = 0;
 
-  function randomRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  class Particle {
-    constructor() {
-      this.x = randomRange(0, width);
-      this.y = randomRange(-height, 0);
-      this.size = randomRange(5, 12);
-      this.speedY = randomRange(1, 3);
-      this.speedX = randomRange(-0.5, 0.5);
-      this.color = hsl(${Math.floor(randomRange(0, 360))}, 100%, 70%);
-      this.opacity = randomRange(0.7, 1);
-      this.rotation = randomRange(0, 360);
-      this.rotationSpeed = randomRange(-5, 5);
+      this.draw = function() {
+        ctx.beginPath();
+        ctx.lineWidth = this.r / 2;
+        ctx.strokeStyle = this.color;
+        ctx.moveTo(this.x + this.tilt + this.r / 4, this.y);
+        ctx.lineTo(this.x + this.tilt, this.y + this.tilt + this.r / 4);
+        ctx.stroke();
+      };
     }
 
-    update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-      this.rotation += this.rotationSpeed;
-      if (this.y > height) {
-        this.y = randomRange(-height, 0);
-        this.x = randomRange(0, width);
+    function initConfetti() {
+      confettis = [];
+      for (let i=0; i<150; i++) {
+        confettis.push(new Confetti());
       }
     }
 
-    draw() {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rotation * Math.PI / 180);
-      ctx.fillStyle = this.color;
-      ctx.globalAlpha = this.opacity;
-      ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
-      ctx.restore();
+    function drawConfetti() {
+      ctx.clearRect(0, 0, W, H);
+      confettis.forEach(c => c.draw());
+      updateConfetti();
     }
-  }
 
-  function initParticles(count) {
-    particles = [];
-    for(let i=0; i<count; i++) {
-      particles.push(new Particle());
+    function updateConfetti() {
+      confettis.forEach(c => {
+        c.tiltAngle += c.tiltAngleIncremental;
+        c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
+        c.x += Math.sin(c.d);
+        c.tilt = Math.sin(c.tiltAngle) * 15;
+
+        if (c.y > H) {
+          c.x = Math.random() * W;
+          c.y = -20;
+          c.tilt = Math.floor(Math.random() * 10) - 10;
+        }
+      });
     }
-  }
 
-  function animate() {
-    ctx.clearRect(0, 0, width, height);
-    particles.forEach(p => {
-      p.update();
-      p.draw();
+    initConfetti();
+    setInterval(drawConfetti, 20);
+
+    // --- Quiz aç/kapa ve kontrol ---
+
+    const openQuizBtn = document.getElementById('open-quiz-btn');
+    const quizModal = document.getElementById('quiz-modal');
+    const quizCloseBtn = document.getElementById('quiz-close-btn');
+    const quizForm = document.getElementById('quiz-form');
+    const quizResult = document.getElementById('quiz-result');
+
+    openQuizBtn.addEventListener('click', () => {
+      quizModal.style.display = 'flex';
+      quizResult.textContent = '';
+      quizForm.reset();
     });
-    requestAnimationFrame(animate);
-  }
 
-  initParticles(150);
-  animate();
-}
+    quizCloseBtn.addEventListener('click', () => {
+      quizModal.style.display = 'none';
+    });
 
-// Müzik otomatik oynatma (bazı tarayıcılarda kullanıcı etkileşimi gerekir)
-function playMusic() {
-  music.play().catch(() => {
-    console.log('Otomatik müzik çalma engellendi, lütfen bir butona tıklayın.');
-  });
-}
-</script> </body> </html> 
+    quizModal.addEventListener('click', (e) => {
+      if(e.target === quizModal) {
+        quizModal.style.display = 'none';
+      }
+    });
+
+    quizForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const answers = {
+        school: 'X', // okul adı boş bırakabilirsin ya da 'Örnek Okul' yazabilirsin, kontrol istersen burayı düzenle
+        birthdate: '29.05.2008',
+        birthyear: '2008',
+        birthday: '29',
+        favcolor: 'pembe',
+        grade: '11',
+        branch: '11-İ',
+        schoolnum: '1025',
+        age: '17'
+      };
+
+      let score = 0;
+      let total = Object.keys(answers).length;
+      let feedback = [];
+
+      // Okul için case insensitive kontrol (string eşleşme değil ama örnek olsun)
+      if (quizForm.school.value.trim().toLowerCase().includes('okul')) {
+        score++;
+      } else {
+        feedback.push('Okul adı yanlış veya eksik.');
+      }
+
+      if (quizForm.birthdate.value.trim() === answers.birthdate) score++; else feedback.push('Doğum tarihi yanlış.');
+      if (quizForm.birthyear.value.trim() === answers.birthyear) score++; else feedback.push('Doğum yılı yanlış.');
+      if (quizForm.birthday.value.trim() === answers.birthday) score++; else feedback.push('Doğum günü ayın kaçında yanlış.');
+      if (quizForm.favcolor.value.trim().toLowerCase() === answers.favcolor) score++; else feedback.push('En sevdiği renk yanlış.');
+      if (quizForm.grade.value.trim() === answers.grade) score++; else feedback.push('Kaçıncı sınıf yanlış.');
+      if (quizForm.branch.value.trim().toUpperCase() === answers.branch) score++; else feedback.push('Hangi şube yanlış.');
+      if (quizForm.schoolnum.value.trim() === answers.schoolnum) score++; else feedback.push('Okul numarası yanlış.');
+      if (quizForm.age.value.trim() === answers.age) score++; else feedback.push('Kaç yaşına girdi yanlış.');
+
+      quizResult.innerHTML = `<p>Doğru cevap sayısı: ${score} / ${total}</p>`;
+      if (score === total) {
+        quizResult.innerHTML += '<p style="color:#28a745;">Tebrikler! Tüm soruları doğru cevapladınız. 🎉</p>';
+      } else {
+        quizResult.innerHTML += `<p style="color:#dc3545;">Yanlış cevaplar:</p><ul style="text-align:left; color:#dc3545;">${feedback.map(f=>'<li>'+f+'</li>').join('')}</ul>`;
+      }
+    });
+  </script>
+
+</body>
+</html>
