@@ -453,7 +453,7 @@
     if (!activeImage.complete) {
       activeImage.onload = () => {
         adjustCarouselSize(activeImage);
-     };
+      };
     } else {
       adjustCarouselSize(activeImage);
     }
@@ -461,7 +461,8 @@
 
   function nextSlide() {
     let nextIndex = currentIndex + 1;
-    if (nextIndex >= slides.length) nextIndex = 0;
+    if (nextIndex >= slides.length
+  if (nextIndex >= slides.length) nextIndex = 0;
     showSlide(nextIndex);
   }
 
@@ -478,7 +479,9 @@
 
   nextBtnCarousel.addEventListener('click', () => {
     nextSlide();
-    resetInterval
+    resetInterval();
+  });
+
   function startSlideShow() {
     slideInterval = setInterval(nextSlide, 5000);
   }
@@ -641,6 +644,11 @@
     quizResult.textContent = `Quiz tamamlandı! Puanınız: ${score} / ${questions.length}`;
     quizResult.style.display = 'block';
   }
+
+  // Sayfa yüklenince geri sayımı başlat
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  startSlideShow();
 </script>
 </body>
 </html>
