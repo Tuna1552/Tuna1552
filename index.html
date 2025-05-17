@@ -296,3 +296,14 @@
 
     // Müzik oynatma fonksiyonu
     function playMusic() {
+      music.play().catch(() => {});
+    }
+
+    // Kullanıcı tıklayınca müzik başlasın (mobil uyumluluk için)
+    document.body.addEventListener("click", () => {
+      playMusic();
+    }, { once: true });
+
+  </script>
+
+</body
