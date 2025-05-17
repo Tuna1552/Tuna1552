@@ -79,6 +79,32 @@
       transform: scale(0.95);
     }
 
+    /* Quiz stil */
+    #quiz-container {
+      display: none; /* Başlangıçta gizli */
+      margin-top: 20px;
+      text-align: left;
+      max-width: 400px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .option {
+      margin: 5px 0;
+    }
+
+    .option input {
+      margin-right: 10px;
+    }
+
     /* Carousel container */
     .carousel {
       position: relative;
@@ -225,6 +251,14 @@
     <button class="carousel-button next" aria-label="Sonraki fotoğraf">&#10095;</button>
   </div>
 
+  <!-- Quiz Container -->
+  <div id="quiz-container">
+    <h2>🎉 Ece'nin Quizine Hoş Geldiniz! 🎉</h2>
+    <div id="questions"></div>
+    <button id="submit-quiz-btn">Quiz'i Gönder</button>
+    <div id="quiz-result" style="margin-top: 20px;"></div>
+  </div>
+
   <!-- Müzik -->
   <audio id="music" preload="auto" loop>
     <source src="until_i_found_you.mp3" type="audio/mpeg" />
@@ -241,8 +275,10 @@
   const playBtn = document.getElementById('play-music-btn');
   const carousel = document.getElementById('carousel');
   const slides = carousel.querySelectorAll('.carousel-slide');
-  const prevBtn = carousel.querySelector('.carousel-button.prev');
-  const nextBtn = carousel.querySelector('.carousel-button.next');
+  const quizContainer = document.getElementById('quiz-container');
+  const questionsDiv = document.getElementById('questions');
+  const submitQuizBtn = document.getElementById('submit-quiz-btn');
+  const quizResult = document.getElementById('quiz-result');
 
   // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
   const hedefTarih = new Date();
@@ -348,73 +384,197 @@
   // Konfeti animasyonu
   function startConfetti() {
     const canvas = document.getElementById('confetti-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const confettiCount = 150;
-const confettis = [];
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const confettiCount = 150;
+    const confettis = [];
 
-class Confetti {
-  constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * -canvas.height;
-    this.size = (Math.random() * 7) + 3;
-    this.speed = (Math.random() * 3) + 2;
-    this.angle = Math.random() * 2 * Math.PI;
-    this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-    this.spin = (Math.random() - 0.5) * 0.1;
-  }
+    class Confetti {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height;
+        this.size = (Math.random() * 7) + 3;
+        this.speed = (Math.random() * 3) + 2;
+        this.angle = Math.random() * 2 * Math.PI;
+        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        this.spin = (Math.random() - 0.5) * 0.1;
+      }
 
-  update() {
-    this.y += this.speed;
-    this.angle += this.spin;
+      update() {
+        this.y += this.speed;
+        this.angle += this.spin;
 
-    if (this.y > canvas.height) {
-      this.y = -this.size;
-      this.x = Math.random() * canvas.width;
+        if (this.y > canvas.height) {
+          this.y = -this.size;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.restore();
+      }
     }
+
+    for(let i=0; i<confettiCount; i++) {
+      confettis.push(new Confetti());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettis.forEach(c => {
+        c.update();
+        c.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
   }
 
-  draw() {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
-    ctx.fillStyle = this.color;
-    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-    ctx.restore();
-  }
-}
-
-for(let i=0; i<confettiCount; i++) {
-  confettis.push(new Confetti());
-}
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  confettis.forEach(c => {
-    c.update();
-    c.draw();
+  // Müzik kontrolü
+  playBtn.addEventListener('click', () => {
+    music.play().then(() => {
+      playBtn.style.display = 'none';
+      countdownElement.style.display = 'block';
+      carousel.style.display = 'inline-block';
+      showSlide(0);
+      startSlideShow();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+      quizContainer.style.display = 'block'; // Quiz'i göster
+      loadQuiz(); // Quiz'i yükle
+    }).catch(err => {
+      alert('Müziği başlatmak için etkileşim gerekiyor.');
+      console.error(err);
+    });
   });
-  requestAnimationFrame(animate);
-}
 
-animate();
-}
+  // Quiz yükleme
+  function loadQuiz() {
+    const questions = [
+      {
+        question: "Ece şuanda karatede hangi kuşakta?",
+        options: ["Kahverengi", "Siyah", "Mavi", "Yeşil"],
+        answer: "Kahverengi"
+      },
+      {
+        question: "Ece şuanda hangi okulda okuyor?",
+        options: ["İzmir Fen Lisesi", "Bornova Anadolu Lisesi", "Menemen Atatürk Anadolu Lisesi", "ODTÜ"],
+        answer: "Menemen Atatürk Anadolu Lisesi"
+      },
+      {
+        question: "Ecenin en sevdiği hayvan?",
+        options: ["Kedi", "Köpek", "Tavşan", "Kuş"],
+        answer: "Kedi"
+      },
+      {
+        question: "Ece şuan kaçıncı sınıf?",
+        options: ["10", "11", "12", "9"],
+        answer: "11"
+      },
+      {
+        question: "Ecenin sınıf şubesi nedir?",
+        options: ["11-B", "11-G", "11-H", "11-İ"],
+        answer: "11-İ"
+      },
+      {
+        question: "Ecenin okuduğu bölüm nedir?",
+        options: ["Sayısal", "Dil", "Eşit Ağırlık", "Sözel"],
+        answer: "Dil"
+      },
+      {
+        question: "Ecenin okul numarası kaçtır?",
+   options: ["1028", "1025", "1088", "1005"],
+        answer: "1025"
+      },
+      {
+        question: "Ecenin doğduğu yıl kaçtır?",
+        options: ["2007", "2008", "2009", "2010"],
+        answer: "2008"
+      },
+      {
+        question: "Ece hangi ayda doğmuştur?",
+        options: ["Nisan", "Mayıs", "Haziran", "Temmuz"],
+        answer: "Mayıs"
+      },
+      {
+        question: "Ecenin en sevdiği arkadaşının ismi nedir?",
+        options: ["Tuna", "Tuna", "Tuna", "Tuna"],
+        answer: "Tuna"
+      }
+    ];
 
-// Müzik kontrolü
-playBtn.addEventListener('click', () => {
-music.play().then(() => {
-playBtn.style.display = 'none';
-countdownElement.style.display = 'block';
-carousel.style.display = 'inline-block';
-showSlide(0);
-startSlideShow();
-updateCountdown();
-setInterval(updateCountdown, 1000);
-}).catch(err => {
-alert('Müziği başlatmak için etkileşim gerekiyor.');
-console.error(err);
-});
-});
+    questions.forEach((q, index) => {
+      const questionDiv = document.createElement('div');
+      questionDiv.classList.add('question');
+      questionDiv.innerHTML = `<p>${index + 1}. ${q.question}</p>`;
 
-</script> </body> </html> ```
+      q.options.forEach(option => {
+        const optionDiv = document.createElement('div');
+        optionDiv.classList.add('option');
+        optionDiv.innerHTML = `<label><input type="radio" name="question${index}" value="${option}"> ${option}</label>`;
+        questionDiv.appendChild(optionDiv);
+      });
+
+      questionsDiv.appendChild(questionDiv);
+    });
+
+    submitQuizBtn.addEventListener('click', submitQuiz);
+  }
+
+  function submitQuiz() {
+    const questions = [
+      {
+        answer: "Kahverengi"
+      },
+      {
+        answer: "Menemen Atatürk Anadolu Lisesi"
+      },
+      {
+        answer: "Kedi"
+      },
+      {
+        answer: "11"
+      },
+      {
+        answer: "11-İ"
+      },
+      {
+        answer: "Dil"
+      },
+      {
+        answer: "1025"
+      },
+      {
+        answer: "2008"
+      },
+      {
+        answer: "Mayıs"
+      },
+      {
+        answer: "Tuna"
+      }
+    ];
+
+    let score = 0;
+
+    questions.forEach((q, index) => {
+      const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+      if (selectedOption && selectedOption.value === q.answer) {
+        score++;
+      }
+    });
+
+    quizResult.innerHTML = `Quiz tamamlandı! Puanınız: ${score} / ${questions.length}`;
+  }
+
+</script>
+</body>
+</html>
+       
