@@ -104,6 +104,8 @@
       max-width: 800px; /* Genişliği artır */
       text-align: center;
       position: relative;
+      width: 90%; /* Ekranı kaplama oranını artır */
+      height: auto; /* Yüksekliği otomatik ayarla */
     }
 
     .quiz-question {
@@ -138,11 +140,12 @@
       top: 10px;
       right: 10px;
       padding: 10px;
-      background: red;
-      color: white;
+      background: white; /* Beyaz arka plan */
+      color: #ff1493; /* Kırmızı yazı rengi */
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 1.2em;
     }
 
     /* Sonraki Buton Stili */
@@ -181,7 +184,7 @@
       margin: 40px auto 0;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 40px rgba(255,0,0,0.3);
       background: #fff;
       user-select: none;
       z-index: 1000;
@@ -303,7 +306,7 @@
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
-  <button id="quiz-btn" aria-label="Quiz Başlat">🎉 Ece'nin Doğum Günü Quizi Yap</button>
+  <button id="quiz-btn" aria-label="Quiz Başlat">🎉 Ece'nin Doğum Günü Quizini Yap</button>
 
   <div id="countdown" aria-live="polite"></div>
 
@@ -362,38 +365,38 @@
   const questions = [
     {
       question: "Ece şu an kaçıncı sınıf?",
-      options: ["10", "11", "12", "9"],
-      answer: "11"
+      options: ["A. 10", "B. 11", "C. 12", "D. 9"],
+      answer: "B. 11"
     },
     {
       question: "Ece'nin sınıf şubesi nedir?",
-      options: ["11-A", "11-B", "11-C", "11-İ"],
-      answer: "11-İ"
+      options: ["A. 11-A", "B. 11-B", "C. 11-C", "D. 11-İ"],
+      answer: "D. 11-İ"
     },
     {
       question: "Ece'nin okuduğu bölüm nedir?",
-      options: ["Matematik", "Dil", "Fen", "Sosyal Bilgiler"],
-      answer: "Dil"
+      options: ["A. Matematik", "B. Dil", "C. Fen", "D. Sosyal Bilgiler"],
+      answer: "B. Dil"
     },
     {
       question: "Ece'nin okul numarası kaçtır?",
-      options: ["1028", "1025", "1088", "1005"],
-      answer: "1025"
+      options: ["A. 1028", "B. 1025", "C. 1088", "D. 1005"],
+      answer: "B. 1025"
     },
     {
       question: "Ece'nin doğduğu yıl kaçtır?",
-      options: ["2007", "2008", "2009", "2010"],
-      answer: "2008"
+      options: ["A. 2007", "B. 2008", "C. 2009", "D. 2010"],
+      answer: "B. 2008"
     },
     {
       question: "Ece hangi ayda doğmuştur?",
-      options: ["Nisan", "Mayıs", "Haziran", "Temmuz"],
-      answer: "Mayıs"
+      options: ["A. Nisan", "B. Mayıs", "C. Haziran", "D. Temmuz"],
+      answer: "B. Mayıs"
     },
     {
       question: "Ece'nin en sevdiği arkadaşının ismi nedir?",
-      options: ["Ali", "Tuna", "Ayşe", "Mehmet"],
-      answer: "Tuna"
+      options: ["A. Ali", "B. Tuna", "C. Ayşe", "D. Mehmet"],
+      answer: "B. Tuna"
     }
   ];
 
@@ -450,7 +453,7 @@
     if (!activeImage.complete) {
       activeImage.onload = () => {
         adjustCarouselSize(activeImage);
-      };
+     };
     } else {
       adjustCarouselSize(activeImage);
     }
@@ -489,7 +492,6 @@
 
   // Kalp animasyonları
   function createHeart() {
-   
     const heart = document.createElement('div');
     heart.classList.add('heart');
     heart.style.left = Math.random() * window.innerWidth + 'px';
