@@ -1,36 +1,139 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>🎉 Ece'nin Doğum Günü 🎉</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
     body {
-      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      margin: 0;
+      background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: #333;
-      font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      padding: 50px;
       overflow: hidden;
+      height: 100vh;
+      position: relative;
     }
+
     h1 {
-      font-size: 3em;
-      margin-bottom: 0.5em;
+      font-family: 'Pacifico', cursive;
+      font-size: 3.5em;
+      margin-top: 1rem;
+      color: #ff1493;
+      text-shadow: 0 0 10px #ff66b2;
     }
+
     #countdown {
       font-size: 2em;
       margin-top: 1em;
       color: #ff007f;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
     }
+
     #message {
       font-size: 2em;
       margin-top: 2em;
       color: #ff1493;
       display: none;
+      text-shadow: 0 0 10px #ff66b2;
     }
-    canvas {
+
+    /* Kalpler için */
+    .heart {
       position: fixed;
-      top: 0;
+      width: 30px;
+      height: 30px;
+      background-color: #ff1493;
+      transform: rotate(-45deg);
+      left: 50%;
+      top: 50%;
+      pointer-events: none;
+      animation: floatUp 6s linear infinite;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 3px #ff69b4);
+      z-index: 998;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #ff1493;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: -15px;
       left: 0;
+    }
+    .heart::after {
+      left: 15px;
+      top: 0;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(-45deg);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-400px) rotate(-45deg);
+        opacity: 0;
+      }
+    }
+
+    /* Balonlar */
+    .balloon {
+      position: absolute;
+      bottom: -150px;
+      width: 60px;
+      height: 80px;
+      background: radial-gradient(circle at 50% 40%, #ff6f91, #d32f6f);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      cursor: pointer;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+      user-select: none;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 22px;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .balloon span {
+      margin-bottom: 10px;
+      display: none;
+    }
+    .balloon.clicked span {
+      display: block;
+    }
+    .balloon:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px #ff6f91);
+    }
+
+    /* Balon ipi */
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      width: 2px;
+      height: 25px;
+      background: #444;
+      transform: translateX(-50%);
+      border-radius: 1px;
+    }
+
+    /* Canvas */
+    canvas#confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       pointer-events: none;
       z-index: 999;
     }
@@ -43,8 +146,8 @@
   <div id="message">🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖</div>
 
   <!-- Müzik -->
-  <audio id="music" preload="auto">
-    <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg">
+  <audio id="music" preload="auto" loop>
+    <source src="https://dl.sndup.net/tsc3/UntilIFoundYou.mp3" type="audio/mpeg" />
     Tarayıcınız ses çaları desteklemiyor.
   </audio>
 
@@ -75,7 +178,8 @@
         countdownElement.style.display = "none";
         messageElement.style.display = "block";
         startConfetti();
-        music.play();
+        startHearts();
+        if(music.paused) music.play().catch(() => {});
         return;
       }
 
@@ -91,12 +195,12 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Tarayıcı otomatik müziğe izin vermez, bu yüzden kullanıcı tıklayınca başlasın
+    // Kullanıcı tıklaması müziği başlatır (zorunlu)
     document.body.addEventListener("click", () => {
       music.play().catch(() => {});
     }, { once: true });
 
-    // Konfeti efekti
+    // --- KONFETİ ---
     function startConfetti() {
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
@@ -156,6 +260,76 @@
 
       loop();
     }
+
+    // --- KALPLER ---
+    function startHearts() {
+      const numHearts = 20;
+      for(let i=0; i<numHearts; i++){
+        createHeart();
+      }
+    }
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.style.left = (Math.random() * window.innerWidth) + 'px';
+      heart.style.top = (window.innerHeight + 30) + 'px';
+      heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+      document.body.appendChild(heart);
+
+      let posY = window.innerHeight + 30;
+      const speed = 1 + Math.random() * 2;
+      let opacity = 0.7;
+      let frame;
+
+      function animate() {
+        posY -= speed;
+        heart.style.top = posY + 'px';
+        opacity -= 0.007;
+        heart.style.opacity = opacity;
+        if(posY < -40 || opacity <= 0){
+          document.body.removeChild(heart);
+          createHeart();
+        } else {
+          frame = requestAnimationFrame(animate);
+        }
+      }
+      animate();
+    }
+
+    // --- BALONLAR ---
+    const balonSayisi = 8;
+    const balonRenkleri = [
+      '#ff6f91', '#ff9671', '#ffc75f', '#d65f5f', '#a0c1b8', '#6a4c93', '#c06c84', '#355c7d'
+    ];
+
+    for(let i=0; i < balonSayisi; i++){
+      const balon = document.createElement('div');
+      balon.className = 'balloon';
+      balon.style.background = `radial-gradient(circle at 50% 40%, ${balonRenkleri[i]}, darken(${balonRenkleri[i]}, 20%))`;
+      balon.style.left = (Math.random() * (window.innerWidth - 80)) + 'px';
+      balon.style.animation = `floatBalloon ${10 + Math.random() * 10}s ease-in-out infinite`;
+      balon.style.animationDelay = (Math.random() * 10) + 's';
+      balon.style.bottom = '-150px';
+      balon.innerHTML = '<span>17</span>';
+
+      balon.addEventListener('click', () => {
+        balon.classList.toggle('clicked');
+      });
+
+      document.body.appendChild(balon);
+    }
+
+    // Balon animasyonu için keyframes dinamik oluşturma
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes floatBalloon {
+        0%, 100% { transform: translateY(0) translateX(0); }
+        50% { transform: translateY(-150px) translateX(20px); }
+      }
+    `;
+    document.head.appendChild(style);
+
   </script>
 
 </body>
