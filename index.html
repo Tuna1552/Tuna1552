@@ -248,26 +248,26 @@
     }
   }
 
-  function getEnteredCode() {
-    return boxes.map(b => b.value).join('');
-  }
+function getEnteredCode() {
+  return boxes.map(b => b.value).join('');
+}
 
-  function clearInput() {
-    boxes.forEach(b => b.value = '');
-    boxes[0].focus();
-    document.getElementById('error').textContent = '';
-  }
+function clearInput() {
+  boxes.forEach(b => b.value = '');
+  boxes[0].focus();
+  document.getElementById('error').textContent = '';
+}
 
-  function verifyCode() {
-    const code = getEnteredCode();
-    if (code === '2023') {
-      alert('Şifre doğru! Giriş başarılı.');
-      document.getElementById('password-section').style.display = 'none';
-      document.getElementById('play-music-btn').style.display = 'block';
-    } else {
-      document.getElementById('error').textContent = 'Hatalı şifre, tekrar deneyin.';
-    }
+function verifyCode() {
+  const code = getEnteredCode();
+  if (code === '1025') {
+    alert('Şifre doğru! Giriş başarılı.');
+    document.getElementById('password-section').style.display = 'none';
+    document.getElementById('play-music-btn').style.display = 'block';
+  } else {
+    document.getElementById('error').textContent = 'Hatalı şifre, tekrar deneyin.';
   }
+}
 
   function startMusicAndShowContent() {
     const music = document.getElementById('music');
