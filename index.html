@@ -31,46 +31,22 @@
       text-shadow: 0 0 8px #ff69b4;
     }
 
-    #countdown {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 12px;
-      padding: 20px 40px;
-      font-weight: 700;
-      font-size: 2em;
-      color: #ff007f;
-      box-shadow: 0 0 25px rgba(255, 0, 127, 0.7);
-      margin-top: 10px;
-      user-select: text;
-      min-width: 350px;
-      transition: opacity 0.5s ease;
-      display: none;
-    }
-
-    #message {
-      font-size: 2.2em;
-      margin-top: 2em;
-      color: #ff1493;
-      text-shadow: 0 0 8px #ff69b4;
-      display: none;
-      position: relative;
-      z-index: 1000;
-    }
-
     /* Şifre Girişi Stilleri */
+    .password-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
     h2 {
       margin-bottom: 8px;
-    }
-
-    .subtitle {
-      color: #aaa;
-      font-size: 14px;
-      margin-bottom: 20px;
+      color: #ff007f;
     }
 
     .input-container {
       display: flex;
       gap: 10px;
-      margin-bottom: 20px;
     }
 
     .digit-box {
@@ -82,6 +58,7 @@
       border: 2px solid #aaa;
       background: #f9f9f9;
       color: #333;
+      transition: border-color 0.3s;
     }
 
     .digit-box:focus {
@@ -100,6 +77,7 @@
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
     }
 
     .cancel {
@@ -117,6 +95,27 @@
       margin-top: 10px;
     }
 
+    /* Geri Sayım ve Mesaj */
+    #countdown {
+      display: none;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 20px 40px;
+      font-weight: 700;
+      font-size: 2em;
+      color: #ff007f;
+      box-shadow: 0 0 25px rgba(255, 0, 127, 0.7);
+      margin-top: 10px;
+    }
+
+    #message {
+      font-size: 2.2em;
+      margin-top: 2em;
+      color: #ff1493;
+      text-shadow: 0 0 8px #ff69b4;
+      display: none;
+    }
+
     /* Buton */
     #play-music-btn {
       padding: 15px 40px;
@@ -128,9 +127,7 @@
       cursor: pointer;
       box-shadow: 0 5px 15px rgba(255, 20, 147, 0.7);
       transition: background 0.3s ease, transform 0.3s ease;
-      user-select: none;
       margin-top: 20px;
-      z-index: 1100;
     }
     #play-music-btn:hover {
       background: linear-gradient(45deg, #ff69b4, #ff1493);
@@ -148,11 +145,6 @@
       overflow: hidden;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       background: #fff;
-      user-select: none;
-      z-index: 1000;
-      width: auto;
-      height: auto;
-      transition: width 0.8s ease, height 0.8s ease;
       display: none; /* Başlangıçta gizli */
       max-width: 90vw;
     }
@@ -167,8 +159,6 @@
       position: absolute;
       top: 0;
       left: 0;
-      user-select: none;
-      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
     }
 
     .carousel-slide.active {
@@ -197,14 +187,11 @@
       color: #ff007f;
       box-shadow: 0 0 15px rgba(255,0,127,0.7);
       transition: background 0.3s ease;
-      user-select: none;
-      z-index: 1100;
     }
 
     .carousel-button:hover {
       background: #ff007f;
       color: #fff;
-      box-shadow: 0 0 20px #ff007f;
     }
 
     .carousel-button.prev {
@@ -213,42 +200,6 @@
 
     .carousel-button.next {
       right: 15px;
-    }
-
-    /* Kalp animasyonları */
-    .heart {
-      position: fixed;
-      width: 30px;
-      height: 30px;
-      background-color: #ff1493;
-      transform: rotate(-45deg);
-      pointer-events: none;
-      animation: floatUp 6s linear infinite;
-      opacity: 0.8;
-      filter: drop-shadow(0 0 3px #ff69b4);
-      z-index: 900;
-      border-radius: 5px;
-    }
-    .heart::before,
-    .heart::after {
-      content: "";
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      background-color: #ff1493;
-      border-radius: 50%;
-    }
-    .heart::before {
-      top: -15px;
-      left: 0;
-    }
-    .heart::after {
-      left: 15px;
-      top: 0;
-    }
-    @keyframes floatUp {
-      0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
-      100% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
     }
 
     /* Canvas konfeti z-index */
@@ -265,25 +216,18 @@
 </head>
 <body>
 
-  <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
-
-  <!-- Şifre Girişi -->
-  <div id="password-section">
+  <div class="password-container" id="password-section">
     <h2>Şifreyi giriniz</h2>
-    <div class="subtitle">(Ece'nin okul numarası)</div>
-
     <div class="input-container">
       <input type="text" maxlength="1" class="digit-box" id="digit1">
       <input type="text" maxlength="1" class="digit-box" id="digit2">
       <input type="text" maxlength="1" class="digit-box" id="digit3">
       <input type="text" maxlength="1" class="digit-box" id="digit4">
     </div>
-
     <div class="buttons">
       <button class="btn cancel" onclick="clearInput()">İptal</button>
       <button class="btn submit" onclick="verifyCode()">Gönder</button>
     </div>
-
     <div id="error" class="error"></div>
   </div>
 
@@ -291,6 +235,8 @@
   <div id="message" role="alert" aria-live="assertive">
     🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖
   </div>
+
+  <button id="play-music-btn" style="display: none;" onclick="startMusicAndShowContent()">Müziği Çal</button>
 
   <!-- Carousel -->
   <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
@@ -338,8 +284,9 @@
       alert('Şifre doğru! Giriş başarılı.');
       document.getElementById('password-section').style.display = 'none';
       document.getElementById('countdown').style.display = 'block';
-      document.getElementById('carousel').style.display = 'block';
-      startMusicAndShowContent();
+      document.getElementById('play-music-btn').style.display = 'block';
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
     } else {
       document.getElementById('error').textContent = 'Hatalı şifre, tekrar deneyin.';
     }
@@ -348,11 +295,9 @@
   function startMusicAndShowContent() {
     const music = document.getElementById('music');
     music.play().then(() => {
-      countdownElement.style.display = 'block';
+      document.getElementById('carousel').style.display = 'block';
       showSlide(0);
       startSlideShow();
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
     }).catch(err => {
       alert('Müziği başlatmak için etkileşim gerekiyor.');
       console.error(err);
@@ -399,27 +344,11 @@
   let slideInterval;
   let currentIndex = 0;
 
-  function adjustCarouselSize(img) {
-    const naturalWidth = img.naturalWidth;
-    const naturalHeight = img.naturalHeight;
-    carousel.style.width = naturalWidth + 'px';
-    carousel.style.height = naturalHeight + 'px';
-  }
-
   function showSlide(index) {
     slides.forEach((slide, i) => {
       slide.classList.toggle('active', i === index);
     });
     currentIndex = index;
-
-    const activeImage = slides[currentIndex];
-    if (!activeImage.complete) {
-      activeImage.onload = () => {
-        adjustCarouselSize(activeImage);
-      };
-    } else {
-      adjustCarouselSize(activeImage);
-    }
   }
 
   function nextSlide() {
@@ -452,20 +381,6 @@
     clearInterval(slideInterval);
     startSlideShow();
   }
-
-  // Kalp animasyonları
-  function createHeart() {
-    const heart = document.createElement('div');
-    heart.classList.add('heart');
-    heart.style.left = Math.random() * window.innerWidth + 'px';
-    heart.style.top = window.innerHeight + 30 + 'px';
-    document.body.appendChild(heart);
-
-    setTimeout(() => {
-      heart.remove();
-    }, 6000);
-  }
-  setInterval(createHeart, 400);
 
   // Konfeti animasyonu
   function startConfetti() {
@@ -522,7 +437,6 @@
 
     animate();
   }
-
 </script>
 </body>
 </html>
