@@ -101,6 +101,7 @@
       user-select: none;
       margin-top: 20px;
       z-index: 1100;
+      display: none; /* Başlangıçta gizli */
     }
     #play-music-btn:hover {
       background: linear-gradient(45deg, #ff69b4, #ff1493);
@@ -123,7 +124,7 @@
       width: auto;
       height: auto;
       transition: width 0.8s ease, height 0.8s ease;
-      display: inline-block;
+      display: none; /* Başlangıçta gizli */
       max-width: 90vw;
     }
 
@@ -245,7 +246,7 @@
     <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
   </div>
 
-  <button id="play-music-btn" aria-label="Müziği Başlat" style="display:none;">🎵 Müziği Başlat</button>
+  <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
 
   <div id="countdown" aria-live="polite" style="display:none;"></div>
 
@@ -254,7 +255,7 @@
   </div>
 
   <!-- Carousel -->
-  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel" style="display:none;">
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
     <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
     <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
     <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
@@ -282,6 +283,15 @@
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
   const nextBtn = carousel.querySelector('.carousel-button.next');
+
+  // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
+  const hedefTarih = new Date();
+  if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
+    hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
+  }
+  hedefTarih.setMonth(4);
+  hedefTarih.setDate(29);
+  hedefTarih.setHours(0, 0, 0, 0);
 
   // Geri sayım fonksiyonu
   function updateCountdown() {
@@ -458,13 +468,7 @@
       alert('Şifre doğru! Giriş başarılı.');
       document.getElementById('password-input').style.display = 'none';
       document.getElementById('password-prompt').style.display = 'none';
-      playBtn.style.display = 'block';
-      countdownElement.style.display = 'block';
-      carousel.style.display = 'inline-block';
-      showSlide(0);
-      startSlideShow();
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
+      playBtn.style.display = 'block'; // Müziği başlat butonunu göster
     } else {
       alert('Hatalı şifre, tekrar deneyin.');
       clearInput();
@@ -485,7 +489,13 @@
   // Müzik kontrolü
   playBtn.addEventListener('click', () => {
     music.play().then(() => {
-      playBtn.style.display = 'none';
+      playBtn.style.display = 'none'; // Butonu gizle
+      countdownElement.style.display = 'block'; // Geri sayımı göster
+      carousel.style.display = 'inline-block'; // Carousel'i göster
+      showSlide(0); // İlk resmi göster
+      startSlideShow(); // Slayt gösterisini başlat
+      updateCountdown(); // Geri sayımı güncelle
+      setInterval(updateCountdown, 1000); // Her saniye geri sayımı güncelle
     }).catch(err => {
       alert('Müziği başlatmak için etkileşim gerekiyor.');
       console.error(err);
