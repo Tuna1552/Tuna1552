@@ -21,13 +21,11 @@
       position: relative;
       text-align: center;
     }
-
     h2 {
       margin-bottom: 8px;
       color: #ff007f;
       font-size: 1.5em; /* Başlık boyutu büyütüldü */
     }
-
     .password-container {
       display: flex;
       flex-direction: column;
@@ -35,12 +33,10 @@
       gap: 20px;
       font-size: 1.5em; /* Genel yazı boyutu büyütüldü */
     }
-
     .input-container {
       display: flex;
       gap: 10px;
     }
-
     .digit-box {
       width: 70px; /* Genişlik artırıldı */
       height: 70px; /* Yükseklik artırıldı */
@@ -52,17 +48,14 @@
       color: #333;
       transition: border-color 0.3s;
     }
-
     .digit-box:focus {
       outline: none;
       border-color: #007BFF;
     }
-
     .buttons {
       display: flex;
       gap: 15px;
     }
-
     .btn {
       padding: 12px 30px;
       border: none;
@@ -73,22 +66,18 @@
       font-weight: bold;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-
     .cancel {
       background-color: #999;
       color: white;
     }
-
     .submit {
       background-color: #007BFF;
       color: white;
     }
-
     .error {
       color: #ff4d4d;
       margin-top: 10px;
     }
-
     /* Geri Sayım ve Mesaj */
     #countdown {
       display: none;
@@ -101,7 +90,6 @@
       box-shadow: 0 0 25px rgba(255, 0, 127, 0.7);
       margin-top: 10px;
     }
-
     #message {
       font-size: 2.2em;
       margin-top: 2em;
@@ -109,7 +97,6 @@
       text-shadow: 0 0 8px #ff69b4;
       display: none;
     }
-
     /* Müziği Çal Butonu */
     #play-music-btn {
       padding: 15px 40px;
@@ -131,7 +118,6 @@
     #play-music-btn:active {
       transform: scale(0.95);
     }
-
     /* Carousel container */
     .carousel {
       position: relative;
@@ -143,7 +129,6 @@
       display: none; /* Başlangıçta gizli */
       max-width: 90vw;
     }
-
     /* Slides */
     .carousel-slide {
       display: none;
@@ -155,18 +140,15 @@
       top: 0;
       left: 0;
     }
-
     .carousel-slide.active {
       display: block;
       position: relative;
       animation: fadeIn 1s ease forwards;
     }
-
     @keyframes fadeIn {
       from {opacity: 0;}
       to {opacity: 1;}
     }
-
     /* Navigation buttons */
     .carousel-button {
       position: absolute;
@@ -183,20 +165,16 @@
       box-shadow: 0 0 15px rgba(255,0,127,0.7);
       transition: background 0.3s ease;
     }
-
     .carousel-button:hover {
       background: #ff007f;
       color: #fff;
     }
-
     .carousel-button.prev {
       left: 15px;
     }
-
     .carousel-button.next {
       right: 15px;
     }
-
     /* Canvas konfeti z-index */
     canvas#confetti-canvas {
       position: fixed;
@@ -207,7 +185,6 @@
       width: 100vw;
       height: 100vh;
     }
-
     /* Ece'nin Okul Numarası stil */
     .info-text {
       font-size: 1.2em; /* Büyütüldü */
