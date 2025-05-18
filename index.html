@@ -57,7 +57,7 @@
     }
 
     /* Buton */
-    #play-music-btn, #ece-ai-btn {
+    #play-music-btn {
       padding: 15px 40px;
       font-size: 1.5em;
       border: none;
@@ -71,67 +71,12 @@
       margin-top: 20px;
       z-index: 1100;
     }
-
-    #play-music-btn:hover, #ece-ai-btn:hover {
+    #play-music-btn:hover {
       background: linear-gradient(45deg, #ff69b4, #ff1493);
       transform: scale(1.05);
     }
-
-    #play-music-btn:active, #ece-ai-btn:active {
+    #play-music-btn:active {
       transform: scale(0.95);
-    }
-
-    /* AI sohbet alanı */
-    #ai-chat {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-      width: 300px;
-      max-height: 400px;
-      overflow-y: auto;
-      z-index: 1200;
-    }
-
-    #ai-chat-header {
-      background: #ff1493;
-      color: white;
-      padding: 10px;
-      border-radius: 10px 10px 0 0;
-      text-align: center;
-    }
-
-    #ai-chat-messages {
-      padding: 10px;
-    }
-
-    #ai-chat-input {
-      display: flex;
-      margin: 10px;
-    }
-
-    #ai-chat-input input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    #ai-chat-input button {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background: #ff1493;
-      color: white;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-
-    #ai-chat-input button:hover {
-      background: #ff69b4;
     }
 
     /* Carousel container */
@@ -262,22 +207,11 @@
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
-  <button id="ece-ai-btn" aria-label="ECE AI ile Konuş">🤖 ECE AI</button>
 
   <div id="countdown" aria-live="polite"></div>
 
   <div id="message" role="alert" aria-live="assertive">
     🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖
-  </div>
-
-  <!-- AI sohbet alanı -->
-  <div id="ai-chat">
-    <div id="ai-chat-header">ECE AI</div>
-    <div id="ai-chat-messages"></div>
-    <div id="ai-chat-input">
-      <input type="text" id="user-input" placeholder="Sorunuzu yazın..." />
-      <button id="send-btn">Gönder</button>
-    </div>
   </div>
 
   <!-- Carousel -->
@@ -305,11 +239,6 @@
   const messageElement = document.getElementById('message');
   const music = document.getElementById('music');
   const playBtn = document.getElementById('play-music-btn');
-  const eceAiBtn = document.getElementById('ece-ai-btn');
-  const aiChat = document.getElementById('ai-chat');
-  const aiChatMessages = document.getElementById('ai-chat-messages');
-  const userInput = document.getElementById('user-input');
-  const sendBtn = document.getElementById('send-btn');
   const carousel = document.getElementById('carousel');
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
@@ -419,126 +348,73 @@
   // Konfeti animasyonu
   function startConfetti() {
     const canvas = document.getElementById('confetti-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const confettiCount = 150;
-    const confettis = [];
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const confettiCount = 150;
+const confettis = [];
 
-    class Confetti {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * -canvas.height;
-        this.size = (Math.random() * 7) + 3;
-        this.speed = (Math.random() * 3) + 2;
-        this.angle = Math.random() * 2 * Math.PI;
-        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-        this.spin = (Math.random() - 0.5) * 0.1;
-      }
-
-      update() {
-        this.y += this.speed;
-        this.angle += this.spin;
-
-        if (this.y > canvas.height) {
-          this.y = -this.size;
-          this.x = Math.random() * canvas.width;
-        }
-      }
-
-      draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-        ctx.restore();
-      }
-    }
-
-    for(let i=0; i<confettiCount; i++) {
-      confettis.push(new Confetti());
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      confettis.forEach(c => {
-        c.update();
-        c.draw();
-      });
-      requestAnimationFrame(animate);
-    }
-
-    animate();
+class Confetti {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * -canvas.height;
+    this.size = (Math.random() * 7) + 3;
+    this.speed = (Math.random() * 3) + 2;
+    this.angle = Math.random() * 2 * Math.PI;
+    this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+    this.spin = (Math.random() - 0.5) * 0.1;
   }
 
-  // ECE AI butonuna tıklama
-  eceAiBtn.addEventListener('click', () => {
-    aiChat.style.display = aiChat.style.display === 'none' ? 'block' : 'none';
-    if (aiChat.style.display === 'block') {
-      addMessage("ECE AI: Merhaba, Ben ECE AI! Size nasıl yardımcı olabilirim?");
-    }
-  });
+  update() {
+    this.y += this.speed;
+    this.angle += this.spin;
 
-  // Mesaj ekleme fonksiyonu
-  function addMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.textContent = message;
-    aiChatMessages.appendChild(messageElement);
-    aiChatMessages.scrollTop = aiChatMessages.scrollHeight; // Aşağı kaydır
+    if (this.y > canvas.height) {
+      this.y = -this.size;
+      this.x = Math.random() * canvas.width;
+    }
   }
 
-  // Kullanıcı girişi
-  sendBtn.addEventListener('click', () => {
-    const userMessage = userInput.value;
-    if (userMessage.trim() !== "") {
-      addMessage("Siz: " + userMessage);
-      userInput.value = "";
-      // ECE AI'nın cevap vermesi
-      setTimeout(() => {
-        addMessage("ECE AI: " + getAIResponse(userMessage));
-      }, 1000);
-    }
-  });
-
-  // ECE AI'nın cevap verme fonksiyonu
-  function getAIResponse(input) {
-    const responses = [
-      "Doğum gününde en sevdiğin pasta türü nedir?",
-      "Yaşlanmak sadece bir sayıdır, önemli olan ruh halin!",
-      "Doğum gününde en sevdiğin anı nedir?",
-      "Hayat bir parti, sen de dans et!",
-      "Bir yaş daha almanın en iyi yanı, daha fazla deneyim kazanman!",
-      "Doğum günü esprisi: Neden doğum gününde pasta yenir? Çünkü herkes yaşını unutur!",
-      "Doğum günü kutlamaları, sevdiklerinle birlikte olmanın en güzel yoludur!",
-      "Yaşını sormak için çok genç görünüyorsun!",
-      "Doğum günün kutlu olsun! Bugün senin günün!",
-      "Hayat bir yolculuk, doğum günü de bu yolculukta bir durak!"
-    ];
-
-    // Rastgele bir cevap döndür
-    return responses[Math.floor(Math.random() * responses.length)];
+  draw() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.fillStyle = this.color;
+    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+    ctx.restore();
   }
+}
 
-  // Müzik kontrolü
-  playBtn.addEventListener('click', () => {
-    music.play().then(() => {
-      playBtn.style.display = 'none';
-      countdownElement.style.display = 'block';
-      carousel.style.display = 'inline-block';
-      showSlide(0);
-      startSlideShow();
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }).catch(err => {
-      alert('Müziği başlatmak için etkileşim gerekiyor.');
-      console.error(err);
-    });
+for(let i=0; i<confettiCount; i++) {
+  confettis.push(new Confetti());
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  confettis.forEach(c => {
+    c.update();
+    c.draw();
   });
+  requestAnimationFrame(animate);
+}
 
-  // Sayfa yüklendiğinde geri sayımı başlat
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-</script>
-</body>
-</html>
+animate();
+}
+
+// Müzik kontrolü
+playBtn.addEventListener('click', () => {
+music.play().then(() => {
+playBtn.style.display = 'none';
+countdownElement.style.display = 'block';
+carousel.style.display = 'inline-block';
+showSlide(0);
+startSlideShow();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+}).catch(err => {
+alert('Müziği başlatmak için etkileşim gerekiyor.');
+console.error(err);
+});
+});
+
+</script> </body> </html> ```
