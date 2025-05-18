@@ -240,6 +240,27 @@
 <script>
   const boxes = Array.from(document.querySelectorAll('.digit-box'));
 
+<div class="password-input">
+  <input type="text" maxlength="1" class="password-box" />
+  <input type="text" maxlength="1" class="password-box" />
+  <input type="text" maxlength="1" class="password-box" />
+  <input type="text" maxlength="1" class="password-box" />
+</div>
+
+<script>
+const boxes = document.querySelectorAll('.password-box');
+
+boxes.forEach((box, index) => {
+  box.addEventListener('input', (event) => {
+    moveFocus(event.target, index);
+  });
+
+  box.addEventListener('keydown', (event) => {
+    handleKeydown(event, index);
+  });
+});
+
+// Burada yukarıda paylaştığınız moveFocus() ve handleKeydown() fonksiyonlarını ekleyebilirsiniz
 function moveFocus(currentBox, index) {
   if (currentBox.value.length === 1) {
     if (index < boxes.length - 1) {
@@ -261,6 +282,7 @@ function handleKeydown(event, index) {
     boxes[index + 1].focus();
   }
 }
+</script>
 
 
 function getEnteredCode() {
