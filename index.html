@@ -212,7 +212,7 @@
 <body>
 
   <div class="password-container" id="password-section">
-    <h2>Şifreyi giriniz <span style="color: #aaa; font-size: 14px;">(Ece'nin Okul Numarası)</span></h2>
+    <h2>Şifreyi giriniz</h2>
     <div class="input-container">
       <input type="number" maxlength="1" class="digit-box" id="digit1" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 1)">
       <input type="number" maxlength="1" class="digit-box" id="digit2" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 2)">
@@ -224,6 +224,7 @@
       <button class="btn submit" onclick="verifyCode()">Gönder</button>
     </div>
     <div id="error" class="error"></div>
+    <div style="font-size: 0.8em; color: #aaa;">(Ece'nin Okul Numarası)</div>
   </div>
 
   <div id="countdown" aria-live="polite"></div>
@@ -257,8 +258,12 @@
   const boxes = Array.from(document.querySelectorAll('.digit-box'));
 
   function moveFocus(currentBox, index) {
-    if (currentBox.value.length === 1 && index < boxes.length - 1) {
-      boxes[index].focus();
+    if (currentBox.value.length === 1) {
+      if (index < boxes.length - 1) {
+        boxes[index + 1].focus();
+      } else {
+        currentBox.blur(); // Son kutuda odaklanmayı kaldır
+      }
     }
   }
 
@@ -333,6 +338,7 @@
 
     countdownElement.textContent = 
       `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+    countdownElement.style.display = "block"; // Geri sayımı göster
   }
 
   let slideInterval;
