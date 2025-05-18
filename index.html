@@ -197,10 +197,10 @@
   <div class="password-container" id="password-section">
     <h2>Şifreyi giriniz</h2>
     <div class="input-container">
-      <input type="number" maxlength="1" class="digit-box" id="digit1" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 1)">
-      <input type="number" maxlength="1" class="digit-box" id="digit2" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 2)">
-      <input type="number" maxlength="1" class="digit-box" id="digit3" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 3)">
-      <input type="number" maxlength="1" class="digit-box" id="digit4" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 4)">
+      <input type="text" maxlength="1" class="digit-box" id="digit1" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 1)" onkeypress="return isNumberKey(event)">
+      <input type="text" maxlength="1" class="digit-box" id="digit2" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 2)" onkeypress="return isNumberKey(event)">
+      <input type="text" maxlength="1" class="digit-box" id="digit3" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 3)" onkeypress="return isNumberKey(event)">
+      <input type="text" maxlength="1" class="digit-box" id="digit4" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 4)" onkeypress="return isNumberKey(event)">
     </div>
     <div class="buttons">
       <button class="btn cancel" onclick="clearInput()">İptal</button>
@@ -417,6 +417,12 @@
     }
 
     animate();
+  }
+
+  function isNumberKey(evt) {
+    const charCode = (evt.which) ? evt.which : evt.keyCode;
+    // Sadece 0-9 arası rakamları kontrol et
+    return (charCode >= 48 && charCode <= 57) || charCode === 0;
   }
 </script>
 </body>
