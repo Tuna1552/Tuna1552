@@ -31,6 +31,12 @@
       text-shadow: 0 0 8px #ff69b4;
     }
 
+    #password-prompt {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #ff007f;
+    }
+
     #countdown {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 12px;
@@ -54,6 +60,31 @@
       display: none;
       position: relative;
       z-index: 1000;
+    }
+
+    /* Şifre Girişi */
+    .password-input {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .password-input input {
+      width: 70px;
+      height: 70px;
+      font-size: 48px;
+      text-align: center;
+      margin: 0 10px;
+      border: 2px solid #aaa;
+      border-radius: 10px;
+      background: #f9f9f9;
+      color: #333;
+      transition: border-color 0.3s;
+    }
+
+    .password-input input:focus {
+      outline: none;
+      border-color: #007BFF;
     }
 
     /* Buton */
@@ -204,13 +235,21 @@
 </head>
 <body>
 
-  <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
+  <div id="password-prompt">Şifreyi Giriniz (Ece'nin Okul Numarası):</div>
 
-  <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
+  <!-- Şifre Girişi -->
+  <div class="password-input" id="password-input">
+    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit1">
+    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit2">
+    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit3">
+    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
+  </div>
 
-  <div id="countdown" aria-live="polite"></div>
+  <button id="play-music-btn" aria-label="Müziği Başlat" style="display:none;">🎵 Müziği Başlat</button>
 
-  <div id="message" role="alert" aria-live="assertive">
+  <div id="countdown" aria-live="polite" style="display:none;"></div>
+
+  <div id="message" role="alert" aria-live="assertive" style="display:none;">
     🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖
   </div>
 
@@ -243,15 +282,6 @@
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
   const nextBtn = carousel.querySelector('.carousel-button.next');
-
-  // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
-  const hedefTarih = new Date();
-  if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
-    hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
-  }
-  hedefTarih.setMonth(4);
-  hedefTarih.setDate(29);
-  hedefTarih.setHours(0, 0, 0, 0);
 
   // Geri sayım fonksiyonu
   function updateCountdown() {
@@ -348,73 +378,120 @@
   // Konfeti animasyonu
   function startConfetti() {
     const canvas = document.getElementById('confetti-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const confettiCount = 150;
-const confettis = [];
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const confettiCount = 150;
+    const confettis = [];
 
-class Confetti {
-  constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * -canvas.height;
-    this.size = (Math.random() * 7) + 3;
-    this.speed = (Math.random() * 3) + 2;
-    this.angle = Math.random() * 2 * Math.PI;
-    this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-    this.spin = (Math.random() - 0.5) * 0.1;
+    class Confetti {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height;
+        this.size = (Math.random() * 7) + 3;
+        this.speed = (Math.random() * 3) + 2;
+        this.angle = Math.random() * 2 * Math.PI;
+        this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+        this.spin = (Math.random() - 0.5) * 0.1;
+      }
+
+      update() {
+        this.y += this.speed;
+        this.angle += this.spin;
+
+        if (this.y > canvas.height) {
+          this.y = -this.size;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.restore();
+      }
+    }
+
+    for(let i=0; i<confettiCount; i++) {
+      confettis.push(new Confetti());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confettis.forEach(c => {
+        c.update();
+        c.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
   }
 
-  update() {
-    this.y += this.speed;
-    this.angle += this.spin;
-
-    if (this.y > canvas.height) {
-      this.y = -this.size;
-      this.x = Math.random() * canvas.width;
+  // Şifre doğrulama
+  function moveToNext(element) {
+    if (element.value.length === element.maxLength) {
+      var $next = element.nextElementSibling;
+      if ($next !== null) {
+        $next.focus();
+      }
     }
   }
 
-  draw() {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
-    ctx.fillStyle = this.color;
-    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
-    ctx.restore();
+  function getEnteredCode() {
+    const boxes = document.querySelectorAll('.password-input input');
+    return Array.from(boxes).map(b => b.value).join('');
   }
-}
 
-for(let i=0; i<confettiCount; i++) {
-  confettis.push(new Confetti());
-}
+  function clearInput() {
+    const boxes = document.querySelectorAll('.password-input input');
+    boxes.forEach(b => b.value = '');
+    boxes[0].focus();
+  }
 
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  confettis.forEach(c => {
-    c.update();
-    c.draw();
+  function verifyCode() {
+    const code = getEnteredCode();
+    if (code === '1025') {
+      alert('Şifre doğru! Giriş başarılı.');
+      document.getElementById('password-input').style.display = 'none';
+      document.getElementById('password-prompt').style.display = 'none';
+      playBtn.style.display = 'block';
+      countdownElement.style.display = 'block';
+      carousel.style.display = 'inline-block';
+      showSlide(0);
+      startSlideShow();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    } else {
+      alert('Hatalı şifre, tekrar deneyin.');
+      clearInput();
+    }
+  }
+
+  // Şifre girişi için her bir input'a 'keyup' olayı ekleyin
+  const passwordInputs = document.querySelectorAll('.password-input input');
+  passwordInputs.forEach(input => {
+    input.addEventListener('keyup', (event) => {
+      moveToNext(input);
+      if (Array.from(passwordInputs).every(input => input.value.length === 1)) {
+        verifyCode();
+      }
+    });
   });
-  requestAnimationFrame(animate);
-}
 
-animate();
-}
+  // Müzik kontrolü
+  playBtn.addEventListener('click', () => {
+    music.play().then(() => {
+      playBtn.style.display = 'none';
+    }).catch(err => {
+      alert('Müziği başlatmak için etkileşim gerekiyor.');
+      console.error(err);
+    });
+  });
 
-// Müzik kontrolü
-playBtn.addEventListener('click', () => {
-music.play().then(() => {
-playBtn.style.display = 'none';
-countdownElement.style.display = 'block';
-carousel.style.display = 'inline-block';
-showSlide(0);
-startSlideShow();
-updateCountdown();
-setInterval(updateCountdown, 1000);
-}).catch(err => {
-alert('Müziği başlatmak için etkileşim gerekiyor.');
-console.error(err);
-});
-});
-
-</script> </body> </html> ```
+</script>
+</body>
+</html>
