@@ -44,7 +44,7 @@
     .digit-box {
       width: 70px; /* Genişlik artırıldı */
       height: 70px; /* Yükseklik artırıldı */
-      font-size: 36px; /* Yazı boyutu artırıldı */
+      font-size: 48px; /* Yazı boyutu artırıldı */
       text-align: center;
       border-radius: 10px;
       border: 2px solid #aaa;
@@ -207,6 +207,12 @@
       width: 100vw;
       height: 100vh;
     }
+
+    /* Ece'nin Okul Numarası stil */
+    .info-text {
+      font-size: 1.2em; /* Büyütüldü */
+      color: #333; /* Daha okunabilir bir renk */
+    }
   </style>
 </head>
 <body>
@@ -224,7 +230,7 @@
       <button class="btn submit" onclick="verifyCode()">Gönder</button>
     </div>
     <div id="error" class="error"></div>
-    <div style="font-size: 0.8em; color: #aaa;">(Ece'nin Okul Numarası)</div>
+    <div class="info-text">(Ece'nin Okul Numarası)</div>
   </div>
 
   <div id="countdown" aria-live="polite"></div>
@@ -261,8 +267,6 @@
     if (currentBox.value.length === 1) {
       if (index < boxes.length - 1) {
         boxes[index + 1].focus();
-      } else {
-        currentBox.blur(); // Son kutuda odaklanmayı kaldır
       }
     }
   }
