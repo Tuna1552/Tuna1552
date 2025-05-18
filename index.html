@@ -240,13 +240,16 @@
 <script>
   const boxes = Array.from(document.querySelectorAll('.digit-box'));
 
-  function moveFocus(currentBox, index) {
-    if (currentBox.value.length === 1) {
-      if (index < boxes.length - 1) {
-        boxes[index + 1].focus();
-      }
+function moveFocus(currentBox, index) {
+  if (currentBox.value.length === 1) {
+    if (index < boxes.length - 1) {
+      boxes[index + 1].focus();
     }
+  } else if (currentBox.value.length === 0 && index > 0) {
+    boxes[index - 1].focus();
   }
+}
+
 
 function getEnteredCode() {
   return boxes.map(b => b.value).join('');
