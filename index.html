@@ -153,7 +153,7 @@
       width: auto;
       height: auto;
       transition: width 0.8s ease, height 0.8s ease;
-      display: inline-block;
+      display: none; /* Başlangıçta gizli */
       max-width: 90vw;
     }
 
@@ -267,34 +267,33 @@
 
   <h1>🎈 Ece'nin Doğum Gününe Geri Sayım 🎈</h1>
 
-  <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
+  <!-- Şifre Girişi -->
+  <div id="password-section">
+    <h2>Şifreyi giriniz</h2>
+    <div class="subtitle">(Ece'nin okul numarası)</div>
+
+    <div class="input-container">
+      <input type="text" maxlength="1" class="digit-box" id="digit1">
+      <input type="text" maxlength="1" class="digit-box" id="digit2">
+      <input type="text" maxlength="1" class="digit-box" id="digit3">
+      <input type="text" maxlength="1" class="digit-box" id="digit4">
+    </div>
+
+    <div class="buttons">
+      <button class="btn cancel" onclick="clearInput()">İptal</button>
+      <button class="btn submit" onclick="verifyCode()">Gönder</button>
+    </div>
+
+    <div id="error" class="error"></div>
+  </div>
 
   <div id="countdown" aria-live="polite"></div>
-
   <div id="message" role="alert" aria-live="assertive">
     🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖
   </div>
 
-  <!-- Şifre Girişi -->
-  <h2>Şifreyi giriniz</h2>
-  <div class="subtitle">(Ece'nin okul numarası)</div>
-
-  <div class="input-container">
-    <input type="text" maxlength="1" class="digit-box" id="digit1">
-    <input type="text" maxlength="1" class="digit-box" id="digit2">
-    <input type="text" maxlength="1" class="digit-box" id="digit3">
-    <input type="text" maxlength="1" class="digit-box" id="digit4">
-  </div>
-
-  <div class="buttons">
-    <button class="btn cancel" onclick="clearInput()">İptal</button>
-    <button class="btn submit" onclick="verifyCode()">Gönder</button>
-  </div>
-
-  <div id="error" class="error"></div>
-
   <!-- Carousel -->
-  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel" style="display:none;">
+  <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
     <img src="https://i.imgur.com/rVT9UUO.png" alt="Ece'nin doğum günü resmi 1" class="carousel-slide" />
     <img src="https://i.imgur.com/7u6Fibw.png" alt="Ece'nin doğum günü resmi 2" class="carousel-slide" />
     <img src="https://i.imgur.com/BG1pwTv.png" alt="Ece'nin doğum günü resmi 3" class="carousel-slide" />
@@ -337,16 +336,31 @@
     const code = getEnteredCode();
     if (code === '1025') {
       alert('Şifre doğru! Giriş başarılı.');
-      // Yönlendirme yapılabilir
+      document.getElementById('password-section').style.display = 'none';
+      document.getElementById('countdown').style.display = 'block';
+      document.getElementById('carousel').style.display = 'block';
+      startMusicAndShowContent();
     } else {
       document.getElementById('error').textContent = 'Hatalı şifre, tekrar deneyin.';
     }
   }
 
+  function startMusicAndShowContent() {
+    const music = document.getElementById('music');
+    music.play().then(() => {
+      countdownElement.style.display = 'block';
+      showSlide(0);
+      startSlideShow();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }).catch(err => {
+      alert('Müziği başlatmak için etkileşim gerekiyor.');
+      console.error(err);
+    });
+  }
+
   const countdownElement = document.getElementById('countdown');
   const messageElement = document.getElementById('message');
-  const music = document.getElementById('music');
-  const playBtn = document.getElementById('play-music-btn');
   const carousel = document.getElementById('carousel');
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
@@ -508,22 +522,6 @@
 
     animate();
   }
-
-  // Müzik kontrolü
-  playBtn.addEventListener('click', () => {
-    music.play().then(() => {
-      playBtn.style.display = 'none';
-      countdownElement.style.display = 'block';
-      carousel.style.display = 'inline-block';
-      showSlide(0);
-      startSlideShow();
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }).catch(err => {
-      alert('Müziği başlatmak için etkileşim gerekiyor.');
-      console.error(err);
-    });
-  });
 
 </script>
 </body>
