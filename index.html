@@ -202,10 +202,10 @@
       <input type="password" maxlength="1" class="digit-box" id="digit3" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 3)" onkeypress="return isNumberKey(event)">
       <input type="password" maxlength="1" class="digit-box" id="digit4" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 4)" onkeypress="return isNumberKey(event)">
     </div>
-    <div class="buttons">
-      <button class="btn cancel" onclick="clearInput()">İptal</button>
-      <button class="btn submit" onclick="verifyCode()">Gönder</button>
-    </div>
+<div class="buttons">
+  <button class="btn cancel" onclick="clearInput()">İptal</button>
+  <button class="btn submit" onclick="verifyCode()">Gönder</button>
+</div>
     <div id="error" class="error"></div>
     <div class="info-text">(Ece'nin Okul Numarası)</div>
   </div>
@@ -302,6 +302,10 @@ function verifyCode() {
   } else {
     document.getElementById('error').textContent = 'Hatalı şifre, tekrar deneyin.';
   }
+}
+
+function getEnteredCode() {
+  return boxes.map(b => b.value).join('');
 }
 
   function startMusicAndShowContent() {
