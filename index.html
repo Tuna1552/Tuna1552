@@ -250,6 +250,17 @@ function moveFocus(currentBox, index) {
   }
 }
 
+function handleKeydown(event, index) {
+  const currentBox = boxes[index];
+  if (event.key === 'Backspace' && currentBox.value.length === 0 && index > 0) {
+    boxes[index - 1].focus();
+    boxes[index - 1].value = '';
+  } else if (event.key === 'ArrowLeft' && index > 0) {
+    boxes[index - 1].focus();
+  } else if (event.key === 'ArrowRight' && index < boxes.length - 1) {
+    boxes[index + 1].focus();
+  }
+}
 
 
 function getEnteredCode() {
