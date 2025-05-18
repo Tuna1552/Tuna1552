@@ -25,6 +25,7 @@
     h2 {
       margin-bottom: 8px;
       color: #ff007f;
+      font-size: 1.5em; /* Başlık boyutu büyütüldü */
     }
 
     .password-container {
@@ -32,6 +33,7 @@
       flex-direction: column;
       align-items: center;
       gap: 20px;
+      font-size: 1.5em; /* Genel yazı boyutu büyütüldü */
     }
 
     .input-container {
@@ -40,9 +42,9 @@
     }
 
     .digit-box {
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
+      width: 70px; /* Genişlik artırıldı */
+      height: 70px; /* Yükseklik artırıldı */
+      font-size: 36px; /* Yazı boyutu artırıldı */
       text-align: center;
       border-radius: 10px;
       border: 2px solid #aaa;
@@ -108,7 +110,7 @@
       display: none;
     }
 
-    /* Buton */
+    /* Müziği Çal Butonu */
     #play-music-btn {
       padding: 15px 40px;
       font-size: 1.5em;
@@ -212,10 +214,10 @@
   <div class="password-container" id="password-section">
     <h2>Şifreyi giriniz <span style="color: #aaa; font-size: 14px;">(Ece'nin Okul Numarası)</span></h2>
     <div class="input-container">
-      <input type="text" maxlength="1" class="digit-box" id="digit1">
-      <input type="text" maxlength="1" class="digit-box" id="digit2">
-      <input type="text" maxlength="1" class="digit-box" id="digit3">
-      <input type="text" maxlength="1" class="digit-box" id="digit4">
+      <input type="number" maxlength="1" class="digit-box" id="digit1" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 1)">
+      <input type="number" maxlength="1" class="digit-box" id="digit2" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 2)">
+      <input type="number" maxlength="1" class="digit-box" id="digit3" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 3)">
+      <input type="number" maxlength="1" class="digit-box" id="digit4" onfocus="this.setAttribute('inputmode', 'numeric')" oninput="moveFocus(this, 4)">
     </div>
     <div class="buttons">
       <button class="btn cancel" onclick="clearInput()">İptal</button>
@@ -229,7 +231,7 @@
     🎉 Doğum günün kutlu olsun Ece! Nice yıllara! 🎂💖
   </div>
 
-  <button id="play-music-btn" onclick="startMusicAndShowContent()">Müziği Çal</button>
+  <button id="play-music-btn" onclick="startMusicAndShowContent()">🎵 Müziği Başlat</button>
 
   <!-- Carousel -->
   <div class="carousel" aria-label="Doğum Günü Fotoğraf Slayt Gösterisi" id="carousel">
@@ -253,13 +255,12 @@
 
 <script>
   const boxes = Array.from(document.querySelectorAll('.digit-box'));
-  boxes.forEach((box, index) => {
-    box.addEventListener('input', () => {
-      if (box.value.length === 1 && index < boxes.length - 1) {
-        boxes[index + 1].focus();
-      }
-    });
-  });
+
+  function moveFocus(currentBox, index) {
+    if (currentBox.value.length === 1 && index < boxes.length - 1) {
+      boxes[index].focus();
+    }
+  }
 
   function getEnteredCode() {
     return boxes.map(b => b.value).join('');
@@ -276,10 +277,7 @@
     if (code === '1025') {
       alert('Şifre doğru! Giriş başarılı.');
       document.getElementById('password-section').style.display = 'none';
-      document.getElementById('countdown').style.display = 'block';
       document.getElementById('play-music-btn').style.display = 'block';
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
     } else {
       document.getElementById('error').textContent = 'Hatalı şifre, tekrar deneyin.';
     }
@@ -292,6 +290,8 @@
       document.getElementById('play-music-btn').style.display = 'none'; // Butonu gizle
       showSlide(0);
       startSlideShow();
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
     }).catch(err => {
       alert('Müziği başlatmak için etkileşim gerekiyor.');
       console.error(err);
