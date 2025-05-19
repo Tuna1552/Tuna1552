@@ -503,7 +503,6 @@
     const passwordInputs = document.querySelectorAll('.password-input input');
 
     if (code === '1025') {
-      alert('Şifre doğru! Giriş başarılı.');
 
       removeAnimationClasses();
       passwordInputs.forEach(input => {
@@ -517,7 +516,6 @@
         playBtn.style.display = 'block'; // Müziği başlat butonunu göster
       }, 600); // Animasyon sonrası gizle
     } else {
-      alert('Hatalı şifre, tekrar deneyin.');
 
       removeAnimationClasses();
       passwordInputs.forEach(input => {
