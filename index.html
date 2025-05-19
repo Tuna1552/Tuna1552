@@ -143,11 +143,10 @@
       background: #fff;
       user-select: none;
       z-index: 1000;
-      width: auto;
+      width: 100%; /* Tam genişlik */
       height: auto;
       transition: width 0.8s ease, height 0.8s ease;
       display: none; /* Başlangıçta gizli */
-      max-width: 90vw;
     }
 
     /* Slides */
@@ -162,6 +161,9 @@
       left: 0;
       user-select: none;
       box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+      width: 100%; /* Tam genişlik */
+      height: 100%; /* Tam yükseklik */
+      object-fit: cover; /* Resmi kapsayacak şekilde ayarla */
     }
 
     .carousel-slide.active {
@@ -516,7 +518,6 @@
         playBtn.style.display = 'block'; // Müziği başlat butonunu göster
       }, 600); // Animasyon sonrası gizle
     } else {
-
       removeAnimationClasses();
       passwordInputs.forEach(input => {
         input.classList.add('shake-red');
@@ -557,4 +558,3 @@
 </script>
 </body>
 </html>
-
