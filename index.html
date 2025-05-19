@@ -264,10 +264,10 @@
 
   <!-- Şifre Girişi -->
   <div class="password-input" id="password-input">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit1" aria-label="Şifre Kutucuğu 1">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit2" aria-label="Şifre Kutucuğu 2">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit3" aria-label="Şifre Kutucuğu 3">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit4" aria-label="Şifre Kutucuğu 4">
+    <input type="number" maxlength="1" onkeyup="moveToNext(this)" id="digit1" aria-label="Şifre Kutucuğu 1" inputmode="numeric" pattern="[0-9]*">
+    <input type="number" maxlength="1" onkeyup="moveToNext(this)" id="digit2" aria-label="Şifre Kutucuğu 2" inputmode="numeric" pattern="[0-9]*">
+    <input type="number" maxlength="1" onkeyup="moveToNext(this)" id="digit3" aria-label="Şifre Kutucuğu 3" inputmode="numeric" pattern="[0-9]*">
+    <input type="number" maxlength="1" onkeyup="moveToNext(this)" id="digit4" aria-label="Şifre Kutucuğu 4" inputmode="numeric" pattern="[0-9]*">
   </div>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
@@ -505,7 +505,6 @@
     const passwordInputs = document.querySelectorAll('.password-input input');
 
     if (code === '1025') {
-
       removeAnimationClasses();
       passwordInputs.forEach(input => {
         input.classList.add('shake-green');
