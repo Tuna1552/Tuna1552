@@ -87,6 +87,23 @@
       border-color: #007BFF;
     }
 
+    .password-input input.error {
+      border-color: red;
+    }
+
+    /* Titreme animasyonu */
+    @keyframes shake {
+      0% { transform: translate(0); }
+      25% { transform: translate(-5px); }
+      50% { transform: translate(5px); }
+      75% { transform: translate(-5px); }
+      100% { transform: translate(0); }
+    }
+
+    .password-input input.shake {
+      animation: shake 0.5s;
+    }
+
     /* Buton */
     #play-music-btn {
       padding: 15px 40px;
@@ -240,10 +257,10 @@
 
   <!-- Şifre Girişi -->
   <div class="password-input" id="password-input">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit1">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit2">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit3">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit1">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit2">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit3">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
   </div>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
@@ -267,7 +284,7 @@
 
   <!-- Müzik -->
   <audio id="music" preload="auto" loop>
-    <source src="happy_birthday.mp3" type="audio/mpeg" />
+    <source src="until_i_found_you.mp3" type="audio/mpeg" />
     Tarayıcınız ses çaları desteklemiyor.
   </audio>
 
@@ -458,12 +475,17 @@
 
   function clearInput() {
     const boxes = document.querySelectorAll('.password-input input');
-    boxes.forEach(b => b.value = '');
+    boxes.forEach(b => {
+      b.value = '';
+      b.classList.remove('error', 'shake'); // Hata sınıflarını kaldır
+    });
     boxes[0].focus();
   }
 
   function verifyCode() {
     const code = getEnteredCode();
+    const boxes = document.querySelectorAll('.password-input input');
+
     if (code === '1025') {
       alert('Şifre doğru! Giriş başarılı.');
       document.getElementById('password-input').style.display = 'none';
@@ -471,6 +493,9 @@
       playBtn.style.display = 'block'; // Müziği başlat butonunu göster
     } else {
       alert('Hatalı şifre, tekrar deneyin.');
+      boxes.forEach(box => {
+        box.classList.add('error', 'shake'); // Hata sınıflarını ekle
+      });
       clearInput();
     }
   }
@@ -505,3 +530,4 @@
 </script>
 </body>
 </html>
+
