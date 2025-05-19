@@ -232,27 +232,9 @@
       width: 100vw;
       height: 100vh;
     }
-
-    /* Video stil */
-    #intro-video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 900;
-      display: none; /* Başlangıçta gizli */
-    }
   </style>
 </head>
 <body>
-
-  <!-- Video -->
-  <video id="intro-video" autoplay muted>
-    <source src="/ebdvd.mp4" type="video/mp4">
-    Tarayıcınız video etiketini desteklemiyor.
-  </video>
 
   <div id="password-prompt">Şifreyi Giriniz (Ece'nin Okul Numarası):</div>
 
@@ -301,7 +283,6 @@
   const slides = carousel.querySelectorAll('.carousel-slide');
   const prevBtn = carousel.querySelector('.carousel-button.prev');
   const nextBtn = carousel.querySelector('.carousel-button.next');
-  const introVideo = document.getElementById('intro-video');
 
   // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
   const hedefTarih = new Date();
@@ -488,7 +469,6 @@
       document.getElementById('password-input').style.display = 'none';
       document.getElementById('password-prompt').style.display = 'none';
       playBtn.style.display = 'block'; // Müziği başlat butonunu göster
-      introVideo.style.display = 'none'; // Videoyu gizle
     } else {
       alert('Hatalı şifre, tekrar deneyin.');
       clearInput();
@@ -512,8 +492,7 @@
       playBtn.style.display = 'none'; // Butonu gizle
       countdownElement.style.display = 'block'; // Geri sayımı göster
       carousel.style.display = 'inline-block'; // Carousel'i göster
-
-           showSlide(0); // İlk resmi göster
+      showSlide(0); // İlk resmi göster
       startSlideShow(); // Slayt gösterisini başlat
       updateCountdown(); // Geri sayımı güncelle
       setInterval(updateCountdown, 1000); // Her saniye geri sayımı güncelle
@@ -523,11 +502,6 @@
     });
   });
 
-  // Sayfa yüklendiğinde videoyu göster ve oynat
-  window.onload = () => {
-    introVideo.style.display = 'block'; // Videoyu göster
-    introVideo.play(); // Videoyu oynat
-  };
 </script>
 </body>
 </html>
