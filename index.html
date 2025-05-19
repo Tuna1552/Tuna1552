@@ -145,6 +145,7 @@
       z-index: 1000;
       width: 100%; /* Tam genişlik */
       height: auto;
+      transition: width 0.8s ease, height 0.8s ease;
       display: none; /* Başlangıçta gizli */
     }
 
@@ -154,10 +155,12 @@
       border-radius: 20px;
       max-width: 100%;
       height: auto;
+      transition: opacity 0.7s ease-in-out;
       position: absolute;
       top: 0;
       left: 0;
       user-select: none;
+      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
       width: 100%; /* Tam genişlik */
       height: 100%; /* Tam yükseklik */
       object-fit: cover; /* Resmi kapsayacak şekilde ayarla */
@@ -165,6 +168,13 @@
 
     .carousel-slide.active {
       display: block;
+      position: relative;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
     }
 
     /* Navigation buttons */
@@ -331,14 +341,27 @@
   let slideInterval;
   let currentIndex = 0;
 
+  function adjustCarouselSize(img) {
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+    carousel.style.width = naturalWidth + 'px';
+    carousel.style.height = naturalHeight + 'px';
+  }
+
   function showSlide(index) {
     slides.forEach((slide, i) => {
-      slide.classList.remove('active');
-      if (i === index) {
-        slide.classList.add('active');
-      }
+      slide.classList.toggle('active', i === index);
     });
     currentIndex = index;
+
+    const activeImage = slides[currentIndex];
+    if (!activeImage.complete) {
+      activeImage.onload = () => {
+        adjustCarouselSize(activeImage);
+      };
+    } else {
+      adjustCarouselSize(activeImage);
+    }
   }
 
   function nextSlide() {
@@ -494,7 +517,7 @@
         playBtn.style.display = 'block'; // Müziği başlat butonunu göster
       }, 600); // Animasyon sonrası gizle
     } else {
-            removeAnimationClasses();
+      removeAnimationClasses();
       passwordInputs.forEach(input => {
         input.classList.add('shake-red');
       });
@@ -531,17 +554,6 @@
       console.error(err);
     });
   });
-
-  // Slayt gösterisini başlat
-  function startSlideShow() {
-    let nextIndex = 0;
-    function showNextSlide() {
-      showSlide(nextIndex);
-      nextIndex = (nextIndex + 1) % slides.length; // Sonraki slaytı ayarla
-      setTimeout(showNextSlide, 5000); // 5 saniye sonra bir sonraki slaytı göster
-    }
-    showNextSlide();
-  }
 </script>
 </body>
 </html>
