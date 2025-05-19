@@ -232,6 +232,29 @@
       width: 100vw;
       height: 100vh;
     }
+
+    /* Animasyonlar */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .shake {
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-20px); }
+      60% { transform: translateY(-10px); }
+    }
+
+    .bounce {
+      animation: bounce 1s ease;
+    }
   </style>
 </head>
 <body>
@@ -240,10 +263,10 @@
 
   <!-- Şifre Girişi -->
   <div class="password-input" id="password-input">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit1">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit2">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit3">
-    <input type="text" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit1">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit2">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit3">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
   </div>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
@@ -464,14 +487,44 @@
 
   function verifyCode() {
     const code = getEnteredCode();
+    const passwordInputs = document.querySelectorAll('.password-input input');
+
     if (code === '1025') {
       alert('Şifre doğru! Giriş başarılı.');
+      
+      // Başarı animasyonu ekle
+      passwordInputs.forEach(input => {
+        input.classList.add('bounce'); // Başarı animasyonu ekle
+      });
+
+      // Giriş alanlarını gizle
       document.getElementById('password-input').style.display = 'none';
       document.getElementById('password-prompt').style.display = 'none';
       playBtn.style.display = 'block'; // Müziği başlat butonunu göster
+
+      // Animasyonun bitiminden sonra sınıfı kaldır
+      setTimeout(() => {
+        passwordInputs.forEach(input => {
+          input.classList.remove('bounce');
+        });
+      }, 1000); // Animasyon süresi
     } else {
       alert('Hatalı şifre, tekrar deneyin.');
       clearInput();
+      
+            // Hatalı giriş durumunda animasyon ve stil değişiklikleri
+      passwordInputs.forEach(input => {
+        input.classList.add('shake'); // Titreme animasyonu ekle
+        input.style.borderColor = 'red'; // Kenar rengini kırmızı yap
+      });
+
+      // Animasyonun bitiminden sonra sınıfı kaldır
+      setTimeout(() => {
+        passwordInputs.forEach(input => {
+          input.classList.remove('shake');
+          input.style.borderColor = ''; // Kenar rengini eski haline getir
+        });
+      }, 500); // Animasyon süresi
     }
   }
 
