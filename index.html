@@ -192,7 +192,7 @@
       width: 30px;
       height: 30px;
       background-color: #ff1493;
-      transform: rotate(-45deg);
+      transform: rotate(45deg);
       pointer-events: none;
       animation: floatUp 6s linear infinite;
       opacity: 0.8;
@@ -218,8 +218,8 @@
       top: 0;
     }
     @keyframes floatUp {
-      0% { transform: translateY(0) rotate(-45deg); opacity: 0.8; }
-      100% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
+      0% { transform: translateY(0) rotate(45deg); opacity: 0.8; }
+      100% { transform: translateY(-400px) rotate(45deg); opacity: 0; }
     }
 
     /* Yıldız animasyonları */
@@ -506,12 +506,12 @@
       // Yıldızları başlat
       setInterval(createStar, 300);
     } else {
-      alert('Hatalı şifre, tekrar deneyin.');
+       alert('Hatalı şifre, tekrar deneyin.');
       clearInput();
     }
   }
 
-    // Şifre girişi için her bir input'a 'keyup' olayı ekleyin
+  // Şifre girişi için her bir input'a 'keyup' olayı ekleyin
   const passwordInputs = document.querySelectorAll('.password-input input');
   passwordInputs.forEach(input => {
     input.addEventListener('keyup', (event) => {
