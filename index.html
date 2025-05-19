@@ -87,6 +87,28 @@
       border-color: #007BFF;
     }
 
+    /* Hatalı şifre için kırmızı titremeli animasyon */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .shake-red {
+      border-color: red !important;
+      animation: shake 0.5s ease;
+      box-shadow: 0 0 8px red;
+    }
+
+    /* Doğru şifre için yeşil titremeli animasyon */
+    .shake-green {
+      border-color: #28a745 !important;
+      animation: shake 0.5s ease;
+      box-shadow: 0 0 8px #28a745;
+    }
+
     /* Buton */
     #play-music-btn {
       padding: 15px 40px;
@@ -232,29 +254,6 @@
       width: 100vw;
       height: 100vh;
     }
-
-    /* Animasyonlar */
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
-
-    .shake {
-      animation: shake 0.5s ease;
-    }
-
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-20px); }
-      60% { transform: translateY(-10px); }
-    }
-
-    .bounce {
-      animation: bounce 1s ease;
-    }
   </style>
 </head>
 <body>
@@ -263,10 +262,10 @@
 
   <!-- Şifre Girişi -->
   <div class="password-input" id="password-input">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit1">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit2">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit3">
-    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit4">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit1" aria-label="Şifre Kutucuğu 1">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit2" aria-label="Şifre Kutucuğu 2">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit3" aria-label="Şifre Kutucuğu 3">
+    <input type="password" maxlength="1" onkeyup="moveToNext(this)" id="digit4" aria-label="Şifre Kutucuğu 4">
   </div>
 
   <button id="play-music-btn" aria-label="Müziği Başlat">🎵 Müziği Başlat</button>
@@ -333,7 +332,7 @@
     const dakika = Math.floor((fark / (1000 * 60)) % 60);
     const saniye = Math.floor((fark / 1000) % 60);
 
-    countdownElement.textContent = 
+    countdownElement.textContent =
       `📅 ${gun} gün, 🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
   }
 
@@ -464,12 +463,12 @@
     animate();
   }
 
-  // Şifre doğrulama
+  // Şifre doğrulama ve animasyon kontrolü
   function moveToNext(element) {
     if (element.value.length === element.maxLength) {
-      var $next = element.nextElementSibling;
-      if ($next !== null) {
-        $next.focus();
+      var next = element.nextElementSibling;
+      if (next !== null) {
+        next.focus();
       }
     }
   }
@@ -481,8 +480,22 @@
 
   function clearInput() {
     const boxes = document.querySelectorAll('.password-input input');
-    boxes.forEach(b => b.value = '');
+    boxes.forEach(b => {
+      b.value = '';
+      b.classList.remove('shake-red', 'shake-green');
+      b.style.borderColor = '';
+      b.style.boxShadow = '';
+    });
     boxes[0].focus();
+  }
+
+  function removeAnimationClasses() {
+    const boxes = document.querySelectorAll('.password-input input');
+    boxes.forEach(b => {
+      b.classList.remove('shake-red', 'shake-green');
+      b.style.borderColor = '';
+      b.style.boxShadow = '';
+    });
   }
 
   function verifyCode() {
@@ -491,49 +504,38 @@
 
     if (code === '1025') {
       alert('Şifre doğru! Giriş başarılı.');
-      
-      // Başarı animasyonu ekle
+
+      removeAnimationClasses();
       passwordInputs.forEach(input => {
-        input.classList.add('bounce'); // Başarı animasyonu ekle
+        input.classList.add('shake-green');
       });
 
-      // Giriş alanlarını gizle
-      document.getElementById('password-input').style.display = 'none';
-      document.getElementById('password-prompt').style.display = 'none';
-      playBtn.style.display = 'block'; // Müziği başlat butonunu göster
-
-      // Animasyonun bitiminden sonra sınıfı kaldır
+      // Giriş alanlarını gizle ve müzik butonunu göster
       setTimeout(() => {
-        passwordInputs.forEach(input => {
-          input.classList.remove('bounce');
-        });
-      }, 1000); // Animasyon süresi
+        document.getElementById('password-input').style.display = 'none';
+        document.getElementById('password-prompt').style.display = 'none';
+        playBtn.style.display = 'block'; // Müziği başlat butonunu göster
+      }, 600); // Animasyon sonrası gizle
     } else {
       alert('Hatalı şifre, tekrar deneyin.');
-      clearInput();
-      
-            // Hatalı giriş durumunda animasyon ve stil değişiklikleri
+
+      removeAnimationClasses();
       passwordInputs.forEach(input => {
-        input.classList.add('shake'); // Titreme animasyonu ekle
-        input.style.borderColor = 'red'; // Kenar rengini kırmızı yap
+        input.classList.add('shake-red');
       });
 
-      // Animasyonun bitiminden sonra sınıfı kaldır
       setTimeout(() => {
-        passwordInputs.forEach(input => {
-          input.classList.remove('shake');
-          input.style.borderColor = ''; // Kenar rengini eski haline getir
-        });
-      }, 500); // Animasyon süresi
+        clearInput();
+      }, 600); // Animasyon sonrası temizle
     }
   }
 
-  // Şifre girişi için her bir input'a 'keyup' olayı ekleyin
+  // Şifre girişinde her input için olay
   const passwordInputs = document.querySelectorAll('.password-input input');
   passwordInputs.forEach(input => {
-    input.addEventListener('keyup', (event) => {
+    input.addEventListener('keyup', () => {
       moveToNext(input);
-      if (Array.from(passwordInputs).every(input => input.value.length === 1)) {
+      if (Array.from(passwordInputs).every(i => i.value.length === 1)) {
         verifyCode();
       }
     });
@@ -554,7 +556,7 @@
       console.error(err);
     });
   });
-
 </script>
 </body>
 </html>
+
