@@ -309,14 +309,8 @@
   const prevBtn = carousel.querySelector('.carousel-button.prev');
   const nextBtn = carousel.querySelector('.carousel-button.next');
 
-  // Hedef tarih: 29 Mayıs 00:00 (bugün 29 Mayıs veya sonrası ise gelecek yıl)
-  const hedefTarih = new Date();
-  if (hedefTarih.getMonth() > 4 || (hedefTarih.getMonth() === 4 && hedefTarih.getDate() > 29)) {
-    hedefTarih.setFullYear(hedefTarih.getFullYear() + 1);
-  }
-  hedefTarih.setMonth(4);
-  hedefTarih.setDate(29);
-  hedefTarih.setHours(0, 0, 0, 0);
+  // Hedef tarih: 28 Mayıs 2026 00:00
+  const hedefTarih = new Date(2026, 4, 28, 0, 0, 0); // Aylar 0'dan başlar, bu yüzden Mayıs için 4
 
   // Geri sayım fonksiyonu
   function updateCountdown() {
@@ -336,7 +330,7 @@
     const saniye = Math.floor((fark / 1000) % 60);
 
     countdownElement.textContent =
-      `🕒 ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
+      `🕒 ${gun} gün, ${saat} saat, ⏰ ${dakika} dakika, ⏳ ${saniye} saniye`;
   }
 
   let slideInterval;
@@ -503,12 +497,12 @@
 
   function verifyCode() {
     const code = getEnteredCode();
-   const passwordInputs = document.querySelectorAll('.password-input input');
+    const passwordInputs = document.querySelectorAll('.password-input input');
 
     if (code === '1025') {
       removeAnimationClasses();
       passwordInputs.forEach(input => {
-        input.classList.add('shake-green');
+            input.classList.add('shake-green');
       });
 
       // Giriş alanlarını gizle ve müzik butonunu göster
