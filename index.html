@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hoş Geldin - Dijital Anılar</title>
+  
+  <!-- Google Fonts: Playfair Display -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet" />
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
@@ -41,13 +45,39 @@
       padding: 20px;
     }
 
-    /* Başlık */
+    /* Başlık (güncellenmiş) */
     h1 {
-      font-size: 3.5rem;
-      margin-bottom: 15px;
-      opacity: 0;
-      animation: slideFadeIn 1s forwards;
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: #f0e6ff;
+      text-shadow: 2px 2px 5px rgba(100, 0, 255, 0.7);
+      animation: glowPulse 3s ease-in-out infinite alternate, slideFadeIn 1s forwards;
       animation-delay: 0.3s;
+      animation-fill-mode: forwards;
+      opacity: 0;
+      transform: translateY(40px);
+      margin-bottom: 15px;
+    }
+
+    @keyframes glowPulse {
+      0% {
+        text-shadow: 2px 2px 5px rgba(100, 0, 255, 0.7);
+        color: #f0e6ff;
+      }
+      100% {
+        text-shadow: 0 0 20px #9f7aea, 0 0 30px #7c3aed;
+        color: #dcd6f7;
+      }
+    }
+    @keyframes slideFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
     }
 
     /* Alt başlık */
@@ -105,18 +135,6 @@
       transform: translate(-50%, -50%) scale(1);
     }
 
-    /* Animasyon */
-    @keyframes slideFadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-    }
-
     /* Mesaj kutusu */
     #message {
       margin-top: 30px;
@@ -127,7 +145,6 @@
       opacity: 0;
       transition: opacity 0.5s ease;
     }
-
   </style>
 </head>
 <body>
@@ -209,7 +226,6 @@
       message.textContent = 'Anılar sayfasına doğru ilerliyorsun... ✨';
       // İleride buraya sayfa yönlendirme eklenebilir
     });
-
   </script>
 
 </body>
