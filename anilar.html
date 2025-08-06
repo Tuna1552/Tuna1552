@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fotoğraf Galerisi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-weight: normal;
+    }
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .gallery img {
+      width: 100%;
+      max-width: 320px; /* max genişlik */
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+      object-fit: cover;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      flex: 1 1 280px; /* esnek genişlik, minimum 280px */
+    }
+    .gallery img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.7);
+    }
 
+    /* Responsive ayar */
+    @media (max-width: 600px) {
+      .gallery img {
+        max-width: 90vw; /* küçük ekranlarda genişlik ayarı */
+        flex: 1 1 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Fotoğraf Galerisi</h1>
+
+  <div class="gallery">
+    <img src="https://i.imgur.com/w38ApFX.jpeg" alt="Fotoğraf 1" />
+    <img src="https://i.imgur.com/ahJTXWO.jpeg" alt="Fotoğraf 2" />
+    <img src="https://i.imgur.com/8MvwSQp.jpeg" alt="Fotoğraf 3" />
+    <img src="https://i.imgur.com/x39dCoM.jpeg" alt="Fotoğraf 4" />
+    <img src="https://i.imgur.com/DUhcnSQ.jpeg" alt="Fotoğraf 5" />
+    <!-- En sona koyduğun özel fotoğraf -->
+    <img src="https://i.imgur.com/lcQuFtH.jpeg" alt="Özel Fotoğraf" />
+  </div>
+
+</body>
+</html>
