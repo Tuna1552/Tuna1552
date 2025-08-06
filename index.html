@@ -373,13 +373,9 @@
   const startBtn = document.getElementById('startBtn');
   const message = document.getElementById('message');
 
-  startBtn.addEventListener('click', () => {
-    message.style.opacity = '1';
-    message.textContent = 'Anılar sayfasına doğru ilerliyorsun... ✨';
-   setTimeout(() => {
-  // window.location.href = "anilar.html";  // Yönlendirme kaldırıldı, 404 önlendi
-}, 1500);
-  });
+startBtn.addEventListener('click', () => {
+  window.location.href = "anilar.html"; // Ya da kendi fotoğraf galerisi sayfan
+});
 </script>
 
 </body>
