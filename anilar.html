@@ -31,11 +31,20 @@
     height: 100%;
     transition: transform 0.5s ease-in-out;
   }
-  .slides img {
-    width: 100%;
+  .slide {
+    min-width: 100%;
     height: 100%;
-    object-fit: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .slide img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 10px;
+    object-fit: contain;
     user-select: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
   }
   /* Butonlar */
   .btn {
@@ -51,6 +60,7 @@
     font-size: 20px;
     transition: background 0.3s ease;
     user-select: none;
+    z-index: 10;
   }
   .btn:hover {
     background: #7c3aed;
@@ -67,6 +77,7 @@
     bottom: 12px;
     width: 100%;
     text-align: center;
+    z-index: 10;
   }
   .dot {
     display: inline-block;
@@ -93,12 +104,12 @@
 
 <div class="slider-container">
   <div class="slides" id="slides">
-    <img src="https://i.imgur.com/w38ApFX.jpeg" alt="Fotoğraf 1" />
-    <img src="https://i.imgur.com/ahJTXWO.jpeg" alt="Fotoğraf 2" />
-    <img src="https://i.imgur.com/8MvwSQp.jpeg" alt="Fotoğraf 3" />
-    <img src="https://i.imgur.com/x39dCoM.jpeg" alt="Fotoğraf 4" />
-    <img src="https://i.imgur.com/DUhcnSQ.jpeg" alt="Fotoğraf 5" />
-    <img src="https://i.imgur.com/lcQuFtH.jpeg" alt="Özel Fotoğraf" />
+    <div class="slide"><img src="https://i.imgur.com/w38ApFX.jpeg" alt="Fotoğraf 1" /></div>
+    <div class="slide"><img src="https://i.imgur.com/ahJTXWO.jpeg" alt="Fotoğraf 2" /></div>
+    <div class="slide"><img src="https://i.imgur.com/8MvwSQp.jpeg" alt="Fotoğraf 3" /></div>
+    <div class="slide"><img src="https://i.imgur.com/x39dCoM.jpeg" alt="Fotoğraf 4" /></div>
+    <div class="slide"><img src="https://i.imgur.com/DUhcnSQ.jpeg" alt="Fotoğraf 5" /></div>
+    <div class="slide"><img src="https://i.imgur.com/lcQuFtH.jpeg" alt="Özel Fotoğraf" /></div>
   </div>
 
   <button class="btn btn-prev" id="prevBtn">&#10094;</button>
@@ -109,13 +120,13 @@
 
 <script>
   const slides = document.getElementById('slides');
-  const images = slides.querySelectorAll('img');
+  const slideElements = slides.querySelectorAll('.slide');
   const dotsContainer = document.getElementById('dots');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
 
   let currentIndex = 0;
-  const total = images.length;
+  const total = slideElements.length;
 
   // Create dots
   for(let i=0; i < total; i++) {
