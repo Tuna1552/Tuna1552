@@ -1,1 +1,29 @@
+<audio id="bg-music" src="assets/fantasticbaby.mp3" loop autoplay></audio>
+<button id="music-toggle" style="
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: #d4006c;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 0.5em 1em;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px #d4006caa;
+">Müziği Kapat</button>
 
+<script>
+  const music = document.getElementById('bg-music');
+  const btn = document.getElementById('music-toggle');
+
+  btn.addEventListener('click', () => {
+    if (music.paused) {
+      music.play();
+      btn.textContent = 'Müziği Kapat';
+    } else {
+      music.pause();
+      btn.textContent = 'Müziği Aç';
+    }
+  });
+</script>
