@@ -16,6 +16,7 @@
     flex-direction: column;
     color:#800040;
     user-select:none;
+    overflow-x: hidden;
   }
   #login-box {
     background: rgba(255 255 255 / 0.85);
@@ -24,6 +25,11 @@
     box-shadow: 0 8px 24px rgba(255,105,180,0.4);
     text-align: center;
     width: 320px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
   }
   #login-box h2 {
     margin: 0 0 1em 0;
@@ -32,6 +38,7 @@
   }
   #password {
     width: 100%;
+    max-width: 280px;
     padding: 0.8em 1em;
     font-size: 1.4rem;
     border: 2px solid #ff69b4;
@@ -44,8 +51,9 @@
     box-shadow: 0 0 8px #d4006c;
   }
   #submit-btn {
-    margin-top: 1.3em;
     width: 100%;
+    max-width: 280px;
+    margin-top: 0;
     padding: 0.9em 0;
     background: #d4006c;
     color: white;
@@ -69,6 +77,102 @@
     font-weight: 600;
     min-height: 1.4em;
     color: #b00040;
+  }
+  /* Geri sayım sayfas */
+  h1 {
+    font-size: 2.8rem;
+    margin-bottom: 0.2em;
+    text-shadow: 1px 1px 4px #ff9fc9;
+  }
+  p {
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 2em;
+    font-weight: 700;
+    text-shadow: 0 0 5px #ffbad9;
+  }
+  #countdown {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    background: rgba(255,255,255,0.8);
+    padding: 0.8em 1.2em;
+    border-radius: 25px;
+    box-shadow: 0 4px 12px rgba(255,105,180,0.5);
+    min-width: 320px;
+    text-align: center;
+    color:#800040;
+    font-family: 'Baloo 2', cursive;
+  }
+  /* Kalp animasyonları */
+  .heart {
+    position: fixed;
+    bottom: -50px;
+    width: 20px;
+    height: 20px;
+    background: #ff69b4;
+    transform: rotate(-45deg);
+    animation: rise 6s linear infinite;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #ff69b4;
+    border-radius: 50%;
+  }
+  .heart::before {
+    top: 0;
+    left: 10px;
+  }
+  .heart::after {
+    top: 10px;
+    left: 0;
+  }
+  @keyframes rise {
+    0% {
+      bottom: -50px;
+      opacity: 0.8;
+      transform: translateX(0) rotate(-45deg) scale(1);
+    }
+    100% {
+      bottom: 110vh;
+      opacity: 0;
+      transform: translateX(40px) rotate(-45deg) scale(1.5);
+    }
+  }
+  /* Mobil uyumlu */
+  @media (max-width: 480px) {
+    body, html {
+      padding: 0 15px;
+    }
+    h1 {
+      font-size: 1.8rem !important;
+    }
+    p {
+      font-size: 1rem !important;
+    }
+    #countdown {
+      font-size: 2rem !important;
+      padding: 0.6em 1em !important;
+      min-width: auto !important;
+    }
+    #login-box {
+      width: 90% !important;
+      padding: 1.5em 2em !important;
+    }
+    #password {
+      font-size: 1.2rem !important;
+      padding: 0.7em 1em !important;
+    }
+    #submit-btn {
+      font-size: 1.1rem !important;
+      padding: 0.8em 0 !important;
+    }
   }
 </style>
 </head>
@@ -183,19 +287,7 @@
       document.body.innerHTML = `
         <h1>29 Mayıs 2026'ya Kalan Süre</h1>
         <p>Özel güne az kaldı, sabırsızlanıyoruz! 💖</p>
-        <div id="countdown" style="
-          font-size:3rem;
-          font-weight:800;
-          letter-spacing:0.05em;
-          background: rgba(255,255,255,0.8);
-          padding: 0.8em 1.2em;
-          border-radius: 25px;
-          box-shadow: 0 4px 12px rgba(255,105,180,0.5);
-          min-width:320px;
-          text-align:center;
-          color:#800040;
-          font-family: 'Baloo 2', cursive;
-        ">Yükleniyor...</div>
+        <div id="countdown"></div>
       `;
 
       const countdownEl = document.getElementById('countdown');
@@ -237,56 +329,6 @@
       setInterval(createHeart, 300);
     }
 
-    // Kalp stili
-    const style = document.createElement('style');
-    style.textContent = `
-      .heart {
-        position: fixed;
-        bottom: -50px;
-        width: 20px;
-        height: 20px;
-        background: #ff69b4;
-        transform: rotate(-45deg);
-        animation: rise 6s linear infinite;
-        opacity: 0.8;
-        pointer-events: none;
-      }
-      .heart::before,
-      .heart::after {
-        content: "";
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        background: #ff69b4;
-        border-radius: 50%;
-      }
-      .heart::before {
-        top: 0;
-        left: 10px;
-      }
-      .heart::after {
-        top: 10px;
-        left: 0;
-      }
-      @keyframes rise {
-        0% {
-          bottom: -50px;
-          opacity: 0.8;
-          transform: translateX(0) rotate(-45deg) scale(1);
-        }
-        100% {
-          bottom: 110vh;
-          opacity: 0;
-          transform: translateX(40px) rotate(-45deg) scale(1.5);
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Sayfa ilk açıldığında kilit kontrolü
-    if (!checkLock()) {
-      localStorage.setItem('dg_penalty', penaltyBase);
-    }
   })();
 </script>
 
