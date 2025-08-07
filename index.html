@@ -75,6 +75,31 @@
     min-height: 1.4em;
     color: #b00040;
   }
+  /* Başlat butonu */
+  #start-btn {
+    background: #ff4d94;
+    color: white;
+    font-weight: 900;
+    font-size: 1.6rem;
+    border: none;
+    padding: 0.8em 2.2em;
+    border-radius: 35px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px #ff4d94cc;
+    text-shadow: 0 0 8px #ffccdd;
+    transition: all 0.35s ease;
+    margin-top: 2em;
+    user-select: none;
+  }
+  #start-btn:hover {
+    background: #ff1a75;
+    box-shadow: 0 8px 30px #ff1a75ee;
+    transform: scale(1.07);
+  }
+  #start-btn:active {
+    transform: scale(0.95);
+  }
+
   /* Geri sayım sayfas */
   h1 {
     font-size: 2.8rem;
@@ -171,6 +196,11 @@
       font-size: 1.1rem !important;
       padding: 0.8em 0 !important;
     }
+    #start-btn {
+      font-size: 1.3rem !important;
+      padding: 0.7em 1.6em !important;
+      margin-top: 1.5em !important;
+    }
   }
   /* Müzik butonu */
   #music-toggle {
@@ -199,7 +229,6 @@
 </div>
 
 <audio id="bg-music" src="assets/fantasticbaby.mp3" loop></audio>
-<button id="music-toggle">Müziği Kapat</button>
 
 <script>
   (function(){
@@ -273,8 +302,7 @@
         localStorage.removeItem(attemptsKey);
         localStorage.removeItem(lockKey);
         localStorage.removeItem('dg_penalty');
-        music.play().catch(() => {});
-        showCountdown();
+        showStartButton();
       } else {
         attempts++;
         localStorage.setItem(attemptsKey, attempts);
@@ -300,6 +328,26 @@
         musicToggle.textContent = 'Müziği Aç';
       }
     });
+
+    function showStartButton(){
+      // Şifre kutusunu kaldır
+      const loginBox = document.getElementById('login-box');
+      loginBox.innerHTML = '';
+
+      // Başlat butonunu ekle
+      const startBtn = document.createElement('button');
+      startBtn.id = 'start-btn';
+      startBtn.textContent = 'Müziği Başlat LAN ❤️ ;
+      loginBox.appendChild(startBtn);
+
+      startBtn.focus();
+
+      startBtn.addEventListener('click', () => {
+        music.play().catch(() => {});
+        showCountdown();
+        musicToggle.style.display = 'block';
+      });
+    }
 
     function showCountdown(){
       document.body.innerHTML = `
@@ -347,16 +395,6 @@
         }, 6000);
       }
       setInterval(createHeart, 300);
-
-      // Müzik butonu işlevi
-      musicToggleBtn.addEventListener('click', () => {
-        if(music.paused) {
-          music.play();
-          musicToggleBtn.textContent = 'Müziği Kapat';
-        } else {
-          music.pause();
-          musicToggleBtn.textContent = 'Müziği Aç';
-        }
       });
     }
   })();
