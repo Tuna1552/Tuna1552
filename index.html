@@ -216,6 +216,7 @@
     cursor: pointer;
     box-shadow: 0 4px 12px #d4006caa;
     z-index: 1000;
+    display: none;
   }
 </style>
 </head>
@@ -229,6 +230,7 @@
 </div>
 
 <audio id="bg-music" src="assets/fantasticbaby.mp3" loop></audio>
+<button id="music-toggle">Müziği Aç</button>
 
 <script>
   (function(){
@@ -242,9 +244,9 @@
     const input = document.getElementById('password');
     const btn = document.getElementById('submit-btn');
     const msg = document.getElementById('message');
-
     const music = document.getElementById('bg-music');
     const musicToggle = document.getElementById('music-toggle');
+    const loginBox = document.getElementById('login-box');
 
     let attempts = parseInt(localStorage.getItem(attemptsKey)) || 0;
     let lockUntil = parseInt(localStorage.getItem(lockKey)) || 0;
@@ -330,82 +332,78 @@
     });
 
     function showStartButton(){
-  // Şifre kutusunu kaldır
-  const loginBox = document.getElementById('login-box');
-  loginBox.innerHTML = '';
+      loginBox.innerHTML = '';
+      const startBtn = document.createElement('button');
+      startBtn.id = 'start-btn';
+      startBtn.textContent = 'Müziği Başlat LAN ❤️';
+      loginBox.appendChild(startBtn);
+      startBtn.focus();
 
-  // Başlat butonunu ekle
-  const startBtn = document.createElement('button');
-  startBtn.id = 'start-btn';
-  startBtn.textContent = 'Müziği Başlat LAN ❤️';
-  loginBox.appendChild(startBtn);
-
-  startBtn.focus();
-
-  startBtn.addEventListener('click', () => {
-    music.play().catch(() => {});
-    showCountdown();
-    musicToggle.style.display = 'block';
-  });
-}
-
-function showCountdown(){
-  document.body.innerHTML = `
-    <h1>29 Mayıs 2026'ya Kalan Süre</h1>
-    <p>Özel güne az kaldı, sabırsızlanıyoruz! 💖</p>
-    <div id="countdown"></div>
-    <button id="music-toggle">Müziği Kapat</button>
-  `;
-
-  const countdownEl = document.getElementById('countdown');
-  const musicToggleBtn = document.getElementById('music-toggle');
-  const targetDate = new Date('May 29, 2026 00:00:00').getTime();
-
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
-
-    if (distance < 0) {
-      countdownEl.textContent = "Doğum Günün Kutlu Olsun! 🎉🎂";
-      clearInterval(interval);
-      return;
+      startBtn.addEventListener('click', () => {
+        music.play().catch(() => {});
+        showCountdown();
+        musicToggle.style.display = 'block';
+      });
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    function showCountdown(){
+      document.body.innerHTML = `
+        <h1>29 Mayıs 2026'ya Kalan Süre</h1>
+        <p>Özel güne az kaldı, sabırsızlanıyoruz! 💖</p>
+        <div id="countdown"></div>
+        <button id="music-toggle">Müziği Kapat</button>
+      `;
 
-    countdownEl.textContent = `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
-  }
-  updateCountdown();
-  const interval = setInterval(updateCountdown, 1000);
+      const countdownEl = document.getElementById('countdown');
+      const musicToggleBtn = document.getElementById('music-toggle');
+      const targetDate = new Date('May 29, 2026 00:00:00').getTime();
 
-  // Kalp animasyonları
-  function createHeart() {
-    const heart = document.createElement('div');
-    heart.classList.add('heart');
-    heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.animationDuration = (4 + Math.random() * 3) + 's';
-    heart.style.opacity = Math.random() * 0.5 + 0.5;
-    document.body.appendChild(heart);
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
 
-    setTimeout(() => {
-      heart.remove();
-    }, 6000);
-  }
-  setInterval(createHeart, 300);
+        if (distance < 0) {
+          countdownEl.textContent = "Doğum Günün Kutlu Olsun! 🎉🎂";
+          clearInterval(interval);
+          return;
+        }
 
-  musicToggleBtn.addEventListener('click', () => {
-    if(music.paused) {
-      music.play();
-      musicToggleBtn.textContent = 'Müziği Kapat';
-    } else {
-      music.pause();
-      musicToggleBtn.textContent = 'Müziği Aç';
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownEl.textContent = `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
+      }
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 1000);
+
+      // Kalp animasyonları
+      function createHeart() {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (4 + Math.random() * 3) + 's';
+        heart.style.opacity = Math.random() * 0.5 + 0.5;
+        document.body.appendChild(heart);
+
+        setTimeout(() => {
+          heart.remove();
+        }, 6000);
+      }
+      setInterval(createHeart, 300);
+
+      musicToggleBtn.addEventListener('click', () => {
+        if(music.paused) {
+          music.play();
+          musicToggleBtn.textContent = 'Müziği Kapat';
+        } else {
+          music.pause();
+          musicToggleBtn.textContent = 'Müziği Aç';
+        }
+      });
     }
-  });
-}
+  })();
 </script>
 
 </body>
