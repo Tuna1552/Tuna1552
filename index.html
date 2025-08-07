@@ -198,7 +198,7 @@
   <div id="message"></div>
 </div>
 
-<audio id="bg-music" src="assets/fantasticbaby.mp3" loop autoplay></audio>
+<audio id="bg-music" src="assets/fantasticbaby.mp3" loop></audio>
 <button id="music-toggle">Müziği Kapat</button>
 
 <script>
@@ -273,6 +273,7 @@
         localStorage.removeItem(attemptsKey);
         localStorage.removeItem(lockKey);
         localStorage.removeItem('dg_penalty');
+        music.play().catch(() => {});
         showCountdown();
       } else {
         attempts++;
