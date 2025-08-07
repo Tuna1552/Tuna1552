@@ -3,138 +3,291 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>29 Mayıs 2026 - Geri Sayım</title>
+<title>Şifreli Giriş - Doğum Günü Sitesi</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
-
-  /* Temel stil */
   body, html {
     margin:0; padding:0; height:100%;
     background: linear-gradient(135deg, #ffcee8, #ffd1d1);
     font-family: 'Baloo 2', cursive;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     flex-direction: column;
-    color: #800040;
-    user-select: none;
+    color:#800040;
+    user-select:none;
   }
-
-  h1 {
-    font-size: 2.8rem;
-    margin-bottom: 0.2em;
+  #login-box {
+    background: rgba(255 255 255 / 0.85);
+    padding: 2.2em 3em;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(255,105,180,0.4);
+    text-align: center;
+    width: 320px;
+  }
+  #login-box h2 {
+    margin: 0 0 1em 0;
+    font-size: 2.2rem;
     text-shadow: 1px 1px 4px #ff9fc9;
   }
-  p {
-    font-size: 1.2rem;
-    margin-top: 0;
-    margin-bottom: 2em;
+  #password {
+    width: 100%;
+    padding: 0.8em 1em;
+    font-size: 1.4rem;
+    border: 2px solid #ff69b4;
+    border-radius: 12px;
+    outline:none;
+    transition: border-color 0.3s ease;
+  }
+  #password:focus {
+    border-color: #d4006c;
+    box-shadow: 0 0 8px #d4006c;
+  }
+  #submit-btn {
+    margin-top: 1.3em;
+    width: 100%;
+    padding: 0.9em 0;
+    background: #d4006c;
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    border:none;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px #d4006caa;
+    transition: background 0.3s ease;
+  }
+  #submit-btn:hover:not(:disabled) {
+    background: #ff007f;
+  }
+  #submit-btn:disabled {
+    background: #aa6699;
+    cursor: not-allowed;
+  }
+  #message {
+    margin-top: 1em;
     font-weight: 600;
-    text-shadow: 0 0 5px #ffbad9;
-  }
-
-  #countdown {
-    font-size: 3rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    background: rgba(255,255,255,0.8);
-    padding: 0.8em 1.2em;
-    border-radius: 25px;
-    box-shadow: 0 4px 12px rgba(255,105,180,0.5);
-    min-width: 320px;
-    text-align: center;
-  }
-
-  /* Kalp animasyonları */
-  .heart {
-    position: fixed;
-    bottom: -50px;
-    width: 20px;
-    height: 20px;
-    background: #ff69b4;
-    transform: rotate(-45deg);
-    animation: rise 6s linear infinite;
-    opacity: 0.8;
-    pointer-events: none;
-  }
-  .heart::before,
-  .heart::after {
-    content: "";
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: #ff69b4;
-    border-radius: 50%;
-  }
-  .heart::before {
-    top: 0;
-    left: 10px;
-  }
-  .heart::after {
-    top: 10px;
-    left: 0;
-  }
-
-  @keyframes rise {
-    0% {
-      bottom: -50px;
-      opacity: 0.8;
-      transform: translateX(0) rotate(-45deg) scale(1);
-    }
-    100% {
-      bottom: 110vh;
-      opacity: 0;
-      transform: translateX(40px) rotate(-45deg) scale(1.5);
-    }
+    min-height: 1.4em;
+    color: #b00040;
   }
 </style>
 </head>
 <body>
 
-<h1>29 Mayıs 2026'ya Kalan Süre</h1>
-<div id="countdown">Yükleniyor...</div>
+<div id="login-box">
+  <h2>Giriş İçin Şifreyi Gir</h2>
+  <input id="password" type="password" placeholder="Şifreyi yaz" autocomplete="off" />
+  <button id="submit-btn">Giriş</button>
+  <div id="message"></div>
+</div>
 
 <script>
-  // Geri sayım fonksiyonu
-  const countdownEl = document.getElementById('countdown');
-  const targetDate = new Date('May 29, 2026 00:00:00').getTime();
+  (function(){
+    const correctPassword = '2008';
+    const maxAttempts = 5;
 
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = targetDate - now;
+    // localStorage anahtarları
+    const attemptsKey = 'dg_attempts';
+    const lockKey = 'dg_lock_until';
+    const penaltyBase = 30 * 60 * 1000; // 30 dakika
 
-    if (distance < 0) {
-      countdownEl.textContent = "Doğum Günün Kutlu Olsun! 🎉🎂";
-      clearInterval(interval);
-      return;
+    const input = document.getElementById('password');
+    const btn = document.getElementById('submit-btn');
+    const msg = document.getElementById('message');
+
+    // Mevcut deneme sayısı
+    let attempts = parseInt(localStorage.getItem(attemptsKey)) || 0;
+    // Kilit zamanı
+    let lockUntil = parseInt(localStorage.getItem(lockKey)) || 0;
+
+    // Kilit kontrolü
+    function checkLock() {
+      const now = Date.now();
+      if (lockUntil > now) {
+        const rem = Math.ceil((lockUntil - now) / 60000);
+        disableLogin(rem);
+        return true;
+      } 
+      enableLogin();
+      return false;
     }
 
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // Kilitleme
+    function setLock() {
+      // Ceza katlanması: önceki ceza 30dk ise, şimdiki 60dk, sonra 120dk vs.
+      let lastPenalty = localStorage.getItem('dg_penalty') || penaltyBase;
+      lastPenalty = parseInt(lastPenalty);
+      const newPenalty = lastPenalty * 2;
+      localStorage.setItem('dg_penalty', newPenalty);
 
-    countdownEl.textContent = `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
-  }
-  updateCountdown();
-  const interval = setInterval(updateCountdown, 1000);
+      const until = Date.now() + lastPenalty;
+      localStorage.setItem(lockKey, until);
+      localStorage.setItem(attemptsKey, '0');
+      lockUntil = until;
+      disableLogin(Math.ceil(lastPenalty/60000));
+    }
 
-  // Kalp oluşturma
-  function createHeart() {
-    const heart = document.createElement('div');
-    heart.classList.add('heart');
-    heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.animationDuration = (4 + Math.random() * 3) + 's';
-    heart.style.opacity = Math.random() * 0.5 + 0.5;
-    document.body.appendChild(heart);
+    // Kilit kaldırma
+    function enableLogin() {
+      btn.disabled = false;
+      input.disabled = false;
+      msg.textContent = '';
+    }
 
-    setTimeout(() => {
-      heart.remove();
-    }, 6000);
-  }
-  // Her 300ms'de bir kalp oluştur
-  setInterval(createHeart, 300);
+    function disableLogin(minutes) {
+      btn.disabled = true;
+      input.disabled = true;
+      msg.textContent = `Çok fazla yanlış deneme yaptınız. Lütfen ${minutes} dakika sonra tekrar deneyin.`;
+    }
+
+    // Başlangıçta kilit kontrolü yap
+    if (!checkLock()) {
+      localStorage.setItem('dg_penalty', penaltyBase);
+    }
+
+    // Giriş kontrolü
+    btn.addEventListener('click', () => {
+      if(checkLock()) return;
+
+      const val = input.value.trim();
+      if(val === '') {
+        msg.textContent = 'Lütfen şifreyi girin.';
+        return;
+      }
+
+      if(val === correctPassword) {
+        localStorage.removeItem(attemptsKey);
+        localStorage.removeItem(lockKey);
+        localStorage.removeItem('dg_penalty');
+        // Şifre doğru, geri sayfa göster
+        showCountdown();
+      } else {
+        attempts++;
+        localStorage.setItem(attemptsKey, attempts);
+        if(attempts >= maxAttempts) {
+          setLock();
+        } else {
+          msg.textContent = `Yanlış şifre! ${maxAttempts - attempts} deneme kaldı.`;
+        }
+      }
+      input.value = '';
+    });
+
+    // Enter ile de çalışsın
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter') btn.click();
+    });
+
+    // Geri sayım ekranı kodu (şifre doğruysa gösterilecek)
+    function showCountdown(){
+      document.body.innerHTML = `
+        <h1>29 Mayıs 2026'ya Kalan Süre</h1>
+        <p>Özel güne az kaldı, sabırsızlanıyoruz! 💖</p>
+        <div id="countdown" style="
+          font-size:3rem;
+          font-weight:800;
+          letter-spacing:0.05em;
+          background: rgba(255,255,255,0.8);
+          padding: 0.8em 1.2em;
+          border-radius: 25px;
+          box-shadow: 0 4px 12px rgba(255,105,180,0.5);
+          min-width:320px;
+          text-align:center;
+          color:#800040;
+          font-family: 'Baloo 2', cursive;
+        ">Yükleniyor...</div>
+      `;
+
+      const countdownEl = document.getElementById('countdown');
+      const targetDate = new Date('May 29, 2026 00:00:00').getTime();
+
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+          countdownEl.textContent = "Doğum Günün Kutlu Olsun! 🎉🎂";
+          clearInterval(interval);
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownEl.textContent = `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
+      }
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 1000);
+
+      // Kalp animasyonu
+      function createHeart() {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (4 + Math.random() * 3) + 's';
+        heart.style.opacity = Math.random() * 0.5 + 0.5;
+        document.body.appendChild(heart);
+
+        setTimeout(() => {
+          heart.remove();
+        }, 6000);
+      }
+      setInterval(createHeart, 300);
+    }
+
+    // Kalp stili
+    const style = document.createElement('style');
+    style.textContent = `
+      .heart {
+        position: fixed;
+        bottom: -50px;
+        width: 20px;
+        height: 20px;
+        background: #ff69b4;
+        transform: rotate(-45deg);
+        animation: rise 6s linear infinite;
+        opacity: 0.8;
+        pointer-events: none;
+      }
+      .heart::before,
+      .heart::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background: #ff69b4;
+        border-radius: 50%;
+      }
+      .heart::before {
+        top: 0;
+        left: 10px;
+      }
+      .heart::after {
+        top: 10px;
+        left: 0;
+      }
+      @keyframes rise {
+        0% {
+          bottom: -50px;
+          opacity: 0.8;
+          transform: translateX(0) rotate(-45deg) scale(1);
+        }
+        100% {
+          bottom: 110vh;
+          opacity: 0;
+          transform: translateX(40px) rotate(-45deg) scale(1.5);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Sayfa ilk açıldığında kilit kontrolü
+    if (!checkLock()) {
+      localStorage.setItem('dg_penalty', penaltyBase);
+    }
+  })();
 </script>
 
 </body>
