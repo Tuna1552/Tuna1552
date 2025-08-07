@@ -13,24 +13,57 @@
       font-family: 'Poppins', sans-serif;
     }
 
-    body, html {
-      height: 100%;
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
       background: linear-gradient(135deg, #ffe6f0, #e0f7ff);
+      color: #333;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #fff0f6;
+      padding: 12px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      z-index: 1000;
+    }
+
+    .navbar a {
+      margin: 0 15px;
+      color: #cc0066;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1em;
+      transition: color 0.3s;
+    }
+
+    .navbar a:hover {
+      color: #ff3399;
+    }
+
+    section {
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      overflow: hidden;
+      justify-content: center;
+      padding: 100px 20px 60px;
     }
 
     #password-screen {
-      position: absolute;
+      position: fixed;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.85);
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 10;
+      z-index: 2000;
       padding: 20px;
       animation: fadeIn 1s ease-in-out;
     }
@@ -90,19 +123,6 @@
       font-size: 0.9em;
     }
 
-    #main-content {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: #333;
-      padding: 20px;
-      height: 100%;
-      width: 100%;
-      overflow-y: auto;
-    }
-
     .countdown {
       font-size: 2em;
       font-weight: 600;
@@ -160,12 +180,30 @@
     </div>
   </div>
 
-  <!-- Ana Sayfa İçeriği -->
-  <div id="main-content">
-    <h1>29 Mayıs 2026'ya Kalan Süre</h1>
-    <div class="countdown" id="countdown"></div>
+  <!-- Navigasyon Menüsü -->
+  <header class="navbar">
+    <nav>
+      <a href="#home">🏠 Anasayfa</a>
+      <a href="#countdown">⏳ Geri Sayım</a>
+      <a href="#gallery">📸 Galeri</a>
+    </nav>
+  </header>
 
-    <h2 style="margin-top: 60px; color: #cc0066;">Fotoğraf Galerisi</h2>
+  <!-- Anasayfa Bölümü -->
+  <section id="home">
+    <h1>29 Mayıs 2026 Sürprizine Hoş Geldin!</h1>
+    <p>Senin için hazırladığım özel bir şey var 💖</p>
+  </section>
+
+  <!-- Geri Sayım Bölümü -->
+  <section id="countdown">
+    <h2>29 Mayıs 2026'ya Kalan Süre</h2>
+    <div class="countdown" id="countdownBox"></div>
+  </section>
+
+  <!-- Galeri Bölümü -->
+  <section id="gallery">
+    <h2>Fotoğraf Galerisi</h2>
     <div class="gallery">
       <img src="https://i.imgur.com/w38ApFX.jpeg" alt="Fotoğraf 1">
       <img src="https://i.imgur.com/ahJTXWO.jpeg" alt="Fotoğraf 2">
@@ -174,18 +212,21 @@
       <img src="https://i.imgur.com/DUhcnSQ.jpeg" alt="Fotoğraf 5">
       <img src="https://i.imgur.com/lcQuFtH.jpeg" alt="Fotoğraf 6">
     </div>
-  </div>
+  </section>
 
   <script>
     const passwordScreen = document.getElementById('password-screen');
-    const mainContent = document.getElementById('main-content');
+    const mainElements = document.querySelectorAll('section, .navbar');
     const errorText = document.getElementById('errorText');
+
+    // Başta içeriği gizle
+    mainElements.forEach(el => el.style.display = 'none');
 
     function checkPassword() {
       const input = document.getElementById('passwordInput').value;
       if (input === "2008") {
         passwordScreen.style.display = 'none';
-        mainContent.style.display = 'flex';
+        mainElements.forEach(el => el.style.display = 'block');
         errorText.innerText = "";
       } else {
         errorText.innerText = "Hatalı şifre! Lütfen tekrar deneyin.";
@@ -199,7 +240,7 @@
     }
 
     // Geri Sayım
-    const countdown = document.getElementById("countdown");
+    const countdown = document.getElementById("countdownBox");
     const targetDate = new Date("May 29, 2026 00:00:00").getTime();
 
     setInterval(function() {
