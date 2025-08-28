@@ -60,7 +60,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #121212;
             color: #E0E0E0;
-            overflow: hidden; /* Canvas animasyonu için kaydırmayı engelle */
+            overflow-y: auto; /* Sayfanın kaydırılabilmesini sağlayan önemli düzeltme */
         }
         canvas {
             position: fixed;
@@ -269,66 +269,67 @@
                 </div>
 
                 <!-- Fotoğraf Galerisi -->
+                <!-- Not: 15 adet fotoğraf bulunmaktadır. Lütfen aşağı kaydırarak tamamını gör. -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    <!-- Fotoğraf 1 -->
+                    <!-- Fotoğraf 1: Kış gününde çekilmiş bir fotoğraf -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/5EDtbFo.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/5EDtbFo.jpeg" alt="Karlı bir havada Ece'nin gülümsemesi" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 2 -->
+                    <!-- Fotoğraf 2: Gündoğumu esnasında çekilmiş bir an -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/qqysKBU.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/qqysKBU.jpeg" alt="Gündoğumunu izlerken çekilen anı fotoğrafı" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 3 -->
+                    <!-- Fotoğraf 3: Yaz tatilinden bir anı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/6vGLYAu.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/6vGLYAu.jpeg" alt="Yaz tatilinde deniz kenarından bir kare" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 4 -->
+                    <!-- Fotoğraf 4: Şehir gezisinden bir fotoğraf -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/88rhcqo.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/88rhcqo.jpeg" alt="Şehirde bir kafe ziyaretinden anı" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 5 -->
+                    <!-- Fotoğraf 5: Piknik anı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/hiayfGK.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/hiayfGK.jpeg" alt="Doğada piknik yaparken çekilen bir fotoğraf" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 6 -->
+                    <!-- Fotoğraf 6: Akşam yemeği sonrası anısı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/ab5MbOr.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/ab5MbOr.jpeg" alt="Akşam yemeği sonrası gülüşler" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 7 -->
+                    <!-- Fotoğraf 7: Bisiklet turundan bir kare -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/AWEjIOU.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/AWEjIOU.jpeg" alt="Bisiklet turu sırasında çekilen neşeli bir fotoğraf" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 8 -->
+                    <!-- Fotoğraf 8: Gemi gezisinden bir anı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/jxnmgbk.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/jxnmgbk.jpeg" alt="Gemide günbatımını izlerken çekilen kare" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 9 -->
+                    <!-- Fotoğraf 9: Doğa yürüyüşü anısı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/BQZJBHf.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/BQZJBHf.jpeg" alt="Doğa yürüyüşü sırasında çekilen bir anı" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 10 -->
+                    <!-- Fotoğraf 10: Sahilde bir akşam -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/LDmWnmm.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/LDmWnmm.jpeg" alt="Sahilde güneşlenirken çekilen bir kare" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 11 -->
+                    <!-- Fotoğraf 11: Noel anısı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/Xq7JdoN.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/Xq7JdoN.jpeg" alt="Yılbaşı ağacının yanında çekilen anı" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 12 -->
+                    <!-- Fotoğraf 12: Şehirde bir park gezisi -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/2rpVIMV.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/2rpVIMV.jpeg" alt="Şehir parkında çekilen bir fotoğraf" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 13 -->
+                    <!-- Fotoğraf 13: Arkadaşlarla yemek anısı -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/IBYYyQE.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/IBYYyQE.jpeg" alt="Restoranda akşam yemeğinden bir kare" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 14 -->
+                    <!-- Fotoğraf 14: Kar yağışlı bir gün -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/h44gbH5.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/h44gbH5.jpeg" alt="Karla kaplı bir manzarada çekilen fotoğraf" class="w-full h-full object-cover">
                     </div>
-                    <!-- Fotoğraf 15 -->
+                    <!-- Fotoğraf 15: Doğum günü partisi -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/y26xw9s.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/y26xw9s.jpeg" alt="Doğum günü partisinden bir fotoğraf" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
