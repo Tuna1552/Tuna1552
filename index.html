@@ -99,10 +99,9 @@
         }
 
         /* Anahtar Animasyon: Kalplerin Düşüşü */
-        @keyframes heartFall {
-            0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
-            5% { opacity: 0.1; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.1; }
+        @keyframes heart-fall {
+            0% { transform: translateY(-10vh) rotate(-45deg); opacity: 0.1; }
+            100% { transform: translateY(110vh) rotate(-45deg); opacity: 0.1; }
         }
 
         .nav-icon {
@@ -320,7 +319,7 @@
                     </div>
                     <!-- Fotoğraf 7 -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
-                        <img src="https://i.imgur.com/AWEjIOE.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                        <img src="https://i.imgur.com/AWEjIOU.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
                     </div>
                     <!-- Fotoğraf 8 -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
@@ -363,32 +362,34 @@
         // Kesintisiz kalp akışını başlatan fonksiyon
         function startContinuousHeartFall() {
             const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
-            const minDuration = 10;
-            const maxDuration = 25;
-            const createFrequency = 500; // Daha seyrek kalp için milisaniye
-
-            setInterval(() => {
+            
+            // Kalp yaratma fonksiyonu
+            function createHeart() {
                 const heart = document.createElement('div');
                 heart.classList.add('heart');
                 
                 const randomColor = heartColors[Math.floor(Math.random() * heartColors.length)];
                 heart.style.backgroundColor = randomColor;
+                heart.style.setProperty('--tw-bg-opacity', '0.1');
 
                 const startX = Math.random() * 100;
                 heart.style.left = `${startX}vw`;
                 
-                const duration = Math.random() * (maxDuration - minDuration) + minDuration;
-                heart.style.animationDuration = `${duration}s`;
-                heart.style.animationDelay = `${Math.random() * 5}s`;
+                const duration = Math.random() * 10 + 15; // 15-25 saniye aralığında düşüş
+                const delay = Math.random() * 5; // 0-5 saniye aralığında gecikme
+                
+                heart.style.animation = `heart-fall ${duration}s linear ${delay}s infinite`;
 
                 heartContainer.appendChild(heart);
 
-                // Animasyon bittikten sonra kalbi DOM'dan kaldır
+                // Bellek sızıntısını önlemek için bir süre sonra kalbi kaldır
                 setTimeout(() => {
                     heart.remove();
-                }, (duration + parseFloat(heart.style.animationDelay)) * 1000);
+                }, (duration + delay) * 1000);
+            }
 
-            }, createFrequency);
+            // Sürekli kalp oluşturma aralığı
+            setInterval(createHeart, 300); // Her 300 ms'de yeni bir kalp yarat
         }
         
         // Sayfa içeriğini render eden fonksiyon
