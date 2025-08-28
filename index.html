@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İyiki Varsın Ece</title>
+    <title>Ece'ye Özel Bir Dünya</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -78,7 +78,7 @@
             height: 15px;
             background-color: #FF69B4;
             transform: rotate(-45deg);
-            opacity: 0; /* Başlangıçta görünmez */
+            opacity: 0.1;
         }
         .heart::before,
         .heart::after {
@@ -253,7 +253,10 @@
             <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary-pink animate-fade-in drop-shadow-xl">
                 Doğum Günün Kutlu Olsun, Ece!
             </h1>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 w-full max-w-3xl animate-fade-in delay-200">
+            <p id="countdown-text" class="mt-8 text-xl md:text-3xl lg:text-4xl font-light text-text-light animate-fade-in delay-200">
+                29 Mayıs 2026'ya sadece...
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 w-full max-w-3xl animate-fade-in delay-300">
                 <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
                     <span id="days" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
                     <span class="text-xs md:text-sm text-gray-400 mt-2">GÜN</span>
@@ -273,6 +276,7 @@
             </div>
         `;
 
+        // Anılar bölümü güncellendi
         const memoriesPageContent = `
             <div class="w-full max-w-5xl animate-fade-in">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">En Güzel Anılarımız</h1>
@@ -287,29 +291,67 @@
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Anı Kartı 1 -->
-                    <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                        <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-xl"></div>
-                        <h3 class="text-2xl font-bold mb-3 text-secondary-pink relative z-10">İlk Kahve Molamız</h3>
-                        <p class="text-sm md:text-base text-gray-300 relative z-10">Okulun karşısındaki o küçük kafede içtiğimiz kahve ve saatlerce süren sohbetimiz...</p>
-                        <img src="https://placehold.co/400x300/FF69B4/FFFFFF?text=Kahve+Ani" alt="İlk Kahve Molamız" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
+                <!-- Fotoğraf Galerisi -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <!-- Fotoğraf 1 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/5EDtbFo.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
                     </div>
-
-                    <!-- Anı Kartı 2 -->
-                    <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                        <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl"></div>
-                        <h3 class="text-2xl font-bold mb-3 text-primary-blue relative z-10">O Konser Gecesi</h3>
-                        <p class="text-sm md:text-base text-gray-300 relative z-10">O sevdiğimiz grubun konserinde, yağmura rağmen dans edişimiz...</p>
-                        <img src="https://placehold.co/400x300/4A90E2/FFFFFF?text=Konser+Ani" alt="Konser Anısı" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
+                    <!-- Fotoğraf 2 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/qqysKBU.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
                     </div>
-                    
-                    <!-- Anı Kartı 3 -->
-                    <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                        <div class="absolute inset-0 bg-yellow-400 opacity-10 blur-xl"></div>
-                        <h3 class="text-2xl font-bold mb-3 text-yellow-400 relative z-10">Komik Kedi Videosu</h3>
-                        <p class="text-sm md:text-base text-gray-300 relative z-10">Akşam boyu kedi videolarına güldüğümüz o gece, gülmekten yorulmuştuk.</p>
-                        <img src="https://placehold.co/400x300/F8E71C/000000?text=Kedi+Videosu" alt="Komik Kedi Videosu" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
+                    <!-- Fotoğraf 3 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/6vGLYAu.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 4 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/88rhcqo.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 5 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/hiayfGK.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 6 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/ab5MbOr.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 7 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/AWEjIOE.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 8 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/jxnmgbk.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 9 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/BQZJBHf.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 10 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/LDmWnmm.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 11 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/Xq7JdoN.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 12 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/2rpVIMV.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 13 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/IBYYyQE.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 14 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/h44gbH5.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Fotoğraf 15 -->
+                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                        <img src="https://i.imgur.com/y26xw9s.jpeg" alt="Ece ile bir anı" class="w-full h-full object-cover">
                     </div>
                 </div>
             </div>
@@ -332,8 +374,8 @@
                 
                 // Animasyon süresi ve gecikmesini rastgele yap
                 heart.style.animationName = 'heartFall';
-                heart.style.animationDuration = `${Math.random() * 10 + 15}s`; // 15-25 saniye (daha yavaş)
-                heart.style.animationDelay = `${Math.random() * 5}s`; // 0-5 saniye
+                heart.style.animationDuration = `${Math.random() * 15 + 10}s`; // 10-25 saniye
+                heart.style.animationDelay = `${Math.random() * 10}s`; // 0-10 saniye
                 
                 container.appendChild(heart);
             }
