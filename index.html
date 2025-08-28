@@ -58,52 +58,21 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
             background-color: #121212;
             color: #E0E0E0;
+            overflow: hidden; /* Canvas animasyonu için kaydırmayı engelle */
         }
-        .heart-container {
-            position: absolute;
+        canvas {
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            z-index: 1; /* Diğer tüm içeriklerin arkasında kalacak */
             pointer-events: none;
-            overflow: hidden;
-            z-index: 5;
         }
-        .heart {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background-color: #FF69B4;
-            transform: rotate(-45deg);
-            opacity: 0.1; /* Daha hafif bir etki için */
+        .ui-container {
+            position: relative;
+            z-index: 10; /* Arayüz elemanları Canvas'ın önünde olacak */
         }
-        .heart::before,
-        .heart::after {
-            content: "";
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: #FF69B4;
-        }
-        .heart::before {
-            top: -7.5px;
-            left: 0;
-        }
-        .heart::after {
-            top: 0;
-            left: 7.5px;
-        }
-
-        /* Anahtar Animasyon: Kalplerin Düşüşü */
-        @keyframes heart-fall {
-            0% { transform: translateY(-10vh) rotate(-45deg); opacity: 0.1; }
-            100% { transform: translateY(110vh) rotate(-45deg); opacity: 0.1; }
-        }
-
         .nav-icon {
             transition: transform 0.3s ease-in-out;
         }
@@ -138,88 +107,90 @@
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
 
-    <!-- Heart Fall Animation Container - NOW VISIBLE FROM THE START -->
-    <div id="hearts" class="heart-container"></div>
+    <!-- Canvas for heart animation -->
+    <canvas id="hearts-canvas"></canvas>
 
-    <!-- Password Page -->
-    <div id="password-page" class="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-bg-dark text-center password-page-transition">
-        <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg animate-pulse-grow">Hoş Geldin, Ece!</h1>
-            <p class="text-md text-gray-400 mb-6 font-light">
-                Bu sürpriz siteye erişim için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
-            </p>
-            <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6">
-                <!-- Kalp butonları buraya JS ile eklenecek -->
-            </div>
-            <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                Şifreyi Göster
-            </button>
-            <p id="feedback-message" class="mt-4 text-red-400 font-medium opacity-0 transition-opacity duration-300">
-                Yanlış bir dokunuş. Tekrar dene.
-            </p>
-        </div>
-    </div>
-
-    <!-- Main Application Container -->
-    <div id="app-container" class="hidden flex-1 flex flex-col p-4 md:p-8 relative">
-        <!-- Dynamic Content Area -->
-        <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
-            <!-- Ana Sayfa (Home) content will be loaded here -->
-        </div>
-
-        <!-- Floating Message Modal -->
-        <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4 password-page-transition">
-            <div class="bg-card-dark p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up">
-                <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl transition-colors duration-200">
-                    &times;
-                </button>
-                <h2 class="text-3xl font-extrabold text-secondary-pink mb-4">Ece'ye Özel Mesaj</h2>
-                <p class="text-lg text-gray-300 mb-6 font-light leading-relaxed">
-                    Sevgili Ece, doğum günün için hazırladığım bu sürprizin, yüzünde küçük bir tebessüm yaratmasını umuyorum. Hayatın boyunca hep böyle güzel, özel ve neşeli kalman dileğiyle.
+    <!-- Ana Arayüz Elemanları -->
+    <div class="ui-container flex flex-col min-h-screen">
+        <!-- Password Page -->
+        <div id="password-page" class="flex flex-col items-center justify-center flex-1 p-4 text-center password-page-transition">
+            <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg animate-pulse-grow">Hoş Geldin, Ece!</h1>
+                <p class="text-md text-gray-400 mb-6 font-light">
+                    Bu sürpriz siteye erişim için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
                 </p>
-                <div class="w-full h-48 bg-gray-700 rounded-2xl mb-4 overflow-hidden shadow-inner">
-                    <img src="https://placehold.co/400x200/FF69B4/FFFFFF?text=Senin+icin+bir+mesaj" alt="Ece'ye özel mesaj görseli" class="w-full h-full object-cover">
+                <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6">
+                    <!-- Kalp butonları buraya JS ile eklenecek -->
                 </div>
-                <p class="text-right mt-4 text-sm italic text-gray-500">
-                    Sevgilerimle...
+                <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    Şifreyi Göster
+                </button>
+                <p id="feedback-message" class="mt-4 text-red-400 font-medium opacity-0 transition-opacity duration-300">
+                    Yanlış bir dokunuş. Tekrar dene.
                 </p>
             </div>
         </div>
 
-        <!-- Fixed Bottom Navigation Bar (Mobile) -->
-        <nav class="fixed bottom-0 left-0 w-full bg-card-dark bg-opacity-90 backdrop-blur-lg border-t border-gray-700 flex justify-around items-center h-16 shadow-2xl z-20 md:hidden">
-            <button id="nav-home" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-secondary-pink font-semibold p-2 transition-colors duration-200">
-                <i class="fas fa-home text-xl nav-icon"></i>
-                <span class="mt-1">Ana Sayfa</span>
-            </button>
-            <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
-                <i class="fas fa-camera text-xl nav-icon"></i>
-                <span class="mt-1">Anılar</span>
-            </button>
-            <button id="nav-message" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
-                <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
-                <span class="mt-1">Mesajım</span>
-            </button>
-        </nav>
-
-        <!-- Fixed Bottom Navigation Bar (Desktop) -->
-        <nav class="hidden md:flex fixed bottom-0 left-0 right-0 w-full justify-center p-4">
-            <div class="flex gap-4 p-2 bg-card-dark rounded-full shadow-2xl backdrop-blur-lg">
-                <button id="nav-home-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 bg-primary-blue shadow-lg hover:shadow-xl">
-                    <i class="fas fa-home mr-2"></i>
-                    Ana Sayfa
-                </button>
-                <button id="nav-memories-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
-                    <i class="fas fa-camera mr-2"></i>
-                    Anılar
-                </button>
-                 <button id="nav-message-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
-                    <i class="fas fa-envelope-open-text mr-2"></i>
-                    Sana Özel Mesaj
-                </button>
+        <!-- Main Application Container -->
+        <div id="app-container" class="hidden flex-1 flex flex-col p-4 md:p-8 relative">
+            <!-- Dynamic Content Area -->
+            <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
+                <!-- Ana Sayfa (Home) content will be loaded here -->
             </div>
-        </nav>
 
+            <!-- Floating Message Modal -->
+            <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4 password-page-transition">
+                <div class="bg-card-dark p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up">
+                    <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl transition-colors duration-200">
+                        &times;
+                    </button>
+                    <h2 class="text-3xl font-extrabold text-secondary-pink mb-4">Ece'ye Özel Mesaj</h2>
+                    <p class="text-lg text-gray-300 mb-6 font-light leading-relaxed">
+                        Sevgili Ece, doğum günün için hazırladığım bu sürprizin, yüzünde küçük bir tebessüm yaratmasını umuyorum. Hayatın boyunca hep böyle güzel, özel ve neşeli kalman dileğiyle.
+                    </p>
+                    <div class="w-full h-48 bg-gray-700 rounded-2xl mb-4 overflow-hidden shadow-inner">
+                        <img src="https://placehold.co/400x200/FF69B4/FFFFFF?text=Senin+icin+bir+mesaj" alt="Ece'ye özel mesaj görseli" class="w-full h-full object-cover">
+                    </div>
+                    <p class="text-right mt-4 text-sm italic text-gray-500">
+                        Sevgilerimle...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Fixed Bottom Navigation Bar (Mobile) -->
+            <nav class="fixed bottom-0 left-0 w-full bg-card-dark bg-opacity-90 backdrop-blur-lg border-t border-gray-700 flex justify-around items-center h-16 shadow-2xl z-20 md:hidden">
+                <button id="nav-home" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-secondary-pink font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-home text-xl nav-icon"></i>
+                    <span class="mt-1">Ana Sayfa</span>
+                </button>
+                <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-camera text-xl nav-icon"></i>
+                    <span class="mt-1">Anılar</span>
+                </button>
+                <button id="nav-message" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
+                    <span class="mt-1">Mesajım</span>
+                </button>
+            </nav>
+
+            <!-- Fixed Bottom Navigation Bar (Desktop) -->
+            <nav class="hidden md:flex fixed bottom-0 left-0 right-0 w-full justify-center p-4">
+                <div class="flex gap-4 p-2 bg-card-dark rounded-full shadow-2xl backdrop-blur-lg">
+                    <button id="nav-home-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 bg-primary-blue shadow-lg hover:shadow-xl">
+                        <i class="fas fa-home mr-2"></i>
+                        Ana Sayfa
+                    </button>
+                    <button id="nav-memories-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-camera mr-2"></i>
+                        Anılar
+                    </button>
+                    <button id="nav-message-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-envelope-open-text mr-2"></i>
+                        Sana Özel Mesaj
+                    </button>
+                </div>
+            </nav>
+        </div>
     </div>
     
     <script>
@@ -238,13 +209,19 @@
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const messageModal = document.getElementById('message-modal');
         const closeModalBtn = document.getElementById('close-modal');
-        const heartContainer = document.getElementById('hearts');
+
+        // --- Canvas ve Animasyon İçin Değişkenler ---
+        const canvas = document.getElementById('hearts-canvas');
+        const ctx = canvas.getContext('2d');
+        let hearts = [];
+        const heartCount = 30; // Ekranda aynı anda olacak maksimum kalp sayısı
+        const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
 
         // --- Temel Sabitler ve Değişkenler ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
         let userSequence = [];
-        const heartCount = 9;
+        const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
 
@@ -358,40 +335,66 @@
         `;
 
         // --- Fonksiyonlar ---
+        
+        // Canvas ve Kalp Animasyonu
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
-        // Kesintisiz kalp akışını başlatan fonksiyon
-        function startContinuousHeartFall() {
-            const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
-            
-            // Kalp yaratma fonksiyonu
-            function createHeart() {
-                const heart = document.createElement('div');
-                heart.classList.add('heart');
-                
-                const randomColor = heartColors[Math.floor(Math.random() * heartColors.length)];
-                heart.style.backgroundColor = randomColor;
-                heart.style.setProperty('--tw-bg-opacity', '0.1');
-
-                const startX = Math.random() * 100;
-                heart.style.left = `${startX}vw`;
-                
-                const duration = Math.random() * 10 + 15; // 15-25 saniye aralığında düşüş
-                const delay = Math.random() * 5; // 0-5 saniye aralığında gecikme
-                
-                heart.style.animation = `heart-fall ${duration}s linear ${delay}s infinite`;
-
-                heartContainer.appendChild(heart);
-
-                // Bellek sızıntısını önlemek için bir süre sonra kalbi kaldır
-                setTimeout(() => {
-                    heart.remove();
-                }, (duration + delay) * 1000);
-            }
-
-            // Sürekli kalp oluşturma aralığı
-            setInterval(createHeart, 300); // Her 300 ms'de yeni bir kalp yarat
+        function createHeart() {
+            const size = Math.random() * 10 + 10;
+            const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+            hearts.push({
+                x: Math.random() * canvas.width,
+                y: -size, // Ekranda başlamaması için
+                size: size,
+                speed: Math.random() * 0.5 + 0.5,
+                color: color,
+                opacity: 0.1,
+            });
         }
         
+        function drawHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(255, 105, 180, 0.1)"; // Kalbin rengi
+            
+            for (let i = 0; i < hearts.length; i++) {
+                const h = hearts[i];
+                ctx.save();
+                ctx.translate(h.x, h.y);
+                
+                ctx.beginPath();
+                ctx.moveTo(0, h.size * 0.4);
+                ctx.bezierCurveTo(0, -h.size * 0.2, h.size * 0.6, h.size * 0.4, 0, h.size);
+                ctx.bezierCurveTo(-h.size * 0.6, h.size * 0.4, 0, -h.size * 0.2, 0, h.size * 0.4);
+                
+                ctx.fillStyle = h.color;
+                ctx.globalAlpha = h.opacity;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        function updateHearts() {
+            for (let i = 0; i < hearts.length; i++) {
+                hearts[i].y += hearts[i].speed;
+            }
+            // Ekran dışına çıkan kalpleri kaldır
+            hearts = hearts.filter(h => h.y < canvas.height + 20);
+
+            // Yeni kalp ekle (eğer yeterli sayıda kalp yoksa)
+            if (hearts.length < heartCount) {
+                createHeart();
+            }
+        }
+        
+        function animate() {
+            updateHearts();
+            drawHearts();
+            requestAnimationFrame(animate);
+        }
+
         // Sayfa içeriğini render eden fonksiyon
         function renderPage(pageName) {
             contentArea.classList.add('opacity-0');
@@ -478,7 +481,7 @@
         function generateSequence() {
             const newSequence = [];
             for (let i = 0; i < sequenceLength; i++) {
-                newSequence.push(Math.floor(Math.random() * heartCount));
+                newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
         }
@@ -517,7 +520,7 @@
         // Şifre ekranı için kalp butonları oluşturur
         function createHeartButtons() {
             heartGrid.innerHTML = '';
-            for(let i = 0; i < heartCount; i++) {
+            for(let i = 0; i < heartButtonCount; i++) {
                 const button = document.createElement('button');
                 button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
                 button.dataset.index = i;
@@ -558,11 +561,14 @@
 
         // --- Olay Dinleyicileri (Event Listeners) ---
 
-        // Sayfa yüklendiğinde kalp butonlarını oluştur ve kesintisiz kalp akışını başlat
+        // Sayfa yüklendiğinde kalp butonlarını oluştur ve canvas animasyonunu başlat
         window.addEventListener('load', () => {
              createHeartButtons();
-             startContinuousHeartFall();
+             resizeCanvas();
+             animate();
         });
+        
+        window.addEventListener('resize', resizeCanvas);
 
         // Şifre oyununu başlat
         startButton.addEventListener('click', () => {
