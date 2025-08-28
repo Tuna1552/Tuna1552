@@ -78,7 +78,7 @@
             height: 15px;
             background-color: #FF69B4;
             transform: rotate(-45deg);
-            opacity: 0.1;
+            opacity: 0.1; /* Daha hafif bir etki için */
         }
         .heart::before,
         .heart::after {
@@ -139,6 +139,9 @@
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
 
+    <!-- Heart Fall Animation Container - NOW VISIBLE FROM THE START -->
+    <div id="hearts" class="heart-container"></div>
+
     <!-- Password Page -->
     <div id="password-page" class="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-bg-dark text-center password-page-transition">
         <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
@@ -160,9 +163,6 @@
 
     <!-- Main Application Container -->
     <div id="app-container" class="hidden flex-1 flex flex-col p-4 md:p-8 relative">
-        <!-- Heart Fall Animation Container -->
-        <div id="hearts" class="heart-container"></div>
-
         <!-- Dynamic Content Area -->
         <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
             <!-- Ana Sayfa (Home) content will be loaded here -->
@@ -239,6 +239,7 @@
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const messageModal = document.getElementById('message-modal');
         const closeModalBtn = document.getElementById('close-modal');
+        const heartContainer = document.getElementById('hearts');
 
         // --- Temel Sabitler ve Değişkenler ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
@@ -359,26 +360,35 @@
 
         // --- Fonksiyonlar ---
 
-        // Kalplerin düşüş animasyonunu oluşturan fonksiyon
-        function createHearts(count) {
-            const container = document.getElementById('hearts');
-            // Önceki kalpleri temizle
-            container.innerHTML = ''; 
-            for (let i = 0; i < count; i++) {
+        // Kesintisiz kalp akışını başlatan fonksiyon
+        function startContinuousHeartFall() {
+            const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
+            const minDuration = 10;
+            const maxDuration = 25;
+            const createFrequency = 500; // Daha seyrek kalp için milisaniye
+
+            setInterval(() => {
                 const heart = document.createElement('div');
                 heart.classList.add('heart');
                 
-                // Kalpleri ekranın üstünden başlat
+                const randomColor = heartColors[Math.floor(Math.random() * heartColors.length)];
+                heart.style.backgroundColor = randomColor;
+
                 const startX = Math.random() * 100;
                 heart.style.left = `${startX}vw`;
                 
-                // Animasyon süresi ve gecikmesini rastgele yap
-                heart.style.animationName = 'heartFall';
-                heart.style.animationDuration = `${Math.random() * 15 + 10}s`; // 10-25 saniye
-                heart.style.animationDelay = `${Math.random() * 10}s`; // 0-10 saniye
-                
-                container.appendChild(heart);
-            }
+                const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+                heart.style.animationDuration = `${duration}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+
+                heartContainer.appendChild(heart);
+
+                // Animasyon bittikten sonra kalbi DOM'dan kaldır
+                setTimeout(() => {
+                    heart.remove();
+                }, (duration + parseFloat(heart.style.animationDelay)) * 1000);
+
+            }, createFrequency);
         }
         
         // Sayfa içeriğini render eden fonksiyon
@@ -527,10 +537,6 @@
                                 passwordPage.classList.add('hidden');
                                 appContainer.classList.remove('hidden');
                                 renderPage('home');
-                                // Kalplerin 5 saniye sonra düşmeye başlaması için
-                                setTimeout(() => {
-                                    createHearts(25); // Kalpleri oluştur ve animasyonu başlat
-                                }, 5000); // 5 saniye = 5000 milisaniye
                             }, 500);
                         } else {
                             feedbackMessage.classList.remove('opacity-0');
@@ -551,9 +557,10 @@
 
         // --- Olay Dinleyicileri (Event Listeners) ---
 
-        // Sayfa yüklendiğinde kalp butonlarını oluştur
+        // Sayfa yüklendiğinde kalp butonlarını oluştur ve kesintisiz kalp akışını başlat
         window.addEventListener('load', () => {
              createHeartButtons();
+             startContinuousHeartFall();
         });
 
         // Şifre oyununu başlat
