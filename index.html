@@ -527,7 +527,10 @@
                                 passwordPage.classList.add('hidden');
                                 appContainer.classList.remove('hidden');
                                 renderPage('home');
-                                createHearts(25);
+                                // Kalplerin 5 saniye sonra düşmeye başlaması için
+                                setTimeout(() => {
+                                    createHearts(25); // Kalpleri oluştur ve animasyonu başlat
+                                }, 5000); // 5 saniye = 5000 milisaniye
                             }, 500);
                         } else {
                             feedbackMessage.classList.remove('opacity-0');
@@ -551,8 +554,6 @@
         // Sayfa yüklendiğinde kalp butonlarını oluştur
         window.addEventListener('load', () => {
              createHeartButtons();
-             // Kalplerin hemen düşmeye başlamasını sağla
-             createHearts(25);
         });
 
         // Şifre oyununu başlat
