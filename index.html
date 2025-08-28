@@ -31,9 +31,7 @@
                         'fade-in': 'fadeIn 1s ease-in-out',
                         'slide-up': 'slideUp 0.7s ease-out forwards',
                         'pulse-grow': 'pulseGrow 1.5s ease-in-out infinite',
-                        'heart-fall': 'heartFall 20s linear infinite',
-                        'light-up': 'lightUp 0.5s ease-out forwards',
-                        'fade-out': 'fadeOut 0.5s ease-in forwards'
+                        'light-up': 'lightUp 0.5s ease-out forwards'
                     },
                     keyframes: {
                         fadeIn: {
@@ -48,17 +46,9 @@
                             '0%, 100%': { transform: 'scale(1)' },
                             '50%': { transform: 'scale(1.05)' }
                         },
-                        heartFall: {
-                            '0%': { transform: 'translateY(-100vh) rotate(0deg)' },
-                            '100%': { transform: 'translateY(100vh) rotate(360deg)' },
-                        },
                         lightUp: {
                             '0%': { 'background-color': '#FF69B4' },
                             '100%': { 'background-color': '#FFD1DC' }
-                        },
-                        fadeOut: {
-                            '0%': { opacity: 1 },
-                            '100%': { opacity: 0, 'z-index': -10 }
                         }
                     }
                 }
@@ -89,7 +79,6 @@
             background-color: #FF69B4;
             transform: rotate(-45deg);
             opacity: 0.1;
-            animation: heartFall linear infinite;
         }
         .heart::before,
         .heart::after {
@@ -108,6 +97,14 @@
             top: 0;
             left: 7.5px;
         }
+
+        /* Anahtar Animasyon: Kalplerin Düşüşü */
+        @keyframes heartFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
+            5% { opacity: 0.1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0.1; }
+        }
+
         .nav-icon {
             transition: transform 0.3s ease-in-out;
         }
@@ -131,19 +128,26 @@
             background-color: #FFD1DC !important;
             animation: lightUp 0.5s ease-out forwards;
         }
+        .password-page-transition {
+            transition: opacity 0.5s ease-in-out, visibility 0.5s;
+        }
+        .password-page-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
 
     <!-- Password Page -->
-    <div id="password-page" class="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-bg-dark text-center transition-opacity duration-1000 animate-fade-in">
+    <div id="password-page" class="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-bg-dark text-center password-page-transition">
         <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
             <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg animate-pulse-grow">Hoş Geldin, Ece!</h1>
             <p class="text-md text-gray-400 mb-6 font-light">
                 Bu sürpriz siteye erişim için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
             </p>
             <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6">
-                <!-- Heart buttons will be added here by JS -->
+                <!-- Kalp butonları buraya JS ile eklenecek -->
             </div>
             <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                 Şifreyi Göster
@@ -161,11 +165,11 @@
 
         <!-- Dynamic Content Area -->
         <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
-            <!-- Home page content will be loaded here -->
+            <!-- Ana Sayfa (Home) content will be loaded here -->
         </div>
 
         <!-- Floating Message Modal -->
-        <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4 animate-fade-in">
+        <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4 password-page-transition">
             <div class="bg-card-dark p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up">
                 <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl transition-colors duration-200">
                     &times;
@@ -220,7 +224,7 @@
     </div>
     
     <script>
-        // --- Select Page Elements ---
+        // --- Sayfa Elemanlarını Seçme ---
         const passwordPage = document.getElementById('password-page');
         const appContainer = document.getElementById('app-container');
         const heartGrid = document.getElementById('heart-grid');
@@ -236,7 +240,7 @@
         const messageModal = document.getElementById('message-modal');
         const closeModalBtn = document.getElementById('close-modal');
 
-        // --- Core Constants and Variables ---
+        // --- Temel Sabitler ve Değişkenler ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
         let userSequence = [];
@@ -244,7 +248,7 @@
         const sequenceLength = 4;
         let isPlaying = false;
 
-        // --- Content Templates (HTML Strings) ---
+        // --- İçerik Şablonları (HTML Strings) ---
         const homePageContent = `
             <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary-pink animate-fade-in drop-shadow-xl">
                 Doğum Günün Kutlu Olsun, Ece!
@@ -277,7 +281,7 @@
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">En Güzel Anılarımız</h1>
                 <p class="text-center text-lg md:text-xl text-gray-400 mb-12">Her bir anı, kalbimin en özel yerinde parlayan bir yıldız gibi...</p>
                 
-                <!-- Kalpten Sözler Section -->
+                <!-- Kalpten Sözler Bölümü -->
                 <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
                     <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-xl animate-pulse"></div>
                     <h2 class="text-3xl font-bold text-secondary-pink mb-4 relative z-10">Kalpten Sözler</h2>
@@ -287,7 +291,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Memory Card 1 -->
+                    <!-- Anı Kartı 1 -->
                     <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
                         <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-xl"></div>
                         <h3 class="text-2xl font-bold mb-3 text-secondary-pink relative z-10">İlk Kahve Molamız</h3>
@@ -295,7 +299,7 @@
                         <img src="https://placehold.co/400x300/FF69B4/FFFFFF?text=Kahve+Ani" alt="İlk Kahve Molamız" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
                     </div>
 
-                    <!-- Memory Card 2 -->
+                    <!-- Anı Kartı 2 -->
                     <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
                         <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl"></div>
                         <h3 class="text-2xl font-bold mb-3 text-primary-blue relative z-10">O Konser Gecesi</h3>
@@ -303,7 +307,7 @@
                         <img src="https://placehold.co/400x300/4A90E2/FFFFFF?text=Konser+Ani" alt="Konser Anısı" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
                     </div>
                     
-                    <!-- Memory Card 3 -->
+                    <!-- Anı Kartı 3 -->
                     <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
                         <div class="absolute inset-0 bg-yellow-400 opacity-10 blur-xl"></div>
                         <h3 class="text-2xl font-bold mb-3 text-yellow-400 relative z-10">Komik Kedi Videosu</h3>
@@ -314,25 +318,31 @@
             </div>
         `;
 
-        // --- Functions ---
+        // --- Fonksiyonlar ---
 
-        // Creates falling hearts animation
+        // Kalplerin düşüş animasyonunu oluşturan fonksiyon
         function createHearts(count) {
             const container = document.getElementById('hearts');
-            const colors = ['#FF69B4', '#D53F8C', '#EF4444'];
+            // Önceki kalpleri temizle
+            container.innerHTML = ''; 
             for (let i = 0; i < count; i++) {
                 const heart = document.createElement('div');
                 heart.classList.add('heart');
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                heart.style.animationDelay = (Math.random() * 10) + 's';
-                heart.style.opacity = (Math.random() * 0.4 + 0.1);
-                heart.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                // Kalpleri ekranın üstünden başlat
+                const startX = Math.random() * 100;
+                heart.style.left = `${startX}vw`;
+                
+                // Animasyon süresi ve gecikmesini rastgele yap
+                heart.style.animationName = 'heartFall';
+                heart.style.animationDuration = `${Math.random() * 15 + 10}s`; // 10-25 saniye
+                heart.style.animationDelay = `${Math.random() * 10}s`; // 0-10 saniye
+                
                 container.appendChild(heart);
             }
         }
         
-        // Renders page content
+        // Sayfa içeriğini render eden fonksiyon
         function renderPage(pageName) {
             contentArea.classList.add('opacity-0');
             setTimeout(() => {
@@ -349,9 +359,9 @@
             }, 500);
         }
 
-        // Sets active navigation button
+        // Aktif navigasyon butonunu belirleyen fonksiyon
         function setActiveNav(pageName) {
-            // Mobile Navigation
+            // Mobil Navigasyon
             navHomeBtn.classList.remove('text-secondary-pink');
             navMemoriesBtn.classList.remove('text-secondary-pink');
             navMessageBtn.classList.remove('text-secondary-pink');
@@ -366,7 +376,7 @@
                  navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             }
 
-            // Desktop Navigation
+            // Masaüstü Navigasyon
             navHomeDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navMemoriesDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navMessageDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
@@ -385,7 +395,7 @@
             }
         }
 
-        // Manages the countdown logic
+        // Geri sayım mantığını yöneten fonksiyon
         function startCountdown() {
             const countdownInterval = setInterval(() => {
                 const now = new Date().getTime();
@@ -414,7 +424,7 @@
             }, 1000);
         }
 
-        // --- Password Game Logic ---
+        // --- Şifre Oyunu Mantığı ---
         function generateSequence() {
             const newSequence = [];
             for (let i = 0; i < sequenceLength; i++) {
@@ -454,7 +464,7 @@
             return true;
         }
         
-        // Creates heart buttons for the password screen
+        // Şifre ekranı için kalp butonları oluşturur
         function createHeartButtons() {
             heartGrid.innerHTML = '';
             for(let i = 0; i < heartCount; i++) {
@@ -473,7 +483,7 @@
                     
                     if (userSequence.length === sequence.length) {
                         if (checkSequence()) {
-                            passwordPage.classList.add('animate-fadeOut');
+                            passwordPage.classList.add('password-page-hidden');
                             setTimeout(() => {
                                 passwordPage.classList.add('hidden');
                                 appContainer.classList.remove('hidden');
@@ -497,12 +507,16 @@
             }
         }
 
-        // --- Event Listeners ---
+        // --- Olay Dinleyicileri (Event Listeners) ---
 
-        // Create heart buttons on page load
-        window.addEventListener('load', createHeartButtons);
+        // Sayfa yüklendiğinde kalp butonlarını oluştur
+        window.addEventListener('load', () => {
+             createHeartButtons();
+             // Kalplerin hemen düşmeye başlamasını sağla
+             createHearts(25);
+        });
 
-        // Start password game
+        // Şifre oyununu başlat
         startButton.addEventListener('click', () => {
             startButton.disabled = true;
             startButton.classList.add('opacity-50', 'cursor-not-allowed');
@@ -511,7 +525,7 @@
             playSequence();
         });
 
-        // Navigation buttons
+        // Navigasyon butonları
         navHomeBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         navMessageBtn.addEventListener('click', () => {
@@ -526,7 +540,7 @@
             setActiveNav('message');
         });
 
-        // Close message modal
+        // Mesaj modalını kapatma
         closeModalBtn.addEventListener('click', () => {
             messageModal.classList.add('hidden');
         });
