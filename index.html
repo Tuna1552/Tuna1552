@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ece'ye Özel Bir Dünya</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Tailwind CSS custom configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        cursive: ['Dancing Script', 'cursive']
+                    },
+                    colors: {
+                        'primary-blue': '#4A90E2',
+                        'secondary-pink': '#FF69B4',
+                        'bg-dark': '#121212',
+                        'card-dark': '#1E1E1E',
+                        'text-light': '#E0E0E0'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.7s ease-out forwards',
+                        'pulse-grow': 'pulseGrow 1.5s ease-in-out infinite',
+                        'confetti-fall': 'confettiFall 5s ease-out forwards',
+                        'balloon-float': 'balloonFloat 8s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: 0, transform: 'translateY(50px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        pulseGrow: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.05)' }
+                        },
+                        confettiFall: {
+                            '0%': { transform: 'translateY(-100vh) rotateZ(0deg)' },
+                            '100%': { transform: 'translateY(100vh) rotateZ(720deg)' },
+                        },
+                        balloonFloat: {
+                            '0%': { transform: 'translateY(0) rotate(-2deg)' },
+                            '50%': { transform: 'translateY(-50px) rotate(2deg)' },
+                            '100%': { transform: 'translateY(0) rotate(-2deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent body overflow for animations */
+            background-color: #121212;
+            color: #E0E0E0;
+        }
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: transparent;
+            border-radius: 50%;
+            opacity: 0;
+            animation: confettiFall 5s ease-out forwards;
+        }
+        .balloon {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            background: linear-gradient(to bottom, #f56565, #ef4444);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 5;
+            animation: balloonFloat 8s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+        .balloon::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #f56565;
+            border-radius: 50%;
+        }
+        .nav-icon {
+            transition: transform 0.3s ease-in-out;
+        }
+        .nav-button:hover .nav-icon {
+            transform: translateY(-5px);
+        }
+        .memory-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            transform-style: preserve-3d;
+        }
+        .memory-card:hover {
+            transform: translateY(-10px) rotateY(5deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
+
+    <!-- Password Page -->
+    <div id="password-page" class="flex flex-col items-center justify-center min-h-screen w-full p-4 bg-bg-dark text-center transition-opacity duration-1000 animate-fade-in">
+        <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
+            <h1 class="text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg">Merhaba Ece!</h1>
+            <p class="text-lg text-gray-400 mb-6">Bu sürpriz siteye erişmek için özel şifre girmelisin.</p>
+            <div class="mb-4">
+                <input id="password-input" type="password" placeholder="Şifreyi buraya gir..." class="w-full px-5 py-3 rounded-2xl bg-gray-700 border-2 border-transparent text-white placeholder-gray-500 focus:outline-none focus:border-primary-blue transition-colors duration-300">
+            </div>
+            <button id="submit-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-primary-blue to-blue-400 hover:from-blue-400 hover:to-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg">
+                Giriş Yap
+            </button>
+            <p id="error-message" class="mt-4 text-red-400 font-medium opacity-0 transition-opacity duration-300">Yanlış şifre. Lütfen tekrar dene.</p>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app-container" class="hidden flex-1 flex flex-col p-4 md:p-8 relative">
+        <!-- Confetti and Balloons container -->
+        <div class="confetti-container"></div>
+        <div id="balloons" class="absolute inset-0"></div>
+
+        <!-- Dynamic Content Area -->
+        <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
+            <!-- Ana Sayfa (Home) content will be loaded here -->
+        </div>
+
+        <!-- Floating Message Modal -->
+        <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4 animate-fade-in">
+            <div class="bg-card-dark p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up">
+                <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl transition-colors duration-200">
+                    &times;
+                </button>
+                <h2 class="text-3xl font-extrabold text-secondary-pink mb-4">Ece'ye Özel Mesaj</h2>
+                <p class="text-lg text-gray-300 mb-6 font-light leading-relaxed">
+                    Sevgili Ece, doğum günün için hazırladığım bu sürprizin, yüzünde küçük bir tebessüm yaratmasını umuyorum. Hayatın boyunca hep böyle güzel, özel ve neşeli kalman dileğiyle...
+                </p>
+                <!-- Image or GIF Placeholder. You can replace the src with your own image URL -->
+                <div class="w-full h-48 bg-gray-700 rounded-2xl mb-4 overflow-hidden shadow-inner">
+                    <img src="https://placehold.co/400x200/FF69B4/FFFFFF?text=Senin+icin+bir+mesaj" alt="Ece'ye özel mesaj görseli" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed Bottom Navigation Bar -->
+        <nav class="fixed bottom-0 left-0 w-full bg-card-dark bg-opacity-90 backdrop-blur-lg border-t border-gray-700 flex justify-around items-center h-16 shadow-2xl z-20 md:hidden">
+            <button id="nav-home" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-secondary-pink font-semibold p-2 transition-colors duration-200">
+                <i class="fas fa-home text-xl nav-icon"></i>
+                <span class="mt-1">Ana Sayfa</span>
+            </button>
+            <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                <i class="fas fa-camera text-xl nav-icon"></i>
+                <span class="mt-1">Anılar</span>
+            </button>
+        </nav>
+
+        <!-- Fixed Bottom Navigation Bar for desktop -->
+        <nav class="hidden md:flex fixed bottom-0 left-0 right-0 w-full justify-center p-4">
+            <div class="flex gap-4 p-2 bg-card-dark rounded-full shadow-2xl backdrop-blur-lg">
+                <button id="nav-home-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 bg-primary-blue shadow-lg hover:shadow-xl">
+                    <i class="fas fa-home mr-2"></i>
+                    Ana Sayfa
+                </button>
+                <button id="nav-memories-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                    <i class="fas fa-camera mr-2"></i>
+                    Anılar
+                </button>
+            </div>
+        </nav>
+
+    </div>
+    
+    <script>
+        // --- Page Element Selection ---
+        const passwordPage = document.getElementById('password-page');
+        const appContainer = document.getElementById('app-container');
+        const passwordInput = document.getElementById('password-input');
+        const submitButton = document.getElementById('submit-button');
+        const errorMessage = document.getElementById('error-message');
+        const contentArea = document.getElementById('content-area');
+        const navHomeBtn = document.getElementById('nav-home');
+        const navMemoriesBtn = document.getElementById('nav-memories');
+        const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
+        const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
+        const messageModal = document.getElementById('message-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        // --- Core Constants ---
+        const correctPassword = '2008';
+        const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
+
+        // --- Content Templates (HTML Strings) ---
+        const homePageContent = `
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary-pink animate-fade-in drop-shadow-xl">
+                Doğum Günün Kutlu Olsun, Ece!
+            </h1>
+            <p id="countdown-text" class="mt-8 text-xl md:text-3xl lg:text-4xl font-light text-text-light animate-fade-in delay-200">
+                29 Mayıs 2026'ya sadece...
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 w-full max-w-3xl animate-fade-in delay-300">
+                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                    <span id="days" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                    <span class="text-xs md:text-sm text-gray-400 mt-2">GÜN</span>
+                </div>
+                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                    <span id="hours" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                    <span class="text-xs md:text-sm text-gray-400 mt-2">SAAT</span>
+                </div>
+                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                    <span id="minutes" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                    <span class="text-xs md:text-sm text-gray-400 mt-2">DAKİKA</span>
+                </div>
+                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                    <span id="seconds" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                    <span class="text-xs md:text-sm text-gray-400 mt-2">SANİYE</span>
+                </div>
+            </div>
+            <button id="reveal-button" class="mt-12 px-10 py-5 bg-gradient-to-r from-secondary-pink to-fuchsia-500 text-white text-xl font-bold rounded-full shadow-lg hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-110 animate-pulse-grow">
+                Mesajımı Oku!
+            </button>
+        `;
+
+        const memoriesPageContent = `
+            <div class="w-full max-w-5xl animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">En Güzel Anılarımız</h1>
+                <p class="text-center text-lg md:text-xl text-gray-400 mb-12">Bu siteye geldikçe anı listemiz daha da uzayacak!</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Memory Card 1 -->
+                    <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-xl"></div>
+                        <h3 class="text-2xl font-bold mb-3 text-secondary-pink relative z-10">İlk Kahve Molamız</h3>
+                        <p class="text-sm md:text-base text-gray-300 relative z-10">Okulun karşısındaki o küçük kafede içtiğimiz kahve ve saatlerce süren sohbetimiz...</p>
+                        <img src="https://placehold.co/400x300/FF69B4/FFFFFF?text=Kahve+Ani" alt="İlk Kahve Molamız" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
+                    </div>
+
+                    <!-- Memory Card 2 -->
+                    <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl"></div>
+                        <h3 class="text-2xl font-bold mb-3 text-primary-blue relative z-10">O Konser Gecesi</h3>
+                        <p class="text-sm md:text-base text-gray-300 relative z-10">O sevdiğimiz grubun konserinde, yağmura rağmen dans edişimiz...</p>
+                        <img src="https://placehold.co/400x300/4A90E2/FFFFFF?text=Konser+Ani" alt="Konser Anısı" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
+                    </div>
+                    
+                    <!-- Memory Card 3 -->
+                    <div class="memory-card bg-card-dark rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute inset-0 bg-yellow-400 opacity-10 blur-xl"></div>
+                        <h3 class="text-2xl font-bold mb-3 text-yellow-400 relative z-10">Komik Kedi Videosu</h3>
+                        <p class="text-sm md:text-base text-gray-300 relative z-10">Akşam boyu kedi videolarına güldüğümüz o gece, gülmekten yorulmuştuk.</p>
+                        <img src="https://placehold.co/400x300/F8E71C/000000?text=Kedi+Videosu" alt="Komik Kedi Videosu" class="mt-4 rounded-xl shadow-md transform-gpu transition-transform duration-300 hover:scale-105">
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // --- Functions ---
+
+        // Function to render content based on page name
+        function renderPage(pageName) {
+            contentArea.classList.add('opacity-0');
+            setTimeout(() => {
+                contentArea.innerHTML = ''; // Clear previous content
+                if (pageName === 'home') {
+                    contentArea.innerHTML = homePageContent;
+                    startCountdown(); // Restart countdown for home page
+                    document.getElementById('reveal-button').addEventListener('click', () => {
+                        messageModal.classList.remove('hidden');
+                    });
+                    setActiveNav('home');
+                } else if (pageName === 'memories') {
+                    contentArea.innerHTML = memoriesPageContent;
+                    setActiveNav('memories');
+                }
+                contentArea.classList.remove('opacity-0');
+            }, 500); // Wait for fade-out transition
+        }
+
+        // Function to set active navigation button state
+        function setActiveNav(pageName) {
+            // Mobile Nav
+            navHomeBtn.classList.remove('text-secondary-pink');
+            navMemoriesBtn.classList.remove('text-secondary-pink');
+            navHomeBtn.classList.add('text-gray-400');
+            navMemoriesBtn.classList.add('text-gray-400');
+            if (pageName === 'home') {
+                navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            } else {
+                navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            }
+
+            // Desktop Nav
+            navHomeDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
+            navMemoriesDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
+            navHomeDesktopBtn.classList.add('hover:bg-gray-700');
+            navMemoriesDesktopBtn.classList.add('hover:bg-gray-700');
+            if (pageName === 'home') {
+                navHomeDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navHomeDesktopBtn.classList.remove('hover:bg-gray-700');
+            } else {
+                navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
+            }
+        }
+
+        // Function to create confetti particles
+        function createConfetti(count) {
+            const container = document.querySelector('.confetti-container');
+            const colors = ['#FF69B4', '#4A90E2', '#D0021B', '#F8E71C', '#BD10E0'];
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.opacity = '1';
+                confetti.style.width = (Math.random() * 6 + 4) + 'px';
+                confetti.style.height = (Math.random() * 6 + 4) + 'px';
+                container.appendChild(confetti);
+            }
+        }
+
+        // Function to create balloon animations
+        function createBalloons(count) {
+            const container = document.getElementById('balloons');
+            const colors = ['#E53E3E', '#4A90E2', '#FF69B4', '#F6E05E', '#D53F8C', '#48BB78'];
+            for (let i = 0; i < count; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.style.left = Math.random() * 100 + 'vw';
+                balloon.style.animationDelay = (Math.random() * 3) + 's';
+                balloon.style.background = `linear-gradient(to bottom, ${colors[Math.floor(Math.random() * colors.length)]}, #6B46C1)`;
+                container.appendChild(balloon);
+            }
+        }
+
+        // Function to handle countdown logic
+        function startCountdown() {
+            const countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = birthdayDate - now;
+
+                if (distance > 0) {
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    const daysEl = document.getElementById('days');
+                    const hoursEl = document.getElementById('hours');
+                    const minutesEl = document.getElementById('minutes');
+                    const secondsEl = document.getElementById('seconds');
+                    
+                    if(daysEl) daysEl.textContent = days;
+                    if(hoursEl) hoursEl.textContent = hours;
+                    if(minutesEl) minutesEl.textContent = minutes;
+                    if(secondsEl) secondsEl.textContent = seconds;
+                } else {
+                    clearInterval(countdownInterval);
+                    const countdownTextEl = document.getElementById('countdown-text');
+                    const revealBtn = document.getElementById('reveal-button');
+                    if(countdownTextEl) countdownTextEl.textContent = "Doğum Günün Kutlu Olsun!";
+                    if(revealBtn) revealBtn.classList.remove('animate-pulse-grow');
+                }
+            }, 1000);
+        }
+
+        // --- Event Listeners ---
+
+        // Password input event listener for 'Enter' key
+        passwordInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                submitButton.click();
+            }
+        });
+
+        // Password check and page transition
+        submitButton.addEventListener('click', () => {
+            if (passwordInput.value === correctPassword) {
+                passwordPage.classList.add('opacity-0', 'hidden');
+                appContainer.classList.remove('hidden');
+                setTimeout(() => {
+                    appContainer.classList.add('opacity-100');
+                    renderPage('home');
+                    createConfetti(100);
+                    createBalloons(15);
+                }, 50);
+            } else {
+                errorMessage.classList.remove('opacity-0');
+                passwordInput.value = '';
+                setTimeout(() => {
+                    errorMessage.classList.add('opacity-0');
+                }, 3000);
+            }
+        });
+
+        // Navigation listeners
+        navHomeBtn.addEventListener('click', () => renderPage('home'));
+        navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
+        navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
+        navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
+
+        // Modal listeners
+        closeModalBtn.addEventListener('click', () => {
+            messageModal.classList.add('hidden');
+        });
+
+    </script>
+
+</body>
+</html>
