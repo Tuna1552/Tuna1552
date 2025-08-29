@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İyiki Varsın Ece</title>
+    <title>Ece'ye Özel Mesaj</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -27,6 +27,8 @@
                         'card-dark': '#1E1E1E',
                         'text-light': '#E0E0E0',
                         'message-pink': '#FFC0CB',
+                        'envelope-pink': '#FFD1DC',
+                        'ribbon-red': '#B22222',
                     },
                     animation: {
                         'fade-in': 'fadeIn 1s ease-in-out',
@@ -34,7 +36,9 @@
                         'pulse-grow': 'pulseGrow 1.5s ease-in-out infinite',
                         'light-up': 'lightUp 0.5s ease-out forwards',
                         'box-open': 'boxOpen 1s ease-in-out forwards',
-                        'message-appear': 'messageAppear 1s ease-in-out 1s forwards'
+                        'message-appear': 'messageAppear 1s ease-in-out 1s forwards',
+                        'envelope-open': 'envelopeOpen 1s ease-in-out forwards',
+                        'message-slide-in': 'messageSlideIn 1s ease-in-out 0.8s forwards'
                     },
                     keyframes: {
                         fadeIn: {
@@ -60,6 +64,14 @@
                         messageAppear: {
                             '0%': { opacity: 0, transform: 'translateY(20px)' },
                             '100%': { opacity: 1, transform: 'translateY(0)' }
+                        },
+                        envelopeOpen: {
+                            '0%': { transform: 'rotateX(0deg)' },
+                            '100%': { transform: 'rotateX(180deg)' }
+                        },
+                        messageSlideIn: {
+                            '0%': { transform: 'translateY(100%)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 }
                         }
                     }
                 }
@@ -90,13 +102,6 @@
         .nav-button:hover .nav-icon {
             transform: translateY(-5px);
         }
-        .memory-card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        .memory-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-        }
         .heart-icon-btn {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
@@ -114,46 +119,112 @@
             opacity: 0;
             visibility: hidden;
         }
-        .gift-box {
+        .envelope-container {
             position: relative;
-            transform-style: preserve-3d;
+            width: 300px;
+            height: 200px;
             cursor: pointer;
-            transition: transform 0.5s ease-in-out;
+            perspective: 1000px;
+            transform-style: preserve-3d;
         }
-        .gift-box-base, .gift-box-lid {
-            transition: transform 1s ease-in-out;
-        }
-        .gift-box-lid-open {
-            transform-origin: bottom;
-            animation: boxOpen 1s ease-in-out forwards;
-        }
-        .gift-box-ribbon {
+
+        .envelope-body {
             position: absolute;
             width: 100%;
-            height: 20px;
-            background-color: #DB2777;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-        }
-        .gift-box-ribbon::before {
-            content: '';
-            position: absolute;
-            width: 20px;
             height: 100%;
-            background-color: #DB2777;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
+            background-color: #FFC0CB;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        .message-content {
+
+        .envelope-flap {
+            position: absolute;
+            width: 0;
+            height: 0;
+            top: 0;
+            left: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 100px solid #FFC0CB;
+            transform-origin: top center;
+            transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .envelope-flap-back {
+            position: absolute;
+            width: 0;
+            height: 0;
+            bottom: 0;
+            left: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #FFD1DC;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            transform-origin: bottom;
+        }
+
+        .envelope-ribbon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background-color: #DB2777;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            z-index: 20;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .envelope-ribbon:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .message-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            height: 90%;
+            background-color: #FFF0F5;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
             opacity: 0;
             visibility: hidden;
+            transition: all 1s ease-in-out;
+            z-index: 10;
         }
-        .message-content-visible {
+
+        .envelope-container.open .envelope-flap {
+            transform: rotateX(180deg);
+        }
+
+        .envelope-container.open .message-card {
             opacity: 1;
             visibility: visible;
-            animation: messageAppear 1s ease-in-out forwards;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Yeni şifre ekranı için stil */
+        .password-page-transition {
+            transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .password-page-hidden {
+            transform: scale(0.8) translateY(-50px);
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -192,27 +263,25 @@
 
             <!-- Floating Message Modal -->
             <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-                <div class="bg-card-dark rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up p-8">
-                    <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl transition-colors duration-200">
-                        &times;
-                    </button>
-                    
-                    <div id="gift-box" class="gift-box w-64 h-64 mx-auto mb-8 relative" onclick="openGiftBox()">
-                        <div class="gift-box-base w-full h-full bg-secondary-pink rounded-xl shadow-2xl"></div>
-                        <div id="gift-box-lid" class="gift-box-lid w-[105%] h-12 bg-secondary-pink absolute -top-4 left-1/2 -translate-x-1/2 rounded-xl shadow-lg transform-gpu" style="transform-origin: bottom;">
-                            <div class="gift-box-ribbon"></div>
-                        </div>
-                        <div class="absolute w-20 h-20 bg-secondary-pink rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                        <div class="absolute w-12 h-12 bg-fuchsia-600 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse-grow"></div>
-                        
-                        <div id="message-content" class="message-content absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                            <h2 class="text-3xl font-extrabold text-white mb-4">Ece'ye Özel Mesaj</h2>
-                            <p class="text-lg text-gray-300 mb-6 font-light leading-relaxed">
+                <div class="relative max-w-lg w-full text-center">
+                    <div class="envelope-container mx-auto" onclick="openEnvelope()">
+                        <div class="envelope-flap-back"></div>
+                        <div class="envelope-body"></div>
+                        <div class="envelope-flap"></div>
+                        <div class="message-card">
+                            <h2 class="text-3xl font-extrabold text-secondary-pink mb-4">Ece'ye Özel Mesaj</h2>
+                            <p class="text-lg text-gray-800 mb-6 font-light leading-relaxed">
                                 Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. İyi ki doğdun, iyi ki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın.
                             </p>
                             <p class="text-right mt-4 text-sm italic text-gray-500">
                                 Tüm sevgilerimle...
                             </p>
+                            <button id="close-modal" class="absolute bottom-4 left-1/2 -translate-x-1/2 mt-4 py-2 px-6 rounded-full font-bold text-white bg-secondary-pink hover:bg-fuchsia-500 transition-colors duration-300 transform hover:scale-105 shadow-lg">
+                                Kapat
+                            </button>
+                        </div>
+                        <div class="envelope-ribbon">
+                            <i class="fas fa-heart"></i>
                         </div>
                     </div>
                 </div>
@@ -280,8 +349,7 @@
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const messageModal = document.getElementById('message-modal');
         const closeModalBtn = document.getElementById('close-modal');
-        const giftBoxLid = document.getElementById('gift-box-lid');
-        const messageContent = document.getElementById('message-content');
+        const envelopeContainer = document.querySelector('.envelope-container');
 
         // --- Canvas ve Animasyon İçin Değişkenler ---
         const canvas = document.getElementById('hearts-canvas');
@@ -681,12 +749,9 @@
             }
         }
 
-        // Hediye kutusunu açma fonksiyonu
-        function openGiftBox() {
-            giftBoxLid.classList.add('gift-box-lid-open');
-            setTimeout(() => {
-                messageContent.classList.add('message-content-visible');
-            }, 1000); // Kutu açıldıktan sonra mesajı göster
+        // Zarfı açma fonksiyonu
+        function openEnvelope() {
+            envelopeContainer.classList.add('open');
         }
 
         // --- Olay Dinleyicileri (Event Listeners) ---
@@ -729,6 +794,7 @@
         // Mesaj modalını kapatma
         closeModalBtn.addEventListener('click', () => {
             messageModal.classList.add('hidden');
+            envelopeContainer.classList.remove('open');
         });
     </script>
 </body>
