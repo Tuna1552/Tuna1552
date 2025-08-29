@@ -105,6 +105,21 @@
             background-color: #FF69B4 !important;
             animation: lightUp 0.5s ease-out forwards;
         }
+        .message-bubble {
+            background-color: #2D3748;
+            border-radius: 1.5rem;
+            padding: 0.75rem 1.25rem;
+            max-width: 85%;
+            word-break: break-word;
+        }
+        .message-bubble-self {
+            background-color: #4A90E2;
+            border-bottom-right-radius: 0;
+        }
+        .message-bubble-other {
+            background-color: #FF69B4;
+            border-bottom-left-radius: 0;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -158,6 +173,10 @@
                     <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
                     <span class="mt-1">Mesajım</span>
                 </button>
+                <button id="nav-chat" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-comments text-xl nav-icon"></i>
+                    <span class="mt-1">Sohbet</span>
+                </button>
             </nav>
 
             <!-- Fixed Bottom Navigation Bar (Desktop) -->
@@ -179,12 +198,55 @@
                         <i class="fas fa-envelope-open-text mr-2"></i>
                         Sana Özel Mesaj
                     </button>
+                    <button id="nav-chat-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-comments mr-2"></i>
+                        Sohbet
+                    </button>
                 </div>
             </nav>
         </div>
     </div>
     
-    <script>
+    <script type="module">
+        // Firebase modüllerini içe aktarın
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firestore ve Auth global değişkenleri
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let unsubscribeFromChat;
+
+        // Firestore ve Auth'u başlatır
+        async function initializeFirebase() {
+            try {
+                // Güvenli başlangıç
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+                if (!firebaseConfig) {
+                    console.error("Firebase config is not defined.");
+                    return;
+                }
+                
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Kullanıcı kimlik doğrulamasını yapar
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase initialized and user authenticated.");
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+            }
+        }
+
         // --- Sayfa Elemanlarını Seçme ---
         const passwordPage = document.getElementById('password-page');
         const appContainer = document.getElementById('app-container');
@@ -196,10 +258,12 @@
         const navMemoriesBtn = document.getElementById('nav-memories');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
+        const navChatBtn = document.getElementById('nav-chat');
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
+        const navChatDesktopBtn = document.getElementById('nav-chat-desktop');
 
         // --- Canvas ve Animasyon İçin Değişkenler ---
         const canvas = document.getElementById('hearts-canvas');
@@ -402,7 +466,30 @@
                 </div>
             </div>
         `;
-
+        
+        const chatPageContent = `
+            <div class="w-full max-w-2xl mx-auto flex flex-col h-full animate-fade-in">
+                <div class="flex-none p-4 pb-2 border-b border-gray-700">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue text-center drop-shadow-lg mb-2">Sohbet</h1>
+                    <p class="text-sm font-light text-center text-gray-400">
+                        Mesajları sadece `/cl` komutuyla silebilirsin.
+                    </p>
+                    <p id="user-id-display" class="text-xs text-center text-gray-500 mt-2 break-all"></p>
+                </div>
+                <div id="message-list" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Mesajlar buraya dinamik olarak eklenecek -->
+                </div>
+                <div class="flex-none p-4 pt-2">
+                    <form id="chat-form" class="flex items-center space-x-2">
+                        <input type="text" id="chat-input" placeholder="Bir mesaj yaz..." class="flex-1 py-3 px-6 rounded-full bg-card-dark text-text-light border border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-blue transition-all duration-200">
+                        <button type="submit" id="send-button" class="bg-primary-blue text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        `;
+        
         // --- Fonksiyonlar ---
         
         // Canvas ve Kalp Animasyonu
@@ -465,6 +552,13 @@
         // Sayfa içeriğini render eden fonksiyon
         function renderPage(pageName) {
             contentArea.classList.add('opacity-0');
+            
+            // Mevcut sohbet dinleyicisini kapat
+            if (unsubscribeFromChat) {
+                unsubscribeFromChat();
+                unsubscribeFromChat = null;
+            }
+
             setTimeout(() => {
                 contentArea.innerHTML = '';
                 if (pageName === 'home') {
@@ -480,6 +574,14 @@
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
+                } else if (pageName === 'chat') {
+                    contentArea.innerHTML = chatPageContent;
+                    setActiveNav('chat');
+                    if (db && userId) {
+                        setupChat();
+                    } else {
+                        console.error("Firestore veya Kullanıcı Kimliği mevcut değil.");
+                    }
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -492,10 +594,12 @@
             navMemoriesBtn.classList.remove('text-secondary-pink');
             navArtBtn.classList.remove('text-secondary-pink');
             navMessageBtn.classList.remove('text-secondary-pink');
+            navChatBtn.classList.remove('text-secondary-pink');
             navHomeBtn.classList.add('text-gray-400');
             navMemoriesBtn.classList.add('text-gray-400');
             navArtBtn.classList.add('text-gray-400');
             navMessageBtn.classList.add('text-gray-400');
+            navChatBtn.classList.add('text-gray-400');
             if (pageName === 'home') {
                 navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             } else if (pageName === 'memories') {
@@ -504,6 +608,8 @@
                 navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             } else if (pageName === 'message') {
                  navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            } else if (pageName === 'chat') {
+                navChatBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             }
 
             // Masaüstü Navigasyon
@@ -511,10 +617,12 @@
             navMemoriesDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navArtDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navMessageDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
+            navChatDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navHomeDesktopBtn.classList.add('hover:bg-gray-700');
             navMemoriesDesktopBtn.classList.add('hover:bg-gray-700');
             navArtDesktopBtn.classList.add('hover:bg-gray-700');
             navMessageDesktopBtn.classList.add('hover:bg-gray-700');
+            navChatDesktopBtn.classList.add('hover:bg-gray-700');
             if (pageName === 'home') {
                 navHomeDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navHomeDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -527,6 +635,9 @@
             } else if (pageName === 'message') {
                 navMessageDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
+            } else if (pageName === 'chat') {
+                navChatDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navChatDesktopBtn.classList.remove('hover:bg-gray-700');
             }
         }
 
@@ -648,16 +759,128 @@
             }
         }
 
+        // --- Sohbet Bölümü Fonksiyonları ---
+        async function setupChat() {
+            if (!db) {
+                console.error("Firestore database is not initialized.");
+                return;
+            }
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const chatCollectionRef = collection(db, `artifacts/${appId}/public/data/chat_messages`);
+            const messageList = document.getElementById('message-list');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const userIdDisplay = document.getElementById('user-id-display');
+
+            if (!messageList || !chatForm || !chatInput || !userIdDisplay) {
+                console.error("Chat page elements are missing from the DOM.");
+                return;
+            }
+            
+            // Kullanıcı ID'sini göster
+            userIdDisplay.textContent = `Kimliğin: ${userId}`;
+
+            // Mesaj dinleyicisini ayarla
+            const q = query(chatCollectionRef, orderBy("createdAt", "asc"));
+            unsubscribeFromChat = onSnapshot(q, (snapshot) => {
+                const messages = [];
+                snapshot.forEach(doc => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                renderMessages(messages);
+                messageList.scrollTop = messageList.scrollHeight; // Sohbeti aşağı kaydır
+            });
+
+            // Mesaj gönderme formunu dinle
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+                
+                if (text === "/cl") {
+                    await deleteAllMessages(chatCollectionRef);
+                    chatInput.value = '';
+                } else if (text) {
+                    try {
+                        await addDoc(chatCollectionRef, {
+                            text: text,
+                            userId: userId,
+                            createdAt: serverTimestamp()
+                        });
+                        chatInput.value = '';
+                    } catch (error) {
+                        console.error("Mesaj gönderilirken hata oluştu: ", error);
+                    }
+                }
+            });
+        }
+
+        function renderMessages(messages) {
+            const messageList = document.getElementById('message-list');
+            if (!messageList) return;
+            messageList.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const isSelf = msg.userId === userId;
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('flex', 'flex-col', 'max-w-xs', 'md:max-w-md', 'break-words', 'animate-slide-up');
+                
+                if (isSelf) {
+                    messageDiv.classList.add('self-end');
+                } else {
+                    messageDiv.classList.add('self-start');
+                }
+                
+                const senderName = isSelf ? 'Sen' : 'Ece';
+                
+                messageDiv.innerHTML = `
+                    <div class="flex items-center space-x-2 ${isSelf ? 'justify-end' : ''}">
+                        <span class="text-xs text-gray-400 font-semibold mb-1">${senderName}</span>
+                    </div>
+                    <div class="message-bubble ${isSelf ? 'message-bubble-self' : 'message-bubble-other'}">
+                        ${msg.text}
+                    </div>
+                `;
+                messageList.appendChild(messageDiv);
+            });
+        }
+
+        async function deleteAllMessages(collectionRef) {
+            try {
+                const querySnapshot = await getDocs(collectionRef);
+                const deletePromises = [];
+                querySnapshot.forEach(doc => {
+                    deletePromises.push(deleteDoc(doc.ref));
+                });
+                await Promise.all(deletePromises);
+                console.log("Tüm mesajlar silindi.");
+            } catch (error) {
+                console.error("Mesajlar silinirken hata oluştu:", error);
+            }
+        }
+        
         // --- Olay Dinleyicileri (Event Listeners) ---
 
         // Sayfa yüklendiğinde kalp butonlarını oluştur ve canvas animasyonunu başlat
         window.addEventListener('load', () => {
+             initializeFirebase();
              createHeartButtons();
              resizeCanvas();
              animate();
         });
         
         window.addEventListener('resize', resizeCanvas);
+        
+        // Auth durumu değiştiğinde kullanıcı ID'sini al
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                console.log("User ID:", userId);
+            } else {
+                userId = null;
+                console.log("User is not signed in.");
+            }
+        });
 
         // Şifre oyununu başlat
         startButton.addEventListener('click', () => {
@@ -671,11 +894,13 @@
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         navArtBtn.addEventListener('click', () => renderPage('art'));
         navMessageBtn.addEventListener('click', () => renderPage('message'));
+        navChatBtn.addEventListener('click', () => renderPage('chat'));
 
         navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
         navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
+        navChatDesktopBtn.addEventListener('click', () => renderPage('chat'));
     </script>
 </body>
 </html>
