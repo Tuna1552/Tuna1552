@@ -60,18 +60,18 @@
             font-family: 'Inter', sans-serif;
             background-color: #121212;
             color: #E0E0E0;
-            overflow-y: auto; /* Sayfanın kaydırılabilmesini sağlayan önemli düzeltme */
+            overflow-y: auto;
         }
         canvas {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 1; /* Diğer tüm içeriklerin arkasında kalacak */
+            z-index: 1;
             pointer-events: none;
         }
         .ui-container {
             position: relative;
-            z-index: 10; /* Arayüz elemanları Canvas'ın önünde olacak */
+            z-index: 10;
         }
         .nav-icon {
             transition: transform 0.3s ease-in-out;
@@ -167,6 +167,10 @@
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
                 </button>
+                <button id="nav-art" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-palette text-xl nav-icon"></i>
+                    <span class="mt-1">Sanat</span>
+                </button>
                 <button id="nav-message" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
                     <span class="mt-1">Mesajım</span>
@@ -183,6 +187,10 @@
                     <button id="nav-memories-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-camera mr-2"></i>
                         Anılar
+                    </button>
+                    <button id="nav-art-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-palette mr-2"></i>
+                        Sanat Galerisi
                     </button>
                     <button id="nav-message-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-envelope-open-text mr-2"></i>
@@ -203,9 +211,11 @@
         const contentArea = document.getElementById('content-area');
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
+        const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
+        const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const messageModal = document.getElementById('message-modal');
         const closeModalBtn = document.getElementById('close-modal');
@@ -253,17 +263,17 @@
             </div>
         `;
 
-        // Anılar bölümü güncellendi
         const memoriesPageContent = `
             <div class="w-full max-w-5xl animate-fade-in">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Fotoğraf Galerisi</h1>
-            
+                <p class="text-center text-lg md:text-xl text-gray-400 mb-12">Seni gördüğüm her fotoğraf, ve ismini duyduğum her an ne kadar iyi bir arkadaşım olduğunu hatırlıyorum iyiki varsın...</p>
+                
                 <!-- Sevgili Ece -->
                 <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
                     <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-xl animate-pulse"></div>
-                    <h2 class="text-3xl font-bold text-secondary-pink mb-4 relative z-10">Sevgili Ece</h2>
+                    <h2 class="text-3xl font-bold text-secondary-pink mb-4 relative z-10">Kalpten Sözler</h2>
                     <p class="text-lg italic font-light text-gray-300 relative z-10">
-                        "Öncelikle bu fotoğrafları güzel hale getiren asıl unsurun sen ve senin güzel kalbin olduğuna inanıyorum. Seni gördüğüm her fotoğraf, ve ismini duyduğum her an ne kadar iyi bir arkadaşım olduğunu hatırlıyorum iyiki varsın..."
+                        "En güzel anılar, en değerli hikayelerimizdir. Her bir anı, kalbimin en özel yerinde parlayan bir yıldız gibi..."
                     </p>
                 </div>
 
@@ -321,6 +331,48 @@
                     <!-- Fotoğraf 15: Doğum günü partisi -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
                         <img src="https://i.imgur.com/y26xw9s.jpeg" alt="Doğum günü partisinden bir fotoğraf" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const artGalleryContent = `
+            <div class="w-full max-w-5xl animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Sanat Galerisi</h1>
+                <p class="text-center text-lg md:text-xl text-gray-400 mb-12">
+                    Gözlerin kadar güzel, ruhun gibi renkli eserler. Bu galeri, senin için seçilmiş özel parçalardan oluşuyor.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/TzJ94Gt.jpeg" alt="Soyut bir sanat eseri" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/o5q6N2J.jpeg" alt="Neşeli renklerde bir sanat eseri" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/JNQWWI8.jpeg" alt="Rüya gibi bir manzara tablosu" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/CZ0yuJj.jpeg" alt="Canlı renklerle modern sanat eseri" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/2mxzM7j.jpeg" alt="Huzurlu bir deniz manzarası" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/PjSCSpN.jpeg" alt="Güneşli bir ortamı yansıtan eser" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/MFz3KuV.jpeg" alt="Canlı bir şehir tablosu" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/08baD8G.jpeg" alt="Sakin bir göl manzarası" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/F52dRQj.jpeg" alt="Doğa içinde yer alan bir ev" class="w-full h-72 object-cover">
+                    </div>
+                    <div class="w-full rounded-2xl overflow-hidden shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                        <img src="https://i.imgur.com/rJ8fyjv.jpeg" alt="Renkli bir doğa manzarası" class="w-full h-72 object-cover">
                     </div>
                 </div>
             </div>
@@ -400,6 +452,9 @@
                 } else if (pageName === 'memories') {
                     contentArea.innerHTML = memoriesPageContent;
                     setActiveNav('memories');
+                } else if (pageName === 'art') {
+                    contentArea.innerHTML = artGalleryContent;
+                    setActiveNav('art');
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -410,14 +465,18 @@
             // Mobil Navigasyon
             navHomeBtn.classList.remove('text-secondary-pink');
             navMemoriesBtn.classList.remove('text-secondary-pink');
+            navArtBtn.classList.remove('text-secondary-pink');
             navMessageBtn.classList.remove('text-secondary-pink');
             navHomeBtn.classList.add('text-gray-400');
             navMemoriesBtn.classList.add('text-gray-400');
+            navArtBtn.classList.add('text-gray-400');
             navMessageBtn.classList.add('text-gray-400');
             if (pageName === 'home') {
                 navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             } else if (pageName === 'memories') {
                 navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            } else if (pageName === 'art') {
+                navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             } else if (pageName === 'message') {
                  navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             }
@@ -425,9 +484,11 @@
             // Masaüstü Navigasyon
             navHomeDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navMemoriesDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
+            navArtDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navMessageDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
             navHomeDesktopBtn.classList.add('hover:bg-gray-700');
             navMemoriesDesktopBtn.classList.add('hover:bg-gray-700');
+            navArtDesktopBtn.classList.add('hover:bg-gray-700');
             navMessageDesktopBtn.classList.add('hover:bg-gray-700');
             if (pageName === 'home') {
                 navHomeDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
@@ -435,6 +496,9 @@
             } else if (pageName === 'memories') {
                 navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
+            } else if (pageName === 'art') {
+                navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navArtDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'message') {
                 navMessageDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -575,6 +639,7 @@
         // Navigasyon butonları
         navHomeBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
+        navArtBtn.addEventListener('click', () => renderPage('art'));
         navMessageBtn.addEventListener('click', () => {
             messageModal.classList.remove('hidden');
             setActiveNav('message');
@@ -582,6 +647,7 @@
 
         navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
+        navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         navMessageDesktopBtn.addEventListener('click', () => {
             messageModal.classList.remove('hidden');
             setActiveNav('message');
