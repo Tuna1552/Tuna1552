@@ -119,6 +119,10 @@
             opacity: 0;
             visibility: hidden;
         }
+        /* Message modal specific styles */
+        .message-modal-bg {
+            background-color: #121212; /* Tamamen opak arka plan */
+        }
         .envelope-container {
             position: relative;
             width: 300px;
@@ -188,7 +192,8 @@
         .envelope-ribbon:hover {
             transform: translate(-50%, -50%) scale(1.1);
         }
-
+        
+        /* Mesaj kartı için yeni stil ve animasyon */
         .message-card {
             position: absolute;
             top: 50%;
@@ -215,7 +220,27 @@
             visibility: visible;
             transform: translate(-50%, -50%) scale(1);
         }
+        
+        .envelope-container.open .envelope-ribbon {
+            opacity: 0; /* Kalp açıldığında kaybolacak */
+            transition: opacity 0.5s ease-in-out;
+        }
 
+        .envelope-container.open .envelope-flap-back,
+        .envelope-container.open .envelope-body,
+        .envelope-container.open .envelope-flap {
+            animation: envelopeFadeOut 0.5s ease-in-out forwards;
+            animation-delay: 1s; /* Mesaj göründükten sonra kaybolacak */
+        }
+
+        @keyframes envelopeFadeOut {
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+                pointer-events: none;
+            }
+        }
+        
         /* Yeni şifre ekranı için stil */
         .password-page-transition {
             transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
@@ -262,7 +287,7 @@
             </div>
 
             <!-- Floating Message Modal -->
-            <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 message-modal-bg">
                 <div class="relative max-w-lg w-full text-center">
                     <div class="envelope-container mx-auto" onclick="openEnvelope()">
                         <div class="envelope-flap-back"></div>
@@ -368,28 +393,32 @@
 
         // --- İçerik Şablonları (HTML Strings) ---
         const homePageContent = `
-            <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary-pink animate-fade-in drop-shadow-xl">
-                Doğum Günün Kutlu Olsun, Ece!
-            </h1>
-            <p id="countdown-text" class="mt-8 text-xl md:text-3xl lg:text-4xl font-light text-text-light animate-fade-in delay-200">
-                29 Mayıs 2026'ya sadece...
-            </p>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 w-full max-w-3xl animate-fade-in delay-300">
-                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
-                    <span id="days" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
-                    <span class="text-xs md:text-sm text-gray-400 mt-2">GÜN</span>
+            <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-5xl">
+                <div class="flex-1 text-center md:text-left md:pr-8 mb-8 md:mb-0">
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-secondary-pink animate-fade-in drop-shadow-xl">
+                        Doğum Günün Kutlu Olsun, Ece!
+                    </h1>
+                    <p id="countdown-text" class="mt-4 text-xl md:text-3xl lg:text-4xl font-light text-text-light animate-fade-in delay-200">
+                        29 Mayıs 2026'ya sadece...
+                    </p>
                 </div>
-                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
-                    <span id="hours" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
-                    <span class="text-xs md:text-sm text-gray-400 mt-2">SAAT</span>
-                </div>
-                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
-                    <span id="minutes" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
-                    <span class="text-xs md:text-sm text-gray-400 mt-2">DAKİKA</span>
-                </div>
-                <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
-                    <span id="seconds" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
-                    <span class="text-xs md:text-sm text-gray-400 mt-2">SANİYE</span>
+                <div class="flex-1 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full animate-fade-in delay-300">
+                    <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                        <span id="days" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                        <span class="text-xs md:text-sm text-gray-400 mt-2">GÜN</span>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                        <span id="hours" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                        <span class="text-xs md:text-sm text-gray-400 mt-2">SAAT</span>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                        <span id="minutes" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                        <span class="text-xs md:text-sm text-gray-400 mt-2">DAKİKA</span>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-card-dark rounded-2xl shadow-lg transition-transform hover:scale-105">
+                        <span id="seconds" class="text-4xl md:text-6xl font-extrabold text-primary-blue">0</span>
+                        <span class="text-xs md:text-sm text-gray-400 mt-2">SANİYE</span>
+                    </div>
                 </div>
             </div>
         `;
