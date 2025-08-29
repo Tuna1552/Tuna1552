@@ -27,17 +27,13 @@
                         'card-dark': '#1E1E1E',
                         'text-light': '#E0E0E0',
                         'message-pink': '#FFC0CB',
-                        'envelope-pink': '#FFD1DC',
-                        'ribbon-red': '#B22222',
                     },
                     animation: {
                         'fade-in': 'fadeIn 1s ease-in-out',
                         'slide-up': 'slideUp 0.7s ease-out forwards',
                         'pulse-grow': 'pulseGrow 1.5s ease-in-out infinite',
                         'light-up': 'lightUp 0.5s ease-out forwards',
-                        'box-open': 'boxOpen 1s ease-in-out forwards',
                         'message-appear': 'messageAppear 1s ease-in-out 1s forwards',
-                        'envelope-open': 'envelopeOpen 1s ease-in-out forwards',
                         'message-slide-in': 'messageSlideIn 1s ease-in-out 0.8s forwards'
                     },
                     keyframes: {
@@ -57,17 +53,9 @@
                             '0%': { 'background-color': '#FF69B4' },
                             '100%': { 'background-color': '#FFD1DC' }
                         },
-                        boxOpen: {
-                            '0%': { transform: 'rotateX(0deg)' },
-                            '100%': { transform: 'rotateX(90deg)' }
-                        },
                         messageAppear: {
                             '0%': { opacity: 0, transform: 'translateY(20px)' },
                             '100%': { opacity: 1, transform: 'translateY(0)' }
-                        },
-                        envelopeOpen: {
-                            '0%': { transform: 'rotateX(0deg)' },
-                            '100%': { transform: 'rotateX(180deg)' }
                         },
                         messageSlideIn: {
                             '0%': { transform: 'translateY(100%)', opacity: 0 },
@@ -102,150 +90,9 @@
         .nav-button:hover .nav-icon {
             transform: translateY(-5px);
         }
-        .heart-icon-btn {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .heart-icon-btn:hover {
-            transform: scale(1.1);
-        }
-        .lighted-heart {
-            background-color: #FFD1DC !important;
-            animation: lightUp 0.5s ease-out forwards;
-        }
-        .password-page-transition {
-            transition: opacity 0.5s ease-in-out, visibility 0.5s;
-        }
-        .password-page-hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        /* Message modal specific styles */
-        .message-modal-bg {
-            background-color: #121212; /* Tamamen opak arka plan */
-        }
-        .envelope-container {
-            position: relative;
-            width: 300px;
-            height: 200px;
-            cursor: pointer;
-            perspective: 1000px;
-            transform-style: preserve-3d;
-        }
-
-        .envelope-body {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: #FFC0CB;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-
-        .envelope-flap {
-            position: absolute;
-            width: 0;
-            height: 0;
-            top: 0;
-            left: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-bottom: 100px solid #FFC0CB;
-            transform-origin: top center;
-            transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .envelope-flap-back {
-            position: absolute;
-            width: 0;
-            height: 0;
-            bottom: 0;
-            left: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-top: 100px solid #FFD1DC;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-            transform-origin: bottom;
-        }
-
-        .envelope-ribbon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 30px;
-            height: 30px;
-            background-color: #DB2777;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-            z-index: 20;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .envelope-ribbon:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-        
-        /* Mesaj kartı için yeni stil ve animasyon */
-        .message-card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            width: 90%;
-            height: 90%;
-            background-color: #FFF0F5;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 1s ease-in-out;
-            z-index: 10;
-        }
-
-        .envelope-container.open .envelope-flap {
-            transform: rotateX(180deg);
-        }
-
-        .envelope-container.open .message-card {
-            opacity: 1;
-            visibility: visible;
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
-        .envelope-container.open .envelope-ribbon {
-            opacity: 0; /* Kalp açıldığında kaybolacak */
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .envelope-container.open .envelope-flap-back,
-        .envelope-container.open .envelope-body,
-        .envelope-container.open .envelope-flap {
-            animation: envelopeFadeOut 0.5s ease-in-out forwards;
-            animation-delay: 1s; /* Mesaj göründükten sonra kaybolacak */
-        }
-
-        @keyframes envelopeFadeOut {
-            to {
-                opacity: 0;
-                transform: scale(0.8);
-                pointer-events: none;
-            }
-        }
-        
-        /* Yeni şifre ekranı için stil */
         .password-page-transition {
             transition: all 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
-
         .password-page-hidden {
             transform: scale(0.8) translateY(-50px);
             opacity: 0;
@@ -284,32 +131,6 @@
             <!-- Dynamic Content Area -->
             <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
                 <!-- Ana Sayfa (Home) content will be loaded here -->
-            </div>
-
-            <!-- Floating Message Modal -->
-            <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 message-modal-bg">
-                <div class="relative max-w-lg w-full text-center">
-                    <div class="envelope-container mx-auto" onclick="openEnvelope()">
-                        <div class="envelope-flap-back"></div>
-                        <div class="envelope-body"></div>
-                        <div class="envelope-flap"></div>
-                        <div class="message-card">
-                            <h2 class="text-3xl font-extrabold text-secondary-pink mb-4">Ece'ye Özel Mesaj</h2>
-                            <p class="text-lg text-gray-800 mb-6 font-light leading-relaxed">
-                                Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. İyi ki doğdun, iyi ki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın.
-                            </p>
-                            <p class="text-right mt-4 text-sm italic text-gray-500">
-                                Tüm sevgilerimle...
-                            </p>
-                            <button id="close-modal" class="absolute bottom-4 left-1/2 -translate-x-1/2 mt-4 py-2 px-6 rounded-full font-bold text-white bg-secondary-pink hover:bg-fuchsia-500 transition-colors duration-300 transform hover:scale-105 shadow-lg">
-                                Kapat
-                            </button>
-                        </div>
-                        <div class="envelope-ribbon">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Fixed Bottom Navigation Bar (Mobile) -->
@@ -372,9 +193,6 @@
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
-        const messageModal = document.getElementById('message-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const envelopeContainer = document.querySelector('.envelope-container');
 
         // --- Canvas ve Animasyon İçin Değişkenler ---
         const canvas = document.getElementById('hearts-canvas');
@@ -540,6 +358,37 @@
             </div>
         `;
 
+        const messagePageContent = `
+            <div class="w-full max-w-5xl animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-secondary-pink mb-8 text-center drop-shadow-lg">Sana Özel Mesajım</h1>
+                <div class="bg-card-dark rounded-3xl p-6 md:p-12 shadow-2xl relative">
+                    <div class="flex flex-col md:flex-row gap-6 md:gap-12 text-center md:text-left">
+                        <!-- Sol Sütun -->
+                        <div class="flex-1">
+                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-4">
+                                Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyorsun.
+                            </p>
+                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed">
+                                Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme benim için çok değerli. Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum.
+                            </p>
+                        </div>
+                        <!-- Sağ Sütun -->
+                        <div class="flex-1">
+                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-4">
+                                İyiki doğdun, iyiki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın. Hayatının geri kalanında tüm hayallerinin gerçekleşmesini ve her zaman kalbinin istediği yolda yürümeni dilerim.
+                            </p>
+                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-8">
+                                Bu site, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile.
+                            </p>
+                            <div class="flex justify-end">
+                                <span class="text-right text-sm italic text-gray-400">Tüm sevgilerimle...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
         // --- Fonksiyonlar ---
         
         // Canvas ve Kalp Animasyonu
@@ -549,12 +398,11 @@
         }
 
         function createHeart() {
-            // Kalp boyutunu daha da büyüttük, 20 ile 40 piksel arasında değişecek
             const size = Math.random() * 20 + 20; 
             const color = heartColors[Math.floor(Math.random() * heartColors.length)];
             hearts.push({
                 x: Math.random() * canvas.width,
-                y: -size, // Ekranda başlamaması için
+                y: -size, 
                 size: size,
                 speed: Math.random() * 0.5 + 0.5,
                 color: color,
@@ -564,7 +412,7 @@
         
         function drawHearts() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255, 105, 180, 0.1)"; // Kalbin rengi
+            ctx.fillStyle = "rgba(255, 105, 180, 0.1)"; 
             
             for (let i = 0; i < hearts.length; i++) {
                 const h = hearts[i];
@@ -587,10 +435,8 @@
             for (let i = 0; i < hearts.length; i++) {
                 hearts[i].y += hearts[i].speed;
             }
-            // Ekran dışına çıkan kalpleri kaldır
             hearts = hearts.filter(h => h.y < canvas.height + 20);
 
-            // Yeni kalp ekle (eğer yeterli sayıda kalp yoksa)
             if (hearts.length < heartCount) {
                 createHeart();
             }
@@ -617,6 +463,9 @@
                 } else if (pageName === 'art') {
                     contentArea.innerHTML = artGalleryContent;
                     setActiveNav('art');
+                } else if (pageName === 'message') {
+                    contentArea.innerHTML = messagePageContent;
+                    setActiveNav('message');
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -778,11 +627,6 @@
             }
         }
 
-        // Zarfı açma fonksiyonu
-        function openEnvelope() {
-            envelopeContainer.classList.add('open');
-        }
-
         // --- Olay Dinleyicileri (Event Listeners) ---
 
         // Sayfa yüklendiğinde kalp butonlarını oluştur ve canvas animasyonunu başlat
@@ -807,24 +651,12 @@
         navHomeBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         navArtBtn.addEventListener('click', () => renderPage('art'));
-        navMessageBtn.addEventListener('click', () => {
-            messageModal.classList.remove('hidden');
-            setActiveNav('message');
-        });
+        navMessageBtn.addEventListener('click', () => renderPage('message'));
 
         navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
         navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
-        navMessageDesktopBtn.addEventListener('click', () => {
-            messageModal.classList.remove('hidden');
-            setActiveNav('message');
-        });
-
-        // Mesaj modalını kapatma
-        closeModalBtn.addEventListener('click', () => {
-            messageModal.classList.add('hidden');
-            envelopeContainer.classList.remove('open');
-        });
+        navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
     </script>
 </body>
 </html>
