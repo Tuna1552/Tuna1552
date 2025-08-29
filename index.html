@@ -25,13 +25,16 @@
                         'secondary-pink': '#FF69B4',
                         'bg-dark': '#121212',
                         'card-dark': '#1E1E1E',
-                        'text-light': '#E0E0E0'
+                        'text-light': '#E0E0E0',
+                        'message-pink': '#FFC0CB',
                     },
                     animation: {
                         'fade-in': 'fadeIn 1s ease-in-out',
                         'slide-up': 'slideUp 0.7s ease-out forwards',
                         'pulse-grow': 'pulseGrow 1.5s ease-in-out infinite',
-                        'light-up': 'lightUp 0.5s ease-out forwards'
+                        'light-up': 'lightUp 0.5s ease-out forwards',
+                        'box-open': 'boxOpen 1s ease-in-out forwards',
+                        'message-appear': 'messageAppear 1s ease-in-out 1s forwards'
                     },
                     keyframes: {
                         fadeIn: {
@@ -49,6 +52,14 @@
                         lightUp: {
                             '0%': { 'background-color': '#FF69B4' },
                             '100%': { 'background-color': '#FFD1DC' }
+                        },
+                        boxOpen: {
+                            '0%': { transform: 'rotateX(0deg)' },
+                            '100%': { transform: 'rotateX(90deg)' }
+                        },
+                        messageAppear: {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
                         }
                     }
                 }
@@ -103,6 +114,47 @@
             opacity: 0;
             visibility: hidden;
         }
+        .gift-box {
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.5s ease-in-out;
+        }
+        .gift-box-base, .gift-box-lid {
+            transition: transform 1s ease-in-out;
+        }
+        .gift-box-lid-open {
+            transform-origin: bottom;
+            animation: boxOpen 1s ease-in-out forwards;
+        }
+        .gift-box-ribbon {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-color: #DB2777;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        .gift-box-ribbon::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background-color: #DB2777;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+        .message-content {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .message-content-visible {
+            opacity: 1;
+            visibility: visible;
+            animation: messageAppear 1s ease-in-out forwards;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -139,21 +191,30 @@
             </div>
 
             <!-- Floating Message Modal -->
-            <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4 password-page-transition">
-                <div class="bg-card-dark p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up">
+            <div id="message-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div class="bg-card-dark rounded-3xl shadow-2xl max-w-lg w-full text-center relative animate-slide-up p-8">
                     <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl transition-colors duration-200">
                         &times;
                     </button>
-                    <h2 class="text-3xl font-extrabold text-secondary-pink mb-4">Ece'ye Özel Mesaj</h2>
-                    <p class="text-lg text-gray-300 mb-6 font-light leading-relaxed">
-                        Sevgili Ece, doğum günün için hazırladığım bu sürprizin, yüzünde küçük bir tebessüm yaratmasını umuyorum. Hayatın boyunca hep böyle güzel, özel ve neşeli kalman dileğiyle.
-                    </p>
-                    <div class="w-full h-48 bg-gray-700 rounded-2xl mb-4 overflow-hidden shadow-inner">
-                        <img src="https://placehold.co/400x200/FF69B4/FFFFFF?text=Senin+icin+bir+mesaj" alt="Ece'ye özel mesaj görseli" class="w-full h-full object-cover">
+                    
+                    <div id="gift-box" class="gift-box w-64 h-64 mx-auto mb-8 relative" onclick="openGiftBox()">
+                        <div class="gift-box-base w-full h-full bg-secondary-pink rounded-xl shadow-2xl"></div>
+                        <div id="gift-box-lid" class="gift-box-lid w-[105%] h-12 bg-secondary-pink absolute -top-4 left-1/2 -translate-x-1/2 rounded-xl shadow-lg transform-gpu" style="transform-origin: bottom;">
+                            <div class="gift-box-ribbon"></div>
+                        </div>
+                        <div class="absolute w-20 h-20 bg-secondary-pink rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                        <div class="absolute w-12 h-12 bg-fuchsia-600 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse-grow"></div>
+                        
+                        <div id="message-content" class="message-content absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                            <h2 class="text-3xl font-extrabold text-white mb-4">Ece'ye Özel Mesaj</h2>
+                            <p class="text-lg text-gray-300 mb-6 font-light leading-relaxed">
+                                Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. İyi ki doğdun, iyi ki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın.
+                            </p>
+                            <p class="text-right mt-4 text-sm italic text-gray-500">
+                                Tüm sevgilerimle...
+                            </p>
+                        </div>
                     </div>
-                    <p class="text-right mt-4 text-sm italic text-gray-500">
-                        Sevgilerimle...
-                    </p>
                 </div>
             </div>
 
@@ -219,6 +280,8 @@
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const messageModal = document.getElementById('message-modal');
         const closeModalBtn = document.getElementById('close-modal');
+        const giftBoxLid = document.getElementById('gift-box-lid');
+        const messageContent = document.getElementById('message-content');
 
         // --- Canvas ve Animasyon İçin Değişkenler ---
         const canvas = document.getElementById('hearts-canvas');
@@ -331,7 +394,6 @@
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
                         <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17" class="w-full h-full object-cover">
                     </div>
-                    <!-- Yeni eklenen fotoğraf -->
                     <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
                         <img src="https://i.supaimg.com/1a5ca441-4654-4f19-8937-4fa927c2087a.jpg" alt="Anı 18" class="w-full h-full object-cover">
                     </div>
@@ -374,7 +436,6 @@
                     <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/5689c1c9-b037-4611-a853-0904eff948d0.jpg" alt="Ruhani bir yolculuk" class="w-full h-full object-cover">
                     </div>
-                     <!-- Yeni eklenen fotoğraf -->
                     <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/c79fc417-1606-430a-b474-159293cf67ae.jpg" alt="Sana özel bir sanat eseri" class="w-full h-full object-cover">
                     </div>
@@ -620,6 +681,14 @@
             }
         }
 
+        // Hediye kutusunu açma fonksiyonu
+        function openGiftBox() {
+            giftBoxLid.classList.add('gift-box-lid-open');
+            setTimeout(() => {
+                messageContent.classList.add('message-content-visible');
+            }, 1000); // Kutu açıldıktan sonra mesajı göster
+        }
+
         // --- Olay Dinleyicileri (Event Listeners) ---
 
         // Sayfa yüklendiğinde kalp butonlarını oluştur ve canvas animasyonunu başlat
@@ -661,7 +730,6 @@
         closeModalBtn.addEventListener('click', () => {
             messageModal.classList.add('hidden');
         });
-
     </script>
 </body>
 </html>
