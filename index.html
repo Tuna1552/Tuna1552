@@ -102,7 +102,7 @@
             pointer-events: none;
         }
         .lighted-heart {
-            background-color: #FF69B4 !important;
+            background-color: #FFD1DC !important;
             animation: lightUp 0.5s ease-out forwards;
         }
         .message-bubble {
@@ -211,7 +211,7 @@
         // Firebase modüllerini içe aktarın
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, getDocs, deleteDoc, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firestore ve Auth global değişkenleri
         let app;
@@ -472,7 +472,7 @@
                 <div class="flex-none p-4 pb-2 border-b border-gray-700">
                     <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue text-center drop-shadow-lg mb-2">Sohbet</h1>
                     <p class="text-sm font-light text-center text-gray-400">
-                        Mesajları sadece `/cl` komutuyla silebilirsin.
+                        Mesajları sadece '/cl' komutuyla silebilirsin.
                     </p>
                     <p id="user-id-display" class="text-xs text-center text-gray-500 mt-2 break-all"></p>
                 </div>
