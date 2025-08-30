@@ -38,6 +38,7 @@
                         'light-up': 'lightUp 0.5s ease-out forwards',
                         'message-appear': 'messageAppear 1s ease-in-out 1s forwards',
                         'message-slide-in': 'messageSlideIn 1s ease-in-out 0.8s forwards',
+                        'blinking-cursor': 'blink 1s step-end infinite',
                     },
                     keyframes: {
                         fadeIn: {
@@ -64,6 +65,10 @@
                             '0%': { transform: 'translateY(100%)', opacity: 0 },
                             '100%': { transform: 'translateY(0)', opacity: 1 }
                         },
+                        blink: {
+                            'from, to': { 'opacity': 1 },
+                            '50%': { 'opacity': 0 },
+                        }
                     }
                 }
             }
@@ -171,7 +176,7 @@
                     <i class="fas fa-home text-xl nav-icon"></i>
                     <span class="mt-1">Ana Sayfa</span>
                 </button>
-                <button id="nav-memories" class="nav-1 flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
                 </button>
@@ -409,32 +414,12 @@
                     Kalbimin en özel yerinden gelen satırlar...
                 </p>
 
-                <div class="bg-card-dark rounded-3xl p-8 md:p-10 w-full shadow-2xl relative overflow-hidden">
-                    <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-3xl animate-pulse-grow"></div>
-                    <div class="relative z-10 flex flex-col gap-6">
-                        <div class="opacity-0 animate-fade-in" style="animation-delay: 0.5s;">
-                            <p class="text-md md:text-lg font-light text-text-light leading-relaxed">
-                                Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyorsun.
-                            </p>
+                <div class="bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-hidden text-left">
+                    <div class="relative z-10 flex flex-col gap-4">
+                        <div id="message-container" class="flex flex-col gap-4">
+                            <!-- Mesajlar buraya JS ile dinamik olarak yazılacak -->
                         </div>
-                        <div class="opacity-0 animate-fade-in" style="animation-delay: 1.5s;">
-                            <p class="text-md md:text-lg font-light text-text-light leading-relaxed">
-                                Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme benim için çok değerli. Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum.
-                            </p>
-                        </div>
-                        <div class="opacity-0 animate-fade-in" style="animation-delay: 2.5s;">
-                            <p class="text-md md:text-lg font-light text-text-light leading-relaxed">
-                                İyiki doğdun, iyiki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın. Hayatının geri kalanında tüm hayallerinin gerçekleşmesini ve her zaman kalbinin istediği yolda yürümeni dilerim.
-                            </p>
-                        </div>
-                        <div class="opacity-0 animate-fade-in" style="animation-delay: 3.5s;">
-                            <p class="text-md md:text-lg font-light text-text-light leading-relaxed mb-4">
-                                Bu site, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile.
-                            </p>
-                        </div>
-                        <div class="opacity-0 animate-fade-in text-right" style="animation-delay: 4.5s;">
-                            <span class="text-sm italic text-gray-400">- Efe</span>
-                        </div>
+                        <p id="cursor" class="text-sm md:text-md text-text-light inline-block w-2 h-4 bg-secondary-pink animate-blinking-cursor align-middle"></p>
                     </div>
                 </div>
             </div>
@@ -517,6 +502,7 @@
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
+                    typeMessageContent(); // Mesaj sayfasına özel fonksiyonu çağır
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -684,6 +670,58 @@
                 });
                 heartGrid.appendChild(button);
             }
+        }
+
+        // --- Yeni Mesaj Yazma Efekti Mantığı ---
+        const messages = [
+            "Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli.",
+            "Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyorsun.",
+            "Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme benim için çok değerli.",
+            "Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum. İyiki varsın, iyiki benimlesin.",
+            "Bu site, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile.",
+            "Sonsuz sevgi ve saygılarımla, Efe."
+        ];
+        
+        const typingDelay = 50; // Her karakterin yazılma hızı (ms)
+        const messageDelay = 1500; // Mesajlar arası bekleme süresi (ms)
+        
+        async function typeMessage(messageElement, text) {
+            for (let i = 0; i < text.length; i++) {
+                messageElement.textContent += text[i];
+                await new Promise(resolve => setTimeout(resolve, typingDelay));
+            }
+        }
+        
+        async function typeMessageContent() {
+            const messageContainer = document.getElementById('message-container');
+            const cursor = document.getElementById('cursor');
+
+            if (!messageContainer || !cursor) return;
+
+            for (let i = 0; i < messages.length; i++) {
+                const messageText = messages[i];
+                const messageElement = document.createElement('p');
+                messageElement.classList.add('text-md', 'md:text-lg', 'font-light', 'text-text-light', 'leading-relaxed', 'message-bubble', 'opacity-0', 'animate-fade-in');
+                
+                // Mesaj baloncuğu görünümü için Tailwind sınıfları
+                messageElement.classList.add('p-4', 'rounded-2xl', 'bg-gray-800', 'shadow-lg', 'origin-bottom');
+
+                messageContainer.appendChild(messageElement);
+                
+                // İmleci yeni mesajın yanına taşı
+                cursor.style.display = 'inline-block';
+                messageElement.appendChild(cursor);
+
+                await typeMessage(messageElement, messageText);
+                
+                // Son mesaj değilse bekleme ekle
+                if (i < messages.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, messageDelay));
+                }
+            }
+
+            // Tüm mesajlar yazıldıktan sonra imleci gizle
+            cursor.style.display = 'none';
         }
 
         // --- Olay Dinleyicileri (Event Listeners) ---
