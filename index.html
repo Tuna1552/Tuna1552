@@ -136,25 +136,6 @@
             transform: scale(1.05);
         }
         
-        /* Yeni eklenen kaydırma ve mesaj kutusu ayarları */
-        #message-scroll-container {
-            max-height: 60vh; /* Ekranın yüzde 60'ı kadar bir yükseklik sınırı */
-            overflow-y: auto; /* Dikey kaydırmayı etkinleştir */
-            padding: 1rem; /* İç dolgu */
-        }
-
-        /* Kaydırma çubuğu görünümü (isteğe bağlı) */
-        #message-scroll-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        #message-scroll-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        #message-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #4A90E2;
-            border-radius: 4px;
-            border: 2px solid transparent;
-        }
         .photo-caption {
             position: absolute;
             bottom: 0;
@@ -337,7 +318,7 @@
                 </div>
 
                 <!-- Fotoğraf Galerisi (Glow efektli) -->
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-20">
                     <!-- Fotoğraflar ImgBB'den güvenilir linklerle eklendi -->
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/7fa0f7d7-431f-4aef-95b9-1261f45c6d53.jpg" alt="Anı 1 - Ece'nin güzel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
@@ -416,7 +397,7 @@
         `;
         
         const artGalleryContent = `
-            <div class="w-full max-w-5xl animate-fade-in">
+            <div class="w-full max-w-5xl animate-fade-in pb-20">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Sanat Galerisi</h1>
                 <p class="text-center text-lg md:text-xl text-gray-400 mb-12">
                     Gözlerin kadar güzel, ruhun gibi renkli eserler. Bu galeri, senin için seçilmiş özel parçalardan oluşuyor.
@@ -465,7 +446,7 @@
         `;
 
         const messagePageContent = `
-            <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center">
+            <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center pb-20">
                 <div class="relative bg-gradient-to-br from-secondary-pink to-fuchsia-500 w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl">
                     <i class="fas fa-heart text-4xl text-white"></i>
                 </div>
@@ -482,11 +463,8 @@
                     </button>
 
                     <!-- Mesajlar tek bir kutuda görüntülenecek -->
-                    <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-y-auto message-box-transition">
-                        <div id="message-text-content" class="text-text-light text-left whitespace-pre-wrap font-light text-base md:text-lg">
-                            <!-- Mesajlar buraya dinamik olarak yazılacak -->
-                        </div>
-                        <span id="cursor" class="text-sm md:text-md text-secondary-pink inline-block w-2 h-4 bg-secondary-pink animate-blinking-cursor align-middle mt-2"></span>
+                    <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative message-box-transition">
+                        <!-- Mesajlar buraya dinamik olarak yazılacak -->
                     </div>
                 </div>
             </div>
@@ -755,53 +733,38 @@
             "Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme, her saniye benim için gerçekten çok değerli ve anlamlı.",
             "Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum. İyiki varsın, iyiki benimlesin.",
             "Bu siteyi yapma ve oluşturma amacım, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile seni çok seviyorum iyiki varsın.",
-            "Sonsuz sevgi ve saygılarımla, Tuna."
+            "Sevgilerimle, Tuna."
         ];
         
         const typingDelay = 50; // Her karakterin yazılma hızı (ms)
-        const messageDelay = 1500; // Mesajlar arası bekleme süresi (ms)
+        const paragraphDelay = 1500; // Paragraflar arası bekleme süresi (ms)
         
         async function typeMessageContent() {
-            const messageContainer = document.getElementById('all-messages-container');
-            const textContent = document.getElementById('message-text-content');
-            const cursor = document.getElementById('cursor');
+            const allMessagesContainer = document.getElementById('all-messages-container');
+            allMessagesContainer.innerHTML = ''; // İçeriği temizle
 
-            if (!messageContainer || !textContent || !cursor) return;
-            
-            // Metin içeriğini temizle
-            textContent.textContent = '';
-            
             for (let i = 0; i < messages.length; i++) {
-                // Mesajın sonuna imleci ekle
-                textContent.appendChild(cursor);
-                cursor.style.display = 'inline-block';
-                
-                const currentMessage = messages[i];
-                for (let j = 0; j < currentMessage.length; j++) {
-                    textContent.textContent += currentMessage[j];
+                const p = document.createElement('p');
+                p.classList.add('font-light', 'text-base', 'md:text-lg', 'mb-4'); // Paragraf boşluğu ekledik
+                allMessagesContainer.appendChild(p);
+
+                // Mesajı karakter karakter yaz
+                for (let j = 0; j < messages[i].length; j++) {
+                    p.textContent += messages[i][j];
                     await new Promise(resolve => setTimeout(resolve, typingDelay));
                 }
-                
-                // Mesaj yazıldıktan sonra satır atla ve boşluk ekle
-                if (i < messages.length - 1) {
-                    const lineBreak = document.createElement('br');
-                    const lineBreak2 = document.createElement('br');
-                    textContent.appendChild(lineBreak);
-                    textContent.appendChild(lineBreak2);
-                }
 
-                // Mesaj yazıldıktan sonra scrollbar'ı en alta kaydır
-                messageContainer.scrollTop = messageContainer.scrollHeight;
-                
-                // Son mesaj değilse imleci kaldır ve yeni mesaj için bekle
-                if (i < messages.length - 1) {
-                    cursor.style.display = 'none';
-                    await new Promise(resolve => setTimeout(resolve, messageDelay));
+                // Son mesaja gelince imleci ekle ve yanıp sönmesini sağla
+                if (i === messages.length - 1) {
+                    const cursor = document.createElement('span');
+                    cursor.id = 'cursor';
+                    cursor.classList.add('text-sm', 'md:text-md', 'text-secondary-pink', 'inline-block', 'w-2', 'h-4', 'bg-secondary-pink', 'animate-blinking-cursor', 'align-middle');
+                    allMessagesContainer.appendChild(cursor);
+                } else {
+                    // Paragraflar arası bekleme
+                    await new Promise(resolve => setTimeout(resolve, paragraphDelay));
                 }
             }
-
-            // Tüm mesajlar yazıldıktan sonra imleci gizle
-            cursor.style.display = 'none';
         }
 
         function attachMessageButtonListener() {
