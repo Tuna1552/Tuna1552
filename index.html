@@ -558,19 +558,23 @@
                 contentArea.innerHTML = '';
                 if (pageName === 'home') {
                     contentArea.innerHTML = homePageContent;
+                    updateCountdown(); // İlk değeri hemen ayarla
                     startCountdown();
                     setActiveNav('home');
                 } else if (pageName === 'memories') {
                     contentArea.innerHTML = memoriesPageContent;
                     setActiveNav('memories');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'art') {
                     contentArea.innerHTML = artGalleryContent;
                     setActiveNav('art');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
                     // Mesaj butonunu bağlamak için küçük bir bekleme
                     setTimeout(attachMessageButtonListener, 100);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -620,33 +624,37 @@
                 navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
             }
         }
+        
+        // Geri sayım değerlerini anında güncelleyen fonksiyon
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = birthdayDate - now;
 
+            if (distance > 0) {
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                const daysEl = document.getElementById('days');
+                const hoursEl = document.getElementById('hours');
+                const minutesEl = document.getElementById('minutes');
+                const secondsEl = document.getElementById('seconds');
+                
+                if(daysEl) daysEl.textContent = days;
+                if(hoursEl) hoursEl.textContent = hours;
+                if(minutesEl) minutesEl.textContent = minutes;
+                if(secondsEl) secondsEl.textContent = seconds;
+            } else {
+                const countdownTextEl = document.getElementById('countdown-text');
+                if(countdownTextEl) countdownTextEl.textContent = "Doğum Günün Kutlu Olsun!";
+            }
+        }
+        
         // Geri sayım mantığını yöneten fonksiyon
         function startCountdown() {
             const countdownInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = birthdayDate - now;
-
-                if (distance > 0) {
-                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    const daysEl = document.getElementById('days');
-                    const hoursEl = document.getElementById('hours');
-                    const minutesEl = document.getElementById('minutes');
-                    const secondsEl = document.getElementById('seconds');
-                    
-                    if(daysEl) daysEl.textContent = days;
-                    if(hoursEl) hoursEl.textContent = hours;
-                    if(minutesEl) minutesEl.textContent = minutes;
-                    if(secondsEl) secondsEl.textContent = seconds;
-                } else {
-                    clearInterval(countdownInterval);
-                    const countdownTextEl = document.getElementById('countdown-text');
-                    if(countdownTextEl) countdownTextEl.textContent = "Doğum Günün Kutlu Olsun!";
-                }
+                updateCountdown();
             }, 1000);
         }
 
@@ -774,11 +782,11 @@
                     await new Promise(resolve => setTimeout(resolve, typingDelay));
                 }
                 
-                // Mesaj yazıldıktan sonra satır atla
+                // Mesaj yazıldıktan sonra satır atla ve boşluk ekle
                 if (i < messages.length - 1) {
                     const lineBreak = document.createElement('br');
-                    textContent.appendChild(lineBreak);
                     const lineBreak2 = document.createElement('br');
+                    textContent.appendChild(lineBreak);
                     textContent.appendChild(lineBreak2);
                 }
 
