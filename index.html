@@ -155,6 +155,22 @@
             border-radius: 4px;
             border: 2px solid transparent;
         }
+        .photo-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .image-container:hover .photo-caption {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -317,64 +333,75 @@
                     <!-- Fotoğraflar ImgBB'den güvenilir linklerle eklendi -->
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/7fa0f7d7-431f-4aef-95b9-1261f45c6d53.jpg" alt="Anı 1 - Ece'nin güzel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/d82c0d1c-4f02-4778-9af2-9ffb7cb0d075.jpg" alt="Anı 2 - Ece'nin gülüşünü yansıtan bir an" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/fbef034e-ea3e-44b0-acfe-a698482b775d.jpg" alt="Anı 3 - Ece'nin özel bir pozu" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/d5e346f5-36d6-4f1c-b9c3-6d3199d8d41a.jpg" alt="Anı 4 - Ece'nin eğlenceli anısı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/3ce8c544-aedc-488b-bae5-c893f8b3d091.jpg" alt="Anı 5 - Ece'nin neşeli hali" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/4b5d3059-b770-47ee-9867-89818a640651.jpg" alt="Anı 6 - Ece'nin arkadaşlarıyla anısı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/aca8f4f0-07b5-41d4-b1ed-3310e9feddd9.jpg" alt="Anı 8 - Ece'nin unutulmaz anısı" class="w-full h-48">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/40eba303-eb3d-4a9d-b99e-78c48341afb9.jpg" alt="Anı 9 - Ece'nin gülerken bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/24a704b3-f764-4835-baf0-aa849350ffa9.jpg" alt="Anı 10 - Ece'nin özel bir günü" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Anı 11 - Ece'nin huzurlu bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-48">
+                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13 - Ece'nin parlayan anısı" class="w-full h-48">
+                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13 - Ece'nin parlayan anısı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14 - Ece'nin doğal güzelliği" class="w-full h-48">
+                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14 - Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15 - Ece'nin içten bir fotoğrafı" class="w-full h-48">
+                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15 - Ece'nin içten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16 - Ece'nin tatlı bir anı fotoğrafı" class="w-full h-48">
+                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16 - Ece'nin tatlı bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-48">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/1a5ca441-4654-4f19-8937-4fa927c2087a.jpg" alt="Anı 18 - Ece'nin gülüşü" class="w-full h-48">
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/438e8db9-3f5f-4763-b79e-694629c38421.jpg" alt="Anı 19 - Ece'nin sevimli anısı" class="w-full h-48">
-                    </div>
-                    <!-- Kullanıcının isteği üzerine eklenen yeni fotoğraf -->
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/a4f0b1ea-bd51-48a5-974c-b630082afe48.jpg" alt="Yeni eklenen özel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                 </div>
             </div>
