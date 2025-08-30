@@ -35,7 +35,6 @@
                         'light-up': 'lightUp 0.5s ease-out forwards',
                         'message-appear': 'messageAppear 1s ease-in-out 1s forwards',
                         'message-slide-in': 'messageSlideIn 1s ease-in-out 0.8s forwards',
-                        // Yeni eklenen animasyon
                         'typewriter': 'typing 2s steps(20, end) forwards, blink-caret .75s step-end infinite'
                     },
                     keyframes: {
@@ -63,7 +62,6 @@
                             '0%': { transform: 'translateY(100%)', opacity: 0 },
                             '100%': { transform: 'translateY(0)', opacity: 1 }
                         },
-                        // Yazma efekti için yeni keyframes
                         typing: {
                            'from': { width: '0' },
                            'to': { width: '100%' }
@@ -114,23 +112,20 @@
             animation: lightUp 0.5s ease-out forwards;
         }
         
-        /* Yazma efekti için CSS sınıfları */
         .typewriter-text {
             overflow: hidden; 
             border-right: .15em solid #FF69B4;
             white-space: nowrap; 
             margin: 0 auto; 
             letter-spacing: .05em; 
-            width: 0; /* Animasyonla genişleyecek */
+            width: 0; 
             animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
         }
         
-        /* Mesaj başlığı için özel font */
         .message-title {
             font-family: 'Dancing Script', cursive;
         }
         
-        /* Eklenen fotoğraf ve sanat galerisi hover efekti */
         .photo-card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -247,7 +242,7 @@
         let sequence = [];
         let userSequence = [];
         const heartButtonCount = 9;
-        const sequenceLength = 4;
+        const sequenceLength = 4; // Şifre uzunluğu 4 olarak güncellendi.
         let isPlaying = false;
 
         // --- İçerik Şablonları (HTML Strings) ---
@@ -604,7 +599,8 @@
         // --- Şifre Oyunu Mantığı ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < heartButtonCount; i++) {
+            // Şifre uzunluğu artık 4. Bu sayede akılda tutmak kolaylaştı.
+            for (let i = 0; i < sequenceLength; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
