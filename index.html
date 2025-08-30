@@ -171,6 +171,14 @@
         .image-container:hover .photo-caption {
             opacity: 1;
         }
+
+        /* Mesaj butonu animasyonu */
+        .message-button-transition {
+            transition: all 0.5s ease-in-out;
+        }
+        .message-box-transition {
+            transition: all 1s ease-in-out;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -467,13 +475,18 @@
                 <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
                     Kalbimin en özel yerinden gelen satırlar...
                 </p>
+                <div id="message-container-wrapper" class="w-full">
+                    <!-- Mesaj butonu burada olacak -->
+                    <button id="show-message-btn" class="message-button-transition w-full max-w-xs md:max-w-md py-4 rounded-3xl font-bold text-white text-lg bg-gradient-to-r from-primary-blue to-cyan-500 hover:from-cyan-500 hover:to-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse">
+                        <i class="fas fa-envelope mr-2"></i> Mesajı Oku
+                    </button>
 
-                <div class="bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-y-auto" id="message-scroll-container">
-                    <div class="relative z-10 flex flex-col gap-4">
-                        <div id="message-container" class="flex flex-col gap-4">
-                            <!-- Mesajlar buraya JS ile dinamik olarak yazılacak -->
+                    <!-- Mesajlar tek bir kutuda görüntülenecek -->
+                    <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-y-auto message-box-transition">
+                        <div id="message-text-content" class="text-text-light text-left whitespace-pre-wrap font-light text-base md:text-lg">
+                            <!-- Mesajlar buraya dinamik olarak yazılacak -->
                         </div>
-                        <span id="cursor" class="text-sm md:text-md text-text-light inline-block w-2 h-4 bg-secondary-pink animate-blinking-cursor align-middle"></span>
+                        <span id="cursor" class="text-sm md:text-md text-secondary-pink inline-block w-2 h-4 bg-secondary-pink animate-blinking-cursor align-middle mt-2"></span>
                     </div>
                 </div>
             </div>
@@ -556,7 +569,8 @@
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
-                    typeMessageContent(); // Mesaj sayfasına özel fonksiyonu çağır
+                    // Mesaj butonunu bağlamak için küçük bir bekleme
+                    setTimeout(attachMessageButtonListener, 100);
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -739,49 +753,62 @@
         const typingDelay = 50; // Her karakterin yazılma hızı (ms)
         const messageDelay = 1500; // Mesajlar arası bekleme süresi (ms)
         
-        async function typeMessage(messageElement, text) {
-            for (let i = 0; i < text.length; i++) {
-                messageElement.textContent += text[i];
-                await new Promise(resolve => setTimeout(resolve, typingDelay));
-            }
-        }
-        
         async function typeMessageContent() {
-            const messageContainer = document.getElementById('message-container');
+            const messageContainer = document.getElementById('all-messages-container');
+            const textContent = document.getElementById('message-text-content');
             const cursor = document.getElementById('cursor');
-            const scrollContainer = document.getElementById('message-scroll-container');
 
-            if (!messageContainer || !cursor || !scrollContainer) return;
+            if (!messageContainer || !textContent || !cursor) return;
             
-            // Tüm eski mesajları temizle
-            messageContainer.innerHTML = '';
+            // Metin içeriğini temizle
+            textContent.textContent = '';
             
             for (let i = 0; i < messages.length; i++) {
-                // Yeni bir mesaj öğesi oluştur
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('message-bubble', 'p-4', 'rounded-2xl', 'bg-gray-800', 'shadow-lg', 'text-text-light', 'text-left');
-                
-                // Mesajın içeriği boş olarak DOM'a eklenir
-                messageContainer.appendChild(messageElement);
-                
-                // Ardından imleci bu yeni mesajın içine taşı
-                messageElement.appendChild(cursor);
+                // Mesajın sonuna imleci ekle
+                textContent.appendChild(cursor);
                 cursor.style.display = 'inline-block';
                 
-                // Mesajı yaz
-                await typeMessage(messageElement, messages[i]);
+                const currentMessage = messages[i];
+                for (let j = 0; j < currentMessage.length; j++) {
+                    textContent.textContent += currentMessage[j];
+                    await new Promise(resolve => setTimeout(resolve, typingDelay));
+                }
                 
+                // Mesaj yazıldıktan sonra satır atla
+                if (i < messages.length - 1) {
+                    const lineBreak = document.createElement('br');
+                    textContent.appendChild(lineBreak);
+                    const lineBreak2 = document.createElement('br');
+                    textContent.appendChild(lineBreak2);
+                }
+
                 // Mesaj yazıldıktan sonra scrollbar'ı en alta kaydır
-                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+                messageContainer.scrollTop = messageContainer.scrollHeight;
                 
                 // Son mesaj değilse imleci kaldır ve yeni mesaj için bekle
                 if (i < messages.length - 1) {
+                    cursor.style.display = 'none';
                     await new Promise(resolve => setTimeout(resolve, messageDelay));
                 }
             }
 
             // Tüm mesajlar yazıldıktan sonra imleci gizle
             cursor.style.display = 'none';
+        }
+
+        function attachMessageButtonListener() {
+            const showMessageBtn = document.getElementById('show-message-btn');
+            const allMessagesContainer = document.getElementById('all-messages-container');
+            if (showMessageBtn) {
+                showMessageBtn.addEventListener('click', () => {
+                    showMessageBtn.classList.add('opacity-0', 'scale-90');
+                    setTimeout(() => {
+                        showMessageBtn.classList.add('hidden');
+                        allMessagesContainer.classList.remove('hidden');
+                        typeMessageContent(); // Mesaj yazma işlemini başlat
+                    }, 500); // Buton gizlenme süresi
+                });
+            }
         }
 
         // --- Olay Dinleyicileri (Event Listeners) ---
