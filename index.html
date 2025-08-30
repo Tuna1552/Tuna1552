@@ -155,7 +155,6 @@
             border-radius: 4px;
             border: 2px solid transparent;
         }
-
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -338,7 +337,7 @@
                         <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7" class="w-full h-full object-cover rounded-xl">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/aca8f4f0-07b5-41d4-b1ed-3310e9feddd9.jpg" alt="Anı 8" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/aca8f4f0-07b5-41d4-b1ed-3310e9feddd9.jpg" alt="Anı 8" class="w-full h-48">
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/40eba303-eb3d-4a9d-b99e-78c48341afb9.jpg" alt="Anı 9" class="w-full h-full object-cover rounded-xl">
@@ -350,19 +349,19 @@
                         <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Anı 11" class="w-full h-full object-cover rounded-xl">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12" class="w-full h-48">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13" class="w-full h-48">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14" class="w-full h-48">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15" class="w-full h-48">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16" class="w-full h-48">
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17" class="w-full h-48">
@@ -434,7 +433,7 @@
                     Kalbimin en özel yerinden gelen satırlar...
                 </p>
 
-                <div class="bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-y-auto text-left" id="message-scroll-container">
+                <div class="bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-y-auto" id="message-scroll-container">
                     <div class="relative z-10 flex flex-col gap-4">
                         <div id="message-container" class="flex flex-col gap-4">
                             <!-- Mesajlar buraya JS ile dinamik olarak yazılacak -->
@@ -715,28 +714,30 @@
         async function typeMessageContent() {
             const messageContainer = document.getElementById('message-container');
             const cursor = document.getElementById('cursor');
+            const scrollContainer = document.getElementById('message-scroll-container');
 
-            if (!messageContainer || !cursor) return;
+            if (!messageContainer || !cursor || !scrollContainer) return;
             
             // Tüm eski mesajları temizle
             messageContainer.innerHTML = '';
             
             for (let i = 0; i < messages.length; i++) {
-                const messageText = messages[i];
-                const messageElement = document.createElement('p');
-                messageElement.classList.add('text-md', 'md:text-lg', 'font-light', 'text-text-light', 'leading-relaxed', 'message-bubble', 'opacity-0', 'animate-fade-in');
+                // Yeni bir mesaj öğesi oluştur
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message-bubble', 'p-4', 'rounded-2xl', 'bg-gray-800', 'shadow-lg', 'text-text-light', 'text-left');
                 
-                // Mesaj baloncuğu görünümü için Tailwind sınıfları
-                messageElement.classList.add('p-4', 'rounded-2xl', 'bg-gray-800', 'shadow-lg');
-
-                // Önce mesajı ekle
+                // Mesajın içeriği boş olarak DOM'a eklenir
                 messageContainer.appendChild(messageElement);
                 
-                // Ardından imleci mesajın sonuna taşı
+                // Ardından imleci bu yeni mesajın içine taşı
                 messageElement.appendChild(cursor);
                 cursor.style.display = 'inline-block';
                 
-                await typeMessage(messageElement, messageText);
+                // Mesajı yaz
+                await typeMessage(messageElement, messages[i]);
+                
+                // Mesaj yazıldıktan sonra scrollbar'ı en alta kaydır
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
                 
                 // Son mesaj değilse imleci kaldır ve yeni mesaj için bekle
                 if (i < messages.length - 1) {
@@ -744,11 +745,7 @@
                 }
             }
 
-            // Tüm mesajlar yazıldıktan sonra imleci en sona taşı ve gizle
-            const messageScrollContainer = document.getElementById('message-scroll-container');
-            if (messageScrollContainer) {
-                messageScrollContainer.appendChild(cursor);
-            }
+            // Tüm mesajlar yazıldıktan sonra imleci gizle
             cursor.style.display = 'none';
         }
 
