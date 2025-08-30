@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ece'ye Özel Sürpriz Site (Geliştirilmiş)</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
@@ -225,7 +228,10 @@
         const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
 
         // --- Temel Sabitler ve Değişkenler ---
+        // Doğum günü geri sayımı için 29 Mayıs 2026 olarak ayarlandı
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
+        
+        // Şifre sistemi için değişkenler
         let sequence = [];
         let userSequence = [];
         const heartButtonCount = 9;
@@ -592,10 +598,8 @@
 
         // --- Şifre Oyunu Mantığı ---
         function generateSequence() {
-            const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) {
-                newSequence.push(Math.floor(Math.random() * heartButtonCount));
-            }
+            // Güvenli olmayan bir örnek, sadece basit bir oyun için. Gerçek bir uygulama için sunucu tarafında şifreleme yapılmalıdır.
+            const newSequence = [2, 7, 4, 1]; 
             return newSequence;
         }
 
@@ -720,9 +724,9 @@
                 return;
             }
 
-            // Mesajları gerçek zamanlı dinle
+            // Mesajları gerçek zamanlı dinle ve en yeniyi en üste sırala
             const messagesRef = collection(db, `artifacts/${appId}/users/${userId}/messages`);
-            const q = query(messagesRef);
+            const q = query(messagesRef, orderBy('timestamp', 'desc'));
             
             onSnapshot(q, (snapshot) => {
                 messagesContainer.innerHTML = ''; // Önceki mesajları temizle
@@ -743,7 +747,7 @@
                             <p class="text-text-light text-base mb-2 font-light leading-relaxed">${messageData.text}</p>
                             <span class="text-xs text-gray-500 self-end">${dateString} ${timeString}</span>
                         `;
-                        messagesContainer.prepend(messageEl); // Mesajları en yeniyi en üste gelecek şekilde ekle
+                        messagesContainer.appendChild(messageEl); // Sıralama sorguda olduğu için appendChild kullanıldı
                     });
                 }
             }, (error) => {
