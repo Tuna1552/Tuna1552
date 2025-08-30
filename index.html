@@ -30,6 +30,7 @@
                     },
                     boxShadow: {
                         'pink-glow': '0 0 15px rgba(255, 105, 180, 0.7)',
+                        'deep-pink-glow': '0 0 25px rgba(255, 105, 180, 0.7)',
                     },
                     animation: {
                         'fade-in': 'fadeIn 1s ease-in-out',
@@ -127,20 +128,22 @@
             position: relative;
             overflow: hidden;
             border-radius: 12px;
+            /* Daha belirgin bir gölge eklendi */
             box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
             transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
         .image-container:hover {
+            /* Daha güçlü bir parıltı eklendi */
             box-shadow: 0 0 25px rgba(255, 105, 180, 0.7);
             transform: scale(1.05);
         }
         
         /* Yeni eklenen kaydırma ve mesaj kutusu ayarları */
         #message-scroll-container {
-            max-height: 60vh; /* Ekranın yüzde 60'ı kadar bir yükseklik sınırı */
-            overflow-y: auto; /* Dikey kaydırmayı etkinleştir */
-            padding: 1rem; /* İç dolgu */
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 1rem;
         }
 
         /* Kaydırma çubuğu görünümü (isteğe bağlı) */
@@ -196,7 +199,7 @@
                     <i class="fas fa-home text-xl nav-icon"></i>
                     <span class="mt-1">Ana Sayfa</span>
                 </button>
-                <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                <button id="nav-memories" class="nav-1 flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
                 </button>
@@ -422,7 +425,7 @@
         `;
 
         const messagePageContent = `
-            <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center">
+            <div class="w-full max-w-4xl mx-auto flex flex-col items-center animate-fade-in text-center">
                 <div class="relative bg-gradient-to-br from-secondary-pink to-fuchsia-500 w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl">
                     <i class="fas fa-heart text-4xl text-white"></i>
                 </div>
@@ -707,6 +710,11 @@
         async function typeMessage(messageElement, text) {
             for (let i = 0; i < text.length; i++) {
                 messageElement.textContent += text[i];
+                // Otomatik kaydırma için her karakterde scroll
+                const scrollContainer = document.getElementById('message-scroll-container');
+                if (scrollContainer) {
+                    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+                }
                 await new Promise(resolve => setTimeout(resolve, typingDelay));
             }
         }
@@ -735,9 +743,6 @@
                 
                 // Mesajı yaz
                 await typeMessage(messageElement, messages[i]);
-                
-                // Mesaj yazıldıktan sonra scrollbar'ı en alta kaydır
-                scrollContainer.scrollTop = scrollContainer.scrollHeight;
                 
                 // Son mesaj değilse imleci kaldır ve yeni mesaj için bekle
                 if (i < messages.length - 1) {
