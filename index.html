@@ -135,6 +135,27 @@
             box-shadow: 0 0 25px rgba(255, 105, 180, 0.7);
             transform: scale(1.05);
         }
+        
+        /* Yeni eklenen kaydırma ve mesaj kutusu ayarları */
+        #message-scroll-container {
+            max-height: 60vh; /* Ekranın yüzde 60'ı kadar bir yükseklik sınırı */
+            overflow-y: auto; /* Dikey kaydırmayı etkinleştir */
+            padding: 1rem; /* İç dolgu */
+        }
+
+        /* Kaydırma çubuğu görünümü (isteğe bağlı) */
+        #message-scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #message-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #message-scroll-container::-webkit-scrollbar-thumb {
+            background-color: #4A90E2;
+            border-radius: 4px;
+            border: 2px solid transparent;
+        }
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -344,10 +365,9 @@
                         <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16" class="w-full h-full object-cover rounded-xl">
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17" class="w-full h-full object-cover rounded-xl">
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/1a5ca441-4654-4f19-8937-4fa927c2087a.jpg" alt="Anı 18" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17" class="w-full h-48">
+                        <img src="https://i.supaimg.com/1a5ca441-4654-4f19-8937-4fa927c2087a.jpg" alt="Anı 18" class="w-full h-48">
+                        <img src="https://i.supaimg.com/438e8db9-3f5f-4763-b79e-694629c38421.jpg" alt="Anı 19" class="w-full h-48">
                     </div>
                 </div>
             </div>
@@ -414,12 +434,12 @@
                     Kalbimin en özel yerinden gelen satırlar...
                 </p>
 
-                <div class="bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-hidden text-left">
+                <div class="bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative overflow-y-auto text-left" id="message-scroll-container">
                     <div class="relative z-10 flex flex-col gap-4">
                         <div id="message-container" class="flex flex-col gap-4">
                             <!-- Mesajlar buraya JS ile dinamik olarak yazılacak -->
                         </div>
-                        <p id="cursor" class="text-sm md:text-md text-text-light inline-block w-2 h-4 bg-secondary-pink animate-blinking-cursor align-middle"></p>
+                        <span id="cursor" class="text-sm md:text-md text-text-light inline-block w-2 h-4 bg-secondary-pink animate-blinking-cursor align-middle"></span>
                     </div>
                 </div>
             </div>
@@ -697,30 +717,38 @@
             const cursor = document.getElementById('cursor');
 
             if (!messageContainer || !cursor) return;
-
+            
+            // Tüm eski mesajları temizle
+            messageContainer.innerHTML = '';
+            
             for (let i = 0; i < messages.length; i++) {
                 const messageText = messages[i];
                 const messageElement = document.createElement('p');
                 messageElement.classList.add('text-md', 'md:text-lg', 'font-light', 'text-text-light', 'leading-relaxed', 'message-bubble', 'opacity-0', 'animate-fade-in');
                 
                 // Mesaj baloncuğu görünümü için Tailwind sınıfları
-                messageElement.classList.add('p-4', 'rounded-2xl', 'bg-gray-800', 'shadow-lg', 'origin-bottom');
+                messageElement.classList.add('p-4', 'rounded-2xl', 'bg-gray-800', 'shadow-lg');
 
+                // Önce mesajı ekle
                 messageContainer.appendChild(messageElement);
                 
-                // İmleci yeni mesajın yanına taşı
-                cursor.style.display = 'inline-block';
+                // Ardından imleci mesajın sonuna taşı
                 messageElement.appendChild(cursor);
-
+                cursor.style.display = 'inline-block';
+                
                 await typeMessage(messageElement, messageText);
                 
-                // Son mesaj değilse bekleme ekle
+                // Son mesaj değilse imleci kaldır ve yeni mesaj için bekle
                 if (i < messages.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, messageDelay));
                 }
             }
 
-            // Tüm mesajlar yazıldıktan sonra imleci gizle
+            // Tüm mesajlar yazıldıktan sonra imleci en sona taşı ve gizle
+            const messageScrollContainer = document.getElementById('message-scroll-container');
+            if (messageScrollContainer) {
+                messageScrollContainer.appendChild(cursor);
+            }
             cursor.style.display = 'none';
         }
 
