@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ece'ye Özel Mesaj</title>
+    <title>Ece'ye Özel Sürpriz Site (Geliştirilmiş)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -143,7 +143,7 @@
                     <i class="fas fa-home text-xl nav-icon"></i>
                     <span class="mt-1">Ana Sayfa</span>
                 </button>
-                <button id="nav-memories" class="nav-1 flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
                 </button>
@@ -154,6 +154,10 @@
                 <button id="nav-message" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
                     <span class="mt-1">Mesajım</span>
+                </button>
+                <button id="nav-guestbook" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-heart text-xl nav-icon"></i>
+                    <span class="mt-1">Dilek Kutusu</span>
                 </button>
             </nav>
 
@@ -176,12 +180,25 @@
                         <i class="fas fa-envelope-open-text mr-2"></i>
                         Sana Özel Mesaj
                     </button>
+                    <button id="nav-guestbook-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-heart mr-2"></i>
+                        Dilek Kutusu
+                    </button>
                 </div>
             </nav>
         </div>
     </div>
     
-    <script>
+    <script type="module">
+        // Firebase Modülleri
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
+        
+        // Firestore için log seviyesini ayarla
+        setLogLevel('Debug');
+
         // --- Sayfa Elemanlarını Seçme ---
         const passwordPage = document.getElementById('password-page');
         const appContainer = document.getElementById('app-container');
@@ -193,10 +210,12 @@
         const navMemoriesBtn = document.getElementById('nav-memories');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
+        const navGuestbookBtn = document.getElementById('nav-guestbook');
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
+        const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
 
         // --- Canvas ve Animasyon İçin Değişkenler ---
         const canvas = document.getElementById('hearts-canvas');
@@ -212,6 +231,12 @@
         const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
+        
+        // Firebase Değişkenleri
+        let db;
+        let auth;
+        let userId;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // --- İçerik Şablonları (HTML Strings) ---
         const homePageContent = `
@@ -400,6 +425,29 @@
             </div>
         `;
 
+        const guestbookContent = `
+            <div class="w-full max-w-2xl animate-fade-in">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-secondary-pink mb-4 text-center drop-shadow-lg">Dilek Kutusu</h1>
+                <p class="text-center text-lg md:text-xl text-gray-400 mb-8">Ece, bu sana özel bir yer. Lütfen buraya birkaç dilek ya da düşünce bırak...</p>
+                
+                <!-- Mesaj Ekleme Formu -->
+                <div class="bg-card-dark rounded-3xl p-6 shadow-2xl mb-8">
+                    <form id="message-form" class="flex flex-col gap-4">
+                        <textarea id="message-input" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." class="w-full p-4 rounded-xl bg-gray-800 border border-gray-700 text-text-light placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue transition-all resize-none"></textarea>
+                        <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            Gönder
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Mesajları Görüntüleme Alanı -->
+                <div id="messages-container" class="flex flex-col gap-4">
+                    <!-- Mesajlar buraya dinamik olarak eklenecek -->
+                    <p class="text-center text-gray-500 animate-pulse">Mesajlar yükleniyor...</p>
+                </div>
+            </div>
+        `;
+
         // --- Fonksiyonlar ---
         
         // Canvas ve Kalp Animasyonu
@@ -477,6 +525,10 @@
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
+                } else if (pageName === 'guestbook') {
+                    contentArea.innerHTML = guestbookContent;
+                    setActiveNav('guestbook');
+                    setupGuestbook();
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -484,46 +536,28 @@
 
         // Aktif navigasyon butonunu belirleyen fonksiyon
         function setActiveNav(pageName) {
-            // Mobil Navigasyon
-            navHomeBtn.classList.remove('text-secondary-pink');
-            navMemoriesBtn.classList.remove('text-secondary-pink');
-            navArtBtn.classList.remove('text-secondary-pink');
-            navMessageBtn.classList.remove('text-secondary-pink');
-            navHomeBtn.classList.add('text-gray-400');
-            navMemoriesBtn.classList.add('text-gray-400');
-            navArtBtn.classList.add('text-gray-400');
-            navMessageBtn.classList.add('text-gray-400');
-            if (pageName === 'home') {
-                navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            } else if (pageName === 'memories') {
-                navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            } else if (pageName === 'art') {
-                navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            } else if (pageName === 'message') {
-                 navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            }
+            const allNavBtns = document.querySelectorAll('.nav-button');
+            allNavBtns.forEach(btn => {
+                btn.classList.remove('bg-primary-blue', 'shadow-lg');
+                btn.classList.add('hover:bg-gray-700');
+                if (btn.id.includes('desktop')) {
+                    btn.classList.remove('bg-primary-blue', 'shadow-lg');
+                } else {
+                    btn.classList.remove('text-secondary-pink');
+                    btn.classList.add('text-gray-400');
+                }
+            });
 
-            // Masaüstü Navigasyon
-            navHomeDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
-            navMemoriesDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
-            navArtDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
-            navMessageDesktopBtn.classList.remove('bg-primary-blue', 'shadow-lg');
-            navHomeDesktopBtn.classList.add('hover:bg-gray-700');
-            navMemoriesDesktopBtn.classList.add('hover:bg-gray-700');
-            navArtDesktopBtn.classList.add('hover:bg-gray-700');
-            navMessageDesktopBtn.classList.add('hover:bg-gray-700');
-            if (pageName === 'home') {
-                navHomeDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navHomeDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'memories') {
-                navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'art') {
-                navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navArtDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'message') {
-                navMessageDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
+            // Mobil ve Masaüstü butonları aynı anda güncellenir
+            const mobileBtn = document.getElementById(`nav-${pageName}`);
+            const desktopBtn = document.getElementById(`nav-${pageName}-desktop`);
+
+            if (mobileBtn) {
+                mobileBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            }
+            if (desktopBtn) {
+                desktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                desktopBtn.classList.remove('hover:bg-gray-700');
             }
         }
 
@@ -645,6 +679,98 @@
             }
         }
 
+        // --- Firebase ve Guestbook Mantığı ---
+        async function initializeFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase Auth State Changed. User ID:", userId);
+                    } else {
+                        console.log("No user signed in.");
+                        // Handle the case where the user signs out.
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+            }
+        }
+
+        function setupGuestbook() {
+            const form = document.getElementById('message-form');
+            const messageInput = document.getElementById('message-input');
+            const messagesContainer = document.getElementById('messages-container');
+
+            if (!db || !userId) {
+                messagesContainer.innerHTML = '<p class="text-center text-red-400">Veritabanına bağlanılamadı. Lütfen tekrar deneyin.</p>';
+                return;
+            }
+
+            // Mesajları gerçek zamanlı dinle
+            const messagesRef = collection(db, `artifacts/${appId}/users/${userId}/messages`);
+            const q = query(messagesRef);
+            
+            onSnapshot(q, (snapshot) => {
+                messagesContainer.innerHTML = ''; // Önceki mesajları temizle
+                if (snapshot.empty) {
+                    messagesContainer.innerHTML = '<p class="text-center text-gray-500">Henüz kimse bir dilek bırakmamış. İlk sen olabilirsin!</p>';
+                } else {
+                    snapshot.forEach(doc => {
+                        const messageData = doc.data();
+                        const messageEl = document.createElement('div');
+                        messageEl.classList.add('bg-card-dark', 'p-4', 'rounded-2xl', 'shadow-md', 'animate-slide-up', 'flex', 'flex-col');
+                        
+                        const timestamp = messageData.timestamp ? new Date(messageData.timestamp.seconds * 1000) : new Date();
+                        const dateString = timestamp.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                        const timeString = timestamp.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+                        // Mesajı ve zaman bilgisini ekle
+                        messageEl.innerHTML = `
+                            <p class="text-text-light text-base mb-2 font-light leading-relaxed">${messageData.text}</p>
+                            <span class="text-xs text-gray-500 self-end">${dateString} ${timeString}</span>
+                        `;
+                        messagesContainer.prepend(messageEl); // Mesajları en yeniyi en üste gelecek şekilde ekle
+                    });
+                }
+            }, (error) => {
+                console.error("Error fetching messages:", error);
+                messagesContainer.innerHTML = '<p class="text-center text-red-400">Mesajlar yüklenirken bir hata oluştu.</p>';
+            });
+
+            // Form gönderimini ele al
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = messageInput.value.trim();
+
+                if (text && db && userId) {
+                    try {
+                        await addDoc(messagesRef, {
+                            text: text,
+                            timestamp: serverTimestamp()
+                        });
+                        messageInput.value = ''; // Input'u temizle
+                    } catch (error) {
+                        console.error("Mesaj gönderilirken hata oluştu:", error);
+                        // Kullanıcıya hata mesajı gösterebilirsin
+                    }
+                }
+            });
+        }
+
         // --- Olay Dinleyicileri (Event Listeners) ---
 
         // Sayfa yüklendiğinde kalp butonlarını oluştur ve canvas animasyonunu başlat
@@ -652,6 +778,7 @@
              createHeartButtons();
              resizeCanvas();
              animate();
+             initializeFirebase();
         });
         
         window.addEventListener('resize', resizeCanvas);
@@ -668,11 +795,13 @@
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         navArtBtn.addEventListener('click', () => renderPage('art'));
         navMessageBtn.addEventListener('click', () => renderPage('message'));
+        navGuestbookBtn.addEventListener('click', () => renderPage('guestbook'));
 
         navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
         navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
+        navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
     </script>
 </body>
 </html>
