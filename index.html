@@ -34,7 +34,9 @@
                         'pulse-grow': 'pulseGrow 1.5s ease-in-out infinite',
                         'light-up': 'lightUp 0.5s ease-out forwards',
                         'message-appear': 'messageAppear 1s ease-in-out 1s forwards',
-                        'message-slide-in': 'messageSlideIn 1s ease-in-out 0.8s forwards'
+                        'message-slide-in': 'messageSlideIn 1s ease-in-out 0.8s forwards',
+                        // Yeni eklenen animasyon
+                        'typewriter': 'typing 2s steps(20, end) forwards, blink-caret .75s step-end infinite'
                     },
                     keyframes: {
                         fadeIn: {
@@ -60,6 +62,15 @@
                         messageSlideIn: {
                             '0%': { transform: 'translateY(100%)', opacity: 0 },
                             '100%': { transform: 'translateY(0)', opacity: 1 }
+                        },
+                        // Yazma efekti için yeni keyframes
+                        typing: {
+                           'from': { width: '0' },
+                           'to': { width: '100%' }
+                        },
+                        'blink-caret': {
+                            'from, to': { 'border-color': 'transparent' },
+                            '50%': { 'border-color': '#FF69B4' }
                         }
                     }
                 }
@@ -101,6 +112,32 @@
         .lighted-heart {
             background-color: #FF69B4 !important;
             animation: lightUp 0.5s ease-out forwards;
+        }
+        
+        /* Yazma efekti için CSS sınıfları */
+        .typewriter-text {
+            overflow: hidden; 
+            border-right: .15em solid #FF69B4;
+            white-space: nowrap; 
+            margin: 0 auto; 
+            letter-spacing: .05em; 
+            width: 0; /* Animasyonla genişleyecek */
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        
+        /* Mesaj başlığı için özel font */
+        .message-title {
+            font-family: 'Dancing Script', cursive;
+        }
+        
+        /* Eklenen fotoğraf ve sanat galerisi hover efekti */
+        .photo-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .photo-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(255, 105, 180, 0.5), 0 4px 6px -2px rgba(255, 105, 180, 0.2);
         }
     </style>
 </head>
@@ -259,61 +296,61 @@
                     </p>
                 </div>
 
-                <!-- Fotoğraf Galerisi -->
+                <!-- Fotoğraf Galerisi (Hover efektli) -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     <!-- Fotoğraflar ImgBB'den güvenilir linklerle eklendi -->
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/7fa0f7d7-431f-4aef-95b9-1261f45c6d53.jpg" alt="Anı 1" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/d82c0d1c-4f02-4778-9af2-9ffb7cb0d075.jpg" alt="Anı 2" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/fbef034e-ea3e-44b0-acfe-a698482b775d.jpg" alt="Anı 3" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/d5e346f5-36d6-4f1c-b9c3-6d3199d8d41a.jpg" alt="Anı 4" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/3ce8c544-aedc-488b-bae5-c893f8b3d091.jpg" alt="Anı 5" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/4b5d3059-b770-47ee-9867-89818a640651.jpg" alt="Anı 6" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/aca8f4f0-07b5-41d4-b1ed-3310e9feddd9.jpg" alt="Anı 8" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/40eba303-eb3d-4a9d-b99e-78c48341afb9.jpg" alt="Anı 9" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/24a704b3-f764-4835-baf0-aa849350ffa9.jpg" alt="Anı 10" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Anı 11" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-48 rounded-xl overflow-hidden shadow-lg transform-gpu transition-all duration-300 hover:scale-105">
+                    <div class="photo-card w-full h-48 rounded-xl overflow-hidden shadow-lg">
                         <img src="https://i.supaimg.com/1a5ca441-4654-4f19-8937-4fa927c2087a.jpg" alt="Anı 18" class="w-full h-full object-cover">
                     </div>
                 </div>
@@ -327,42 +364,42 @@
                     Gözlerin kadar güzel, ruhun gibi renkli eserler. Bu galeri, senin için seçilmiş özel parçalardan oluşuyor.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Kullanıcının isteği üzerine eklenen yeni görseller -->
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <!-- Kullanıcının isteği üzerine eklenen yeni görseller (Hover efekti eklendi) -->
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/8c447232-7310-420a-906c-1700a0773f1c.jpg" alt="Dinamik renkli soyut bir eser" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/5299cf87-57ec-4042-b472-3f49b67c1b40.jpg" alt="Ahenkli soyut bir sanat eseri" class="w-full h-full object-cover">
                     </div>
-                    <!-- Mevcut görseller buraya eklendi -->
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <!-- Mevcut görseller buraya eklendi (Hover efekti eklendi) -->
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/a23646ac-a259-4fc3-ac83-01ffae58baf2.jpg" alt="Soyut bir sanat eseri" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/fa97566f-cfe5-4a9b-b7ce-ed1af9b8a680.jpg" alt="Neşeli renklerde bir sanat eseri" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/97b200fc-9896-4a06-9893-39a0e915e28d.jpg" alt="Rüya gibi bir manzara tablosu" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/843ab53c-bef6-4a4f-87fb-c8c60b500026.jpg" alt="Canlı renklerle modern sanat eseri" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/438e8db9-3f5f-4763-b79e-694629c38421.jpg" alt="Huzurlu bir deniz manzarası" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/db7f6149-6588-4f15-93f9-7582f8a69996.jpg" alt="Güneşli bir ortamı yansıtan eser" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/a9a84669-1ee9-4729-9724-932183af61e9.jpg" alt="Canlı bir şehir tablosu" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/f7f18d07-0fda-423e-bd42-5b5293b4824a.jpg" alt="Sakin bir göl manzarası" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/5689c1c9-b037-4611-a853-0904eff948d0.jpg" alt="Ruhani bir yolculuk" class="w-full h-full object-cover">
                     </div>
-                    <div class="w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl transform-gpu transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center p-4">
+                    <div class="photo-card w-full h-96 rounded-2xl overflow-hidden bg-card-dark shadow-xl flex items-center justify-center p-4">
                         <img src="https://i.supaimg.com/c79fc417-1606-430a-b474-159293cf67ae.jpg" alt="Sana özel bir sanat eseri" class="w-full h-full object-cover">
                     </div>
                 </div>
@@ -371,27 +408,35 @@
 
         const messagePageContent = `
             <div class="w-full max-w-5xl animate-fade-in">
-                <h1 class="text-4xl md:text-5xl font-extrabold text-secondary-pink mb-8 text-center drop-shadow-lg">Sana Özel Mesajım</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-secondary-pink mb-8 text-center drop-shadow-lg message-title">Sana Özel Mesajım</h1>
                 <div class="bg-card-dark rounded-3xl p-6 md:p-12 shadow-2xl relative">
                     <div class="flex flex-col md:flex-row gap-6 md:gap-12 text-center md:text-left">
-                        <!-- Sol Sütun -->
+                        <!-- Sol Sütun (Yazma efekti eklendi) -->
                         <div class="flex-1">
-                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-4">
-                                Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyorsun.
-                            </p>
-                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed">
-                                Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme benim için çok değerli. Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum.
-                            </p>
+                            <div class="overflow-hidden whitespace-nowrap border-r-2 border-transparent pr-1 animate-[typing_5s_steps(50,end)_1s_forwards,blink-caret_.75s_step-end_infinite]">
+                                <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-4">
+                                    Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli. Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyorsun.
+                                </p>
+                            </div>
+                            <div class="overflow-hidden whitespace-nowrap border-r-2 border-transparent pr-1 animate-[typing_5s_steps(45,end)_6.5s_forwards,blink-caret_.75s_step-end_infinite]">
+                                <p class="text-lg md:text-xl font-light text-text-light leading-relaxed">
+                                    Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme benim için çok değerli. Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum.
+                                </p>
+                            </div>
                         </div>
-                        <!-- Sağ Sütun -->
+                        <!-- Sağ Sütun (Yazma efekti eklendi) -->
                         <div class="flex-1">
-                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-4">
-                                İyiki doğdun, iyiki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın. Hayatının geri kalanında tüm hayallerinin gerçekleşmesini ve her zaman kalbinin istediği yolda yürümeni dilerim.
-                            </p>
-                            <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-8">
-                                Bu site, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile.
-                            </p>
-                            <div class="flex justify-end">
+                            <div class="overflow-hidden whitespace-nowrap border-r-2 border-transparent pr-1 animate-[typing_5s_steps(45,end)_12s_forwards,blink-caret_.75s_step-end_infinite]">
+                                <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-4">
+                                    İyiki doğdun, iyiki varsın Ece'm. Yüzünden gülücükler, kalbinden sevgi eksik olmasın. Hayatının geri kalanında tüm hayallerinin gerçekleşmesini ve her zaman kalbinin istediği yolda yürümeni dilerim.
+                                </p>
+                            </div>
+                            <div class="overflow-hidden whitespace-nowrap border-r-2 border-transparent pr-1 animate-[typing_5s_steps(55,end)_17.5s_forwards,blink-caret_.75s_step-end_infinite]">
+                                <p class="text-lg md:text-xl font-light text-text-light leading-relaxed mb-8">
+                                    Bu site, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile.
+                                </p>
+                            </div>
+                            <div class="flex justify-end animate-fade-in delay-[23s] opacity-0 forwards">
                                 <span class="text-right text-sm italic text-gray-400">Tüm sevgilerimle...</span>
                             </div>
                         </div>
@@ -559,7 +604,7 @@
         // --- Şifre Oyunu Mantığı ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) {
+            for (let i = 0; i < heartButtonCount; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
