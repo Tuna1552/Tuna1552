@@ -165,6 +165,7 @@
         .comment-card {
             background-color: #1a1a1a;
             padding: 1.5rem;
+            border-radius: 0.75rem;
             border-left: 4px solid #4A90E2;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -187,7 +188,7 @@
     <!-- Canvas for heart animation -->
     <canvas id="hearts-canvas"></canvas>
 
-    <!-- Main UI Elements -->
+    <!-- Ana Arayüz Elemanları -->
     <div class="ui-container flex flex-col min-h-screen">
         <!-- Password Page -->
         <div id="password-page" class="flex flex-col items-center justify-center flex-1 p-4 text-center password-page-transition">
@@ -196,7 +197,6 @@
                 <p class="text-md text-gray-400 mb-6 font-light">
                     Bu sürpriz siteye erişmek için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
                 </p>
-                <!-- Kalp gridi -->
                 <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6">
                     <!-- Kalp butonları buraya JS ile eklenecek -->
                 </div>
@@ -273,20 +273,9 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Variables and Services ---
-        // Bu değişkenler, canlı bir ortamda otomatik olarak sağlanır.
-        // Ancak önizleme ortamında doğru çalışması için,
-        // lütfen kendi Firebase projenizin yapılandırma ayarlarını aşağıdaki satırlara girin.
-        // Bu sayede Ziyaretçi Defteri ve diğer Firebase'e bağlı özellikler çalışacaktır.
+        // --- Firebase Değişkenleri ve Servisleri ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         const app = initializeApp(firebaseConfig);
@@ -294,7 +283,7 @@
         const db = getFirestore(app);
         setLogLevel('debug');
 
-        // --- Select Page Elements ---
+        // --- Sayfa Elemanlarını Seçme ---
         const passwordPage = document.getElementById('password-page');
         const appContainer = document.getElementById('app-container');
         const heartGrid = document.getElementById('heart-grid');
@@ -314,14 +303,14 @@
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
 
-        // --- Canvas and Heart Animation Variables ---
+        // --- Canvas ve Kalp Animasyonu İçin Değişkenler ---
         const canvas = document.getElementById('hearts-canvas');
         const ctx = canvas.getContext('2d');
         let hearts = [];
-        const heartCount = 30; 
+        const heartCount = 30; // Ekranda aynı anda olacak maksimum kalp sayısı
         const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
 
-        // --- Core Constants and Variables ---
+        // --- Temel Sabitler ve Değişkenler ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
         let userSequence = [];
@@ -329,7 +318,7 @@
         const sequenceLength = 4;
         let isPlaying = false;
 
-        // --- Content Templates (HTML Strings) ---
+        // --- İçerik Şablonları (HTML Strings) ---
         const homePageContent = `
             <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-5xl">
                 <div class="flex-1 text-center md:text-left md:pr-8 mb-8 md:mb-0">
@@ -371,7 +360,7 @@
                     </p>
                 </div>
 
-                <!-- Fotoğraf Galerisi (Glow efekli) -->
+                <!-- Fotoğraf Galerisi (Glow efektli) -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-20">
                     <!-- Fotoğraflar ImgBB'den güvenilir linklerle eklendi -->
                     <div class="image-container w-full h-48">
@@ -579,9 +568,9 @@
             </div>
         `;
 
-        // --- Functions ---
+        // --- Fonksiyonlar ---
         
-        // Canvas and Heart Animation
+        // Canvas ve Kalp Animasyonu
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -638,14 +627,14 @@
             requestAnimationFrame(animate);
         }
 
-        // Render page content function
+        // Sayfa içeriğini render eden fonksiyon
         function renderPage(pageName) {
             contentArea.classList.add('opacity-0');
             setTimeout(() => {
                 contentArea.innerHTML = '';
                 if (pageName === 'home') {
                     contentArea.innerHTML = homePageContent;
-                    updateCountdown();
+                    updateCountdown(); // İlk değeri hemen ayarla
                     startCountdown();
                     setActiveNav('home');
                 } else if (pageName === 'memories') {
@@ -659,13 +648,13 @@
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
-                    // Attach message button listener after content is loaded
+                    // Mesaj butonunu bağlamak için küçük bir bekleme
                     setTimeout(attachMessageButtonListener, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    // Attach guestbook listeners after content is loaded
+                    // Yorum formunu ve listeyi bağla
                     setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
@@ -673,9 +662,9 @@
             }, 500);
         }
 
-        // Sets the active navigation button
+        // Aktif navigasyon butonunu belirleyen fonksiyon
         function setActiveNav(pageName) {
-            // Mobile Nav
+            // Mobil Navigasyon
             const allNavs = [navHomeBtn, navMemoriesBtn, navArtBtn, navMessageBtn, navGuestbookBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
@@ -688,7 +677,7 @@
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'guestbook') navGuestbookBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
-            // Desktop Nav
+            // Masaüstü Navigasyon
             const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn, navGuestbookDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
@@ -713,7 +702,7 @@
             }
         }
         
-        // Updates countdown values instantly
+        // Geri sayım değerlerini anında güncelleyen fonksiyon
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = birthdayDate - now;
@@ -739,43 +728,45 @@
             }
         }
         
-        // Manages countdown logic
+        // Geri sayım mantığını yöneten fonksiyon
         function startCountdown() {
             const countdownInterval = setInterval(() => {
                 updateCountdown();
             }, 1000);
         }
 
-        // --- Password Game Logic ---
+        // --- Şifre Oyunu Mantığı ---
         function generateSequence() {
             const newSequence = [];
+            // Şifre uzunluğu 4 olarak belirlendi.
             for (let i = 0; i < sequenceLength; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
         }
 
-        async function playSequence() {
-            // Prevents user interaction while the sequence is playing
+        function playSequence() {
             isPlaying = true;
             startButton.disabled = true;
             startButton.classList.add('opacity-50', 'cursor-not-allowed');
 
+            let i = 0;
             const hearts = heartGrid.querySelectorAll('.heart-icon-btn');
-            for (let i = 0; i < sequence.length; i++) {
-                const heart = hearts[sequence[i]];
-                // Light up the heart
-                heart.classList.add('lighted-heart');
-                await new Promise(resolve => setTimeout(resolve, 500));
-                // Turn off the light
-                heart.classList.remove('lighted-heart');
-                await new Promise(resolve => setTimeout(resolve, 200));
-            }
-
-            // Re-enable interaction after sequence is shown
-            isPlaying = false;
-            startButton.disabled = false;
-            startButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            const interval = setInterval(() => {
+                if (i < sequence.length) {
+                    const heart = hearts[sequence[i]];
+                    heart.classList.add('lighted-heart');
+                    setTimeout(() => {
+                        heart.classList.remove('lighted-heart');
+                    }, 500);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    isPlaying = false;
+                    startButton.disabled = false;
+                    startButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }, 700);
         }
 
         function checkSequence() {
@@ -788,39 +779,29 @@
             return true;
         }
         
-        // Creates the heart buttons for the password screen
+        // Şifre ekranı için kalp butonları oluşturur
         function createHeartButtons() {
             heartGrid.innerHTML = '';
             for(let i = 0; i < heartButtonCount; i++) {
                 const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300', 'w-20', 'h-20');
+                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
                 button.dataset.index = i;
-                
-                // SVG olarak kalp simgesi ekle - GÜNCEL KISIM BURASI
-                button.innerHTML = `
-                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
-                    </svg>
-                `;
+                button.innerHTML = `&hearts;`;
 
-                // Add click event listener
-                button.addEventListener('click', () => {
-                    // Ignore clicks while the sequence is being played
+                // Tıklama olayı dinleyicisi
+                button.addEventListener('click', (event) => {
                     if (isPlaying) return;
-                    
-                    const index = parseInt(button.dataset.index);
+                    const index = parseInt(event.currentTarget.dataset.index);
                     userSequence.push(index);
 
-                    const clickedHeart = button;
+                    const clickedHeart = event.currentTarget;
                     clickedHeart.classList.add('lighted-heart');
                     setTimeout(() => {
                         clickedHeart.classList.remove('lighted-heart');
                     }, 500);
                     
-                    // Check if the user has completed the sequence
                     if (userSequence.length === sequence.length) {
                         if (checkSequence()) {
-                            // Correct sequence: transition to the main app
                             passwordPage.classList.add('password-page-hidden');
                             setTimeout(() => {
                                 passwordPage.classList.add('hidden');
@@ -828,17 +809,15 @@
                                 renderPage('home');
                             }, 500);
                         } else {
-                            // Incorrect sequence: show feedback and reset
                             feedbackMessage.classList.remove('opacity-0');
                             userSequence = [];
                             setTimeout(() => {
                                 feedbackMessage.classList.add('opacity-0');
-                                // Wait for a brief moment then show a new sequence
-                                setTimeout(() => {
-                                    sequence = generateSequence();
-                                    playSequence();
-                                }, 500);
                             }, 2000);
+                            setTimeout(() => {
+                                sequence = generateSequence();
+                                playSequence();
+                            }, 2500);
                         }
                     }
                 });
@@ -846,7 +825,7 @@
             }
         }
 
-        // --- New Message Typing Effect Logic ---
+        // --- Yeni Mesaj Yazma Efekti Mantığı ---
         const messages = [
             "Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli.",
             "Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyosun.",
@@ -856,29 +835,32 @@
             "Sevgilerimle, Tuna."
         ];
         
-        const typingDelay = 50;
-        const paragraphDelay = 1500;
+        const typingDelay = 50; // Her karakterin yazılma hızı (ms)
+        const paragraphDelay = 1500; // Paragraflar arası bekleme süresi (ms)
         
         async function typeMessageContent() {
             const allMessagesContainer = document.getElementById('all-messages-container');
-            allMessagesContainer.innerHTML = '';
-            
+            allMessagesContainer.innerHTML = ''; // İçeriği temizle
+
             for (let i = 0; i < messages.length; i++) {
                 const p = document.createElement('p');
-                p.classList.add('font-light', 'text-base', 'md:text-lg', 'mb-4');
+                p.classList.add('font-light', 'text-base', 'md:text-lg', 'mb-4'); // Paragraf boşluğu ekledik
                 allMessagesContainer.appendChild(p);
-                
+
+                // Mesajı karakter karakter yaz
                 for (let j = 0; j < messages[i].length; j++) {
                     p.textContent += messages[i][j];
                     await new Promise(resolve => setTimeout(resolve, typingDelay));
                 }
-                
+
+                // Son mesaja gelince imleci ekle ve yanıp sönmesini sağla
                 if (i === messages.length - 1) {
                     const cursor = document.createElement('span');
                     cursor.id = 'cursor';
                     cursor.classList.add('text-sm', 'md:text-md', 'text-secondary-pink', 'inline-block', 'w-2', 'h-4', 'bg-secondary-pink', 'animate-blinking-cursor', 'align-middle');
                     allMessagesContainer.appendChild(cursor);
                 } else {
+                    // Paragraflar arası bekleme
                     await new Promise(resolve => setTimeout(resolve, paragraphDelay));
                 }
             }
@@ -893,13 +875,13 @@
                     setTimeout(() => {
                         showMessageBtn.classList.add('hidden');
                         allMessagesContainer.classList.remove('hidden');
-                        typeMessageContent();
-                    }, 500);
+                        typeMessageContent(); // Mesaj yazma işlemini başlat
+                    }, 500); // Buton gizlenme süresi
                 });
             }
         }
         
-        // --- Guestbook Logic ---
+        // --- Ziyaretçi Defteri Mantığı ---
         function attachGuestbookListeners() {
             const commentForm = document.getElementById('commentForm');
             if (commentForm) {
@@ -918,12 +900,12 @@
                         });
                         commentForm.reset();
                     } catch (e) {
-                        console.error("Error adding document: ", e);
+                        console.error("Yorum eklenirken hata oluştu: ", e);
                     }
                 });
             }
 
-            // Listen for real-time updates to the guestbook
+            // Yorumları dinlemeye başla
             const commentsList = document.getElementById('commentsList');
             if (commentsList) {
                 const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
@@ -950,15 +932,15 @@
                         commentsList.appendChild(commentElement);
                     });
                 }, (error) => {
-                    console.error("Error fetching comments: ", error);
+                    console.error("Yorumları çekerken hata oluştu: ", error);
                 });
             }
         }
 
 
-        // --- Event Listeners ---
+        // --- Olay Dinleyicileri (Event Listeners) ---
 
-        // On page load, create heart buttons and start canvas animation
+        // Sayfa yüklendiğinde kalp butonlarını oluştur ve canvas animasyonunu başlat
         window.addEventListener('load', async () => {
              createHeartButtons();
              resizeCanvas();
@@ -969,22 +951,22 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-                console.log("Firebase Authentication successful.");
+                console.log("Firebase Authentication başarılı.");
              } catch (error) {
-                console.error("Firebase Authentication error: ", error);
+                console.error("Firebase Authentication hatası: ", error);
              }
         });
         
         window.addEventListener('resize', resizeCanvas);
 
-        // Start the password game
+        // Şifre oyununu başlat
         startButton.addEventListener('click', () => {
-            userSequence = []; // Reset user's sequence
-            sequence = generateSequence(); // Generate a new sequence every time
+            userSequence = [];
+            sequence = generateSequence();
             playSequence();
         });
 
-        // Navigation buttons
+        // Navigasyon butonları
         navHomeBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         navArtBtn.addEventListener('click', () => renderPage('art'));
