@@ -267,94 +267,52 @@
         </div>
     </div>
     
-    <script>
-        // Tüm JavaScript kodunu tek bir blokta birleştiriyoruz.
-        // Bu, sayfa yüklendiğinde her şeyin doğru sırayla çalışmasını sağlar.
+    <script type="module">
+        // --- Firebase Imports and Configuration ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Variables and Services ---
-        // Firebase kütüphaneleri DOM'dan sonra yüklenmeli
-        function loadFirebaseScripts(callback) {
-            const firebaseAppScript = document.createElement('script');
-            firebaseAppScript.src = "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-            firebaseAppScript.type = "module";
-            firebaseAppScript.onload = () => {
-                const firebaseAuthScript = document.createElement('script');
-                firebaseAuthScript.src = "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-                firebaseAuthScript.type = "module";
-                firebaseAuthScript.onload = () => {
-                    const firebaseFirestoreScript = document.createElement('script');
-                    firebaseFirestoreScript.src = "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-                    firebaseFirestoreScript.type = "module";
-                    firebaseFirestoreScript.onload = callback;
-                    document.head.appendChild(firebaseFirestoreScript);
-                };
-                document.head.appendChild(firebaseAuthScript);
-            };
-            document.head.appendChild(firebaseAppScript);
-        }
-
+        // --- Core Application Variables ---
         let app, auth, db;
         let isFirebaseReady = false;
 
-        async function initializeFirebase() {
-            try {
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-                const { getAuth, signInAnonymously, signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-                const { getFirestore, setLogLevel } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                setLogLevel('debug');
-
-                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                isFirebaseReady = true;
-                console.log("Firebase Authentication successful.");
-            } catch (error) {
-                console.error("Firebase Authentication error: ", error);
-            }
-        }
-        
-        // --- Select Page Elements ---
-        const passwordPage = document.getElementById('password-page');
-        const appContainer = document.getElementById('app-container');
-        const heartGrid = document.getElementById('heart-grid');
-        const startButton = document.getElementById('start-button');
-        const feedbackMessage = document.getElementById('feedback-message');
-        const contentArea = document.getElementById('content-area');
-        
-        const navHomeBtn = document.getElementById('nav-home');
-        const navMemoriesBtn = document.getElementById('nav-memories');
-        const navArtBtn = document.getElementById('nav-art');
-        const navMessageBtn = document.getElementById('nav-message');
-        const navGuestbookBtn = document.getElementById('nav-guestbook');
-
-        const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
-        const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
-        const navArtDesktopBtn = document.getElementById('nav-art-desktop');
-        const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
-        const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
-
-        // --- Canvas and Heart Animation Variables ---
-        const canvas = document.getElementById('hearts-canvas');
-        const ctx = canvas.getContext('2d');
-        let hearts = [];
-        const heartCount = 30; // Max hearts on screen
-        const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
-
-        // --- Core Constants and Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
         let userSequence = [];
         const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
+        
+        // --- Element Selectors ---
+        const passwordPage = document.getElementById('password-page');
+        const appContainer = document.getElementById('app-container');
+        const heartGrid = document.getElementById('heart-grid');
+        const startButton = document.getElementById('start-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const contentArea = document.getElementById('content-area');
+
+        // Mobile Nav
+        const navHomeBtn = document.getElementById('nav-home');
+        const navMemoriesBtn = document.getElementById('nav-memories');
+        const navArtBtn = document.getElementById('nav-art');
+        const navMessageBtn = document.getElementById('nav-message');
+        const navGuestbookBtn = document.getElementById('nav-guestbook');
+
+        // Desktop Nav
+        const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
+        const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
+        const navArtDesktopBtn = document.getElementById('nav-art-desktop');
+        const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
+        const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
+
+        // Canvas Elements
+        const canvas = document.getElementById('hearts-canvas');
+        const ctx = canvas.getContext('2d');
+        let hearts = [];
+        const heartCount = 30; 
+        const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
+
 
         // --- Content Templates (HTML Strings) ---
         const homePageContent = `
@@ -398,9 +356,7 @@
                     </p>
                 </div>
 
-                <!-- Photo Gallery (with Glow effect) -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-20">
-                    <!-- Photos added from reliable ImgBB links -->
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/7fa0f7d7-431f-4aef-95b9-1261f45c6d53.jpg" alt="Anı 1 - Ece'nin güzel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
@@ -473,7 +429,6 @@
                         <img src="https://i.supaimg.com/a4f0b1ea-bd51-48a5-974c-b630082afe48.jpg" alt="Yeni eklenen özel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
-                    <!-- New photos added -->
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/2d8f1a7d-4596-44cd-b4c9-d65e10332887.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
@@ -509,14 +464,12 @@
                     Gözlerin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- New art pieces added by user request (with Glow effect) -->
                     <div class="image-container w-full h-96">
                         <img src="https://i.supaimg.com/8c447232-7310-420a-906c-1700a0773f1c.jpg" alt="Dinamik renkli soyut bir eser" class="w-full h-full object-cover rounded-2xl">
                     </div>
                     <div class="image-container w-full h-96">
                         <img src="https://i.supaimg.com/5299cf87-57ec-4042-b472-3f49b67c1b40.jpg" alt="Ahenkli soyut bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <!-- Existing art pieces added here (with Glow effect) -->
                     <div class="image-container w-full h-96">
                         <img src="https://i.supaimg.com/a23646ac-a259-4fc3-ac83-01ffae58baf2.jpg" alt="Soyut bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
@@ -563,12 +516,9 @@
                     Kalbimin en özel yerinden gelen satırlar...
                 </p>
                 <div id="message-container-wrapper" class="w-full">
-                    <!-- The message button will be here -->
                     <button id="show-message-btn" class="message-button-transition w-full max-w-xs md:max-w-md py-4 rounded-3xl font-bold text-white text-lg bg-gradient-to-r from-primary-blue to-cyan-500 hover:from-cyan-500 hover:to-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse">
                         <i class="fas fa-envelope mr-2"></i> Mesajı Oku
                     </button>
-
-                    <!-- Messages will be displayed in a single box -->
                     <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative message-box-transition">
                         <!-- Messages will be written here dynamically -->
                     </div>
@@ -605,13 +555,14 @@
                 </div>
             </div>
         `;
-
-        // --- Functions ---
         
-        // Canvas and Heart Animation
+        // --- Core Functions ---
+        
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
         }
 
         function createHeart() {
@@ -628,23 +579,23 @@
         }
         
         function drawHearts() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(255, 105, 180, 0.1)"; 
-            
-            for (let i = 0; i < hearts.length; i++) {
-                const h = hearts[i];
-                ctx.save();
-                ctx.translate(h.x, h.y);
-                
-                ctx.beginPath();
-                ctx.moveTo(0, h.size * 0.4);
-                ctx.bezierCurveTo(0, -h.size * 0.2, h.size * 0.6, h.size * 0.4, 0, h.size);
-                ctx.bezierCurveTo(-h.size * 0.6, h.size * 0.4, 0, -h.size * 0.2, 0, h.size * 0.4);
-                
-                ctx.fillStyle = h.color;
-                ctx.globalAlpha = h.opacity;
-                ctx.fill();
-                ctx.restore();
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < hearts.length; i++) {
+                    const h = hearts[i];
+                    ctx.save();
+                    ctx.translate(h.x, h.y);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, h.size * 0.4);
+                    ctx.bezierCurveTo(0, -h.size * 0.2, h.size * 0.6, h.size * 0.4, 0, h.size);
+                    ctx.bezierCurveTo(-h.size * 0.6, h.size * 0.4, 0, -h.size * 0.2, 0, h.size * 0.4);
+                    
+                    ctx.fillStyle = h.color;
+                    ctx.globalAlpha = h.opacity;
+                    ctx.fill();
+                    ctx.restore();
+                }
             }
         }
         
@@ -665,7 +616,6 @@
             requestAnimationFrame(animate);
         }
 
-        // Renders page content
         function renderPage(pageName) {
             contentArea.classList.add('opacity-0');
             setTimeout(() => {
@@ -698,7 +648,6 @@
             }, 500);
         }
 
-        // Sets active navigation button
         function setActiveNav(pageName) {
             // Mobile Navigation
             const allNavs = [navHomeBtn, navMemoriesBtn, navArtBtn, navMessageBtn, navGuestbookBtn];
@@ -738,7 +687,6 @@
             }
         }
         
-        // Updates countdown values instantly
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = birthdayDate - now;
@@ -764,14 +712,12 @@
             }
         }
         
-        // Manages countdown logic
         function startCountdown() {
-            const countdownInterval = setInterval(() => {
+            setInterval(() => {
                 updateCountdown();
             }, 1000);
         }
 
-        // --- Message Typing Effect Logic ---
         const messages = [
             "Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli.",
             "Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyosun.",
@@ -781,32 +727,30 @@
             "Sevgilerimle, Tuna."
         ];
         
-        const typingDelay = 50; // Typing speed per character (ms)
-        const paragraphDelay = 1500; // Delay between paragraphs (ms)
+        const typingDelay = 50; 
+        const paragraphDelay = 1500; 
         
         async function typeMessageContent() {
             const allMessagesContainer = document.getElementById('all-messages-container');
-            allMessagesContainer.innerHTML = ''; // Clear content
+            if (!allMessagesContainer) return;
+            allMessagesContainer.innerHTML = ''; 
 
             for (let i = 0; i < messages.length; i++) {
                 const p = document.createElement('p');
                 p.classList.add('font-light', 'text-base', 'md:text-lg', 'mb-4'); 
                 allMessagesContainer.appendChild(p);
 
-                // Type message character by character
                 for (let j = 0; j < messages[i].length; j++) {
                     p.textContent += messages[i][j];
                     await new Promise(resolve => setTimeout(resolve, typingDelay));
                 }
 
-                // Add blinking cursor to the last message
                 if (i === messages.length - 1) {
                     const cursor = document.createElement('span');
                     cursor.id = 'cursor';
                     cursor.classList.add('text-sm', 'md:text-md', 'text-secondary-pink', 'inline-block', 'w-2', 'h-4', 'bg-secondary-pink', 'animate-blinking-cursor', 'align-middle');
                     allMessagesContainer.appendChild(cursor);
                 } else {
-                    // Delay between paragraphs
                     await new Promise(resolve => setTimeout(resolve, paragraphDelay));
                 }
             }
@@ -827,14 +771,12 @@
             }
         }
         
-        // --- Guestbook Logic ---
         function attachGuestbookListeners() {
             if (!isFirebaseReady) {
                 console.error("Firebase henüz hazır değil, Ziyaretçi Defteri çalışmayacak.");
                 return;
             }
-            const { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } = require('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-
+            
             const commentForm = document.getElementById('commentForm');
             if (commentForm) {
                 commentForm.addEventListener('submit', async (e) => {
@@ -858,7 +800,6 @@
                 });
             }
 
-            // Start listening to comments
             const commentsList = document.getElementById('commentsList');
             if (commentsList) {
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -890,22 +831,6 @@
                 });
             }
         }
-
-
-        // --- Event Listeners ---
-
-        // Navigation buttons
-        navHomeBtn.addEventListener('click', () => renderPage('home'));
-        navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
-        navArtBtn.addEventListener('click', () => renderPage('art'));
-        navMessageBtn.addEventListener('click', () => renderPage('message'));
-        navGuestbookBtn.addEventListener('click', () => renderPage('guestbook'));
-
-        navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
-        navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
-        navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
-        navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
-        navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
         // --- Password Game Logic ---
         function generateSequence() {
@@ -922,7 +847,7 @@
             startButton.classList.add('opacity-50', 'cursor-not-allowed');
 
             let i = 0;
-            const hearts = heartGrid.querySelectorAll('.heart-icon-btn');
+            const hearts = document.querySelectorAll('#heart-grid .heart-icon-btn');
             const interval = setInterval(() => {
                 if (i < sequence.length) {
                     const heart = hearts[sequence[i]];
@@ -950,14 +875,12 @@
             return true;
         }
         
-        // Creates heart buttons for password screen
         function createHeartButtons() {
             if (!heartGrid) {
                 console.error("Hata: 'heart-grid' elementi bulunamadı. Butonlar oluşturulamıyor.");
                 return;
             }
             
-            // Clear existing content before creating buttons
             heartGrid.innerHTML = ''; 
             for(let i = 0; i < heartButtonCount; i++) {
                 const button = document.createElement('button');
@@ -965,7 +888,6 @@
                 button.dataset.index = i;
                 button.innerHTML = `&hearts;`; 
 
-                // Click event listener
                 button.addEventListener('click', (event) => {
                     if (isPlaying) return;
                     const index = parseInt(event.currentTarget.dataset.index);
@@ -1001,19 +923,51 @@
                 heartGrid.appendChild(button);
             }
         }
+        
+        // --- Event Listeners ---
+        if (startButton) {
+            startButton.addEventListener('click', () => {
+                userSequence = [];
+                sequence = generateSequence();
+                playSequence();
+            });
+        }
+        
+        if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
+        if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
+        if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
+        if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
+        if (navGuestbookBtn) navGuestbookBtn.addEventListener('click', () => renderPage('guestbook'));
 
-        // Start the password game
-        startButton.addEventListener('click', () => {
-            userSequence = [];
-            sequence = generateSequence();
-            playSequence();
-        });
+        if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
+        if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
+        if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
+        if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
+        if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
             console.log("DOM içeriği yüklendi, uygulamayı başlatılıyor.");
             createHeartButtons();
-            initializeFirebase();
+            
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('debug');
+            
+            if (initialAuthToken) {
+                signInWithCustomToken(auth, initialAuthToken).then(() => {
+                    isFirebaseReady = true;
+                }).catch((error) => console.error("Firebase Auth Error:", error));
+            } else {
+                signInAnonymously(auth).then(() => {
+                    isFirebaseReady = true;
+                }).catch((error) => console.error("Firebase Anonim Auth Error:", error));
+            }
+
             resizeCanvas();
             animate();
             window.addEventListener('resize', resizeCanvas);
