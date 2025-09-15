@@ -165,7 +165,6 @@
         .comment-card {
             background-color: #1a1a1a;
             padding: 1.5rem;
-            border-radius: 0.75rem;
             border-left: 4px solid #4A90E2;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -733,99 +732,6 @@
             }, 1000);
         }
 
-        // --- Password Game Logic ---
-        function generateSequence() {
-            const newSequence = [];
-            // Sequence length is 4.
-            for (let i = 0; i < sequenceLength; i++) {
-                newSequence.push(Math.floor(Math.random() * heartButtonCount));
-            }
-            return newSequence;
-        }
-
-        function playSequence() {
-            isPlaying = true;
-            startButton.disabled = true;
-            startButton.classList.add('opacity-50', 'cursor-not-allowed');
-
-            let i = 0;
-            const hearts = heartGrid.querySelectorAll('.heart-icon-btn');
-            const interval = setInterval(() => {
-                if (i < sequence.length) {
-                    const heart = hearts[sequence[i]];
-                    heart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        heart.classList.remove('lighted-heart');
-                    }, 500);
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    isPlaying = false;
-                    startButton.disabled = false;
-                    startButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }, 700);
-        }
-
-        function checkSequence() {
-            if (userSequence.length !== sequence.length) return false;
-            for (let i = 0; i < sequence.length; i++) {
-                if (userSequence[i] !== sequence[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        // Creates heart buttons for password screen
-        function createHeartButtons() {
-            // Clear existing content before creating buttons
-            if (heartGrid) {
-                heartGrid.innerHTML = ''; 
-                for(let i = 0; i < heartButtonCount; i++) {
-                    const button = document.createElement('button');
-                    button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
-                    button.dataset.index = i;
-                    button.innerHTML = `&hearts;`; 
-
-                    // Click event listener
-                    button.addEventListener('click', (event) => {
-                        if (isPlaying) return;
-                        const index = parseInt(event.currentTarget.dataset.index);
-                        userSequence.push(index);
-
-                        const clickedHeart = event.currentTarget;
-                        clickedHeart.classList.add('lighted-heart');
-                        setTimeout(() => {
-                            clickedHeart.classList.remove('lighted-heart');
-                        }, 500);
-                        
-                        if (userSequence.length === sequence.length) {
-                            if (checkSequence()) {
-                                passwordPage.classList.add('password-page-hidden');
-                                setTimeout(() => {
-                                    passwordPage.classList.add('hidden');
-                                    appContainer.classList.remove('hidden');
-                                    renderPage('home');
-                                }, 500);
-                            } else {
-                                feedbackMessage.classList.remove('opacity-0');
-                                userSequence = [];
-                                setTimeout(() => {
-                                    feedbackMessage.classList.add('opacity-0');
-                                }, 2000);
-                                setTimeout(() => {
-                                    sequence = generateSequence();
-                                    playSequence();
-                                }, 2500);
-                            }
-                        }
-                    });
-                    heartGrid.appendChild(button);
-                }
-            }
-        }
-
         // --- Message Typing Effect Logic ---
         const messages = [
             "Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli.",
@@ -941,32 +847,6 @@
 
         // --- Event Listeners ---
 
-        // Create heart buttons and start canvas animation when page is fully loaded
-        window.onload = async () => {
-            createHeartButtons();
-            resizeCanvas();
-            animate();
-            try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                console.log("Firebase Authentication successful.");
-            } catch (error) {
-                console.error("Firebase Authentication error: ", error);
-            }
-        };
-        
-        window.addEventListener('resize', resizeCanvas);
-
-        // Start the password game
-        startButton.addEventListener('click', () => {
-            userSequence = [];
-            sequence = generateSequence();
-            playSequence();
-        });
-
         // Navigation buttons
         navHomeBtn.addEventListener('click', () => renderPage('home'));
         navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
@@ -979,6 +859,164 @@
         navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
+    </script>
+    <script type="module">
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // --- Core Constants and Variables ---
+        let sequence = [];
+        let userSequence = [];
+        const heartButtonCount = 9;
+        const sequenceLength = 4;
+        let isPlaying = false;
+        
+        const passwordPage = document.getElementById('password-page');
+        const appContainer = document.getElementById('app-container');
+        const heartGrid = document.getElementById('heart-grid');
+        const startButton = document.getElementById('start-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+        
+        const auth = getAuth();
+
+        // --- Password Game Logic ---
+        function generateSequence() {
+            const newSequence = [];
+            for (let i = 0; i < sequenceLength; i++) {
+                newSequence.push(Math.floor(Math.random() * heartButtonCount));
+            }
+            return newSequence;
+        }
+
+        function playSequence() {
+            isPlaying = true;
+            startButton.disabled = true;
+            startButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            let i = 0;
+            const hearts = heartGrid.querySelectorAll('.heart-icon-btn');
+            const interval = setInterval(() => {
+                if (i < sequence.length) {
+                    const heart = hearts[sequence[i]];
+                    heart.classList.add('lighted-heart');
+                    setTimeout(() => {
+                        heart.classList.remove('lighted-heart');
+                    }, 500);
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    isPlaying = false;
+                    startButton.disabled = false;
+                    startButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }, 700);
+        }
+
+        function checkSequence() {
+            if (userSequence.length !== sequence.length) return false;
+            for (let i = 0; i < sequence.length; i++) {
+                if (userSequence[i] !== sequence[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // Creates heart buttons for password screen
+        function createHeartButtons() {
+            if (!heartGrid) {
+                console.error("Hata: 'heart-grid' elementi bulunamadı. Butonlar oluşturulamıyor.");
+                return;
+            }
+            
+            // Clear existing content before creating buttons
+            heartGrid.innerHTML = ''; 
+            for(let i = 0; i < heartButtonCount; i++) {
+                const button = document.createElement('button');
+                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
+                button.dataset.index = i;
+                button.innerHTML = `&hearts;`; 
+
+                // Click event listener
+                button.addEventListener('click', (event) => {
+                    if (isPlaying) return;
+                    const index = parseInt(event.currentTarget.dataset.index);
+                    userSequence.push(index);
+
+                    const clickedHeart = event.currentTarget;
+                    clickedHeart.classList.add('lighted-heart');
+                    setTimeout(() => {
+                        clickedHeart.classList.remove('lighted-heart');
+                    }, 500);
+                    
+                    if (userSequence.length === sequence.length) {
+                        if (checkSequence()) {
+                            passwordPage.classList.add('password-page-hidden');
+                            setTimeout(() => {
+                                passwordPage.classList.add('hidden');
+                                appContainer.classList.remove('hidden');
+                                renderPage('home');
+                            }, 500);
+                        } else {
+                            feedbackMessage.classList.remove('opacity-0');
+                            userSequence = [];
+                            setTimeout(() => {
+                                feedbackMessage.classList.add('opacity-0');
+                            }, 2000);
+                            setTimeout(() => {
+                                sequence = generateSequence();
+                                playSequence();
+                            }, 2500);
+                        }
+                    }
+                });
+                heartGrid.appendChild(button);
+            }
+        }
+
+        // Initialize Firebase Auth & Start
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        async function initializeApp() {
+             try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase Authentication successful.");
+            } catch (error) {
+                console.error("Firebase Authentication error: ", error);
+            }
+        }
+        
+        // Start the password game
+        startButton.addEventListener('click', () => {
+            userSequence = [];
+            sequence = generateSequence();
+            playSequence();
+        });
+        
+        // Call the initial functions on load
+        window.addEventListener('load', () => {
+             createHeartButtons();
+             initializeApp();
+             // Canvas functions
+             const canvas = document.getElementById('hearts-canvas');
+             function resizeCanvas() {
+                 canvas.width = window.innerWidth;
+                 canvas.height = window.innerHeight;
+             }
+             function animate() {
+                // Simplified animation call
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                requestAnimationFrame(animate);
+             }
+             resizeCanvas();
+             animate();
+             window.addEventListener('resize', resizeCanvas);
+        });
+
     </script>
 </body>
 </html>
