@@ -197,6 +197,7 @@
                 <p class="text-md text-gray-400 mb-6 font-light">
                     Bu sürpriz siteye erişmek için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
                 </p>
+                <!-- Kalp gridi -->
                 <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6">
                     <!-- Kalp butonları buraya JS ile eklenecek -->
                 </div>
@@ -784,9 +785,10 @@
             heartGrid.innerHTML = '';
             for(let i = 0; i < heartButtonCount; i++) {
                 const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
+                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300', 'w-20', 'h-20');
                 button.dataset.index = i;
-                button.innerHTML = `&hearts;`;
+                // HTML karakteri yerine Font Awesome ikonu kullanıldı
+                button.innerHTML = `<i class="fas fa-heart"></i>`;
 
                 // Tıklama olayı dinleyicisi
                 button.addEventListener('click', (event) => {
