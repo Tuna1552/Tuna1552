@@ -588,9 +588,11 @@
                     ctx.translate(h.x, h.y);
                     
                     ctx.beginPath();
-                    ctx.moveTo(0, h.size * 0.4);
-                    ctx.bezierCurveTo(0, -h.size * 0.2, h.size * 0.6, h.size * 0.4, 0, h.size);
-                    ctx.bezierCurveTo(-h.size * 0.6, h.size * 0.4, 0, -h.size * 0.2, 0, h.size * 0.4);
+                    // Doğru kalp çizimi için Bezier eğrileri
+                    ctx.moveTo(0, h.size * 0.25);
+                    ctx.bezierCurveTo(h.size * 0.5, -h.size * 0.5, h.size * 1.5, h.size * 0.5, 0, h.size * 1.5);
+                    ctx.bezierCurveTo(-h.size * 1.5, h.size * 0.5, -h.size * 0.5, -h.size * 0.5, 0, h.size * 0.25);
+                    ctx.closePath();
                     
                     ctx.fillStyle = h.color;
                     ctx.globalAlpha = h.opacity;
@@ -894,7 +896,7 @@
                 const button = document.createElement('button');
                 button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
                 button.dataset.index = i;
-                button.innerHTML = `&hearts;`; 
+                button.innerHTML = `♥`; // HTML özel karakteri yerine Unicode sembolü kullanıldı
 
                 button.addEventListener('click', (event) => {
                     if (isPlaying) return;
