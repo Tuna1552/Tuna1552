@@ -165,7 +165,6 @@
         .comment-card {
             background-color: #1a1a1a;
             padding: 1.5rem;
-            border-radius: 0.75rem;
             border-left: 4px solid #4A90E2;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -275,8 +274,19 @@
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Variables and Services ---
+        // Bu değişkenler, canlı bir ortamda otomatik olarak sağlanır.
+        // Ancak önizleme ortamında doğru çalışması için,
+        // lütfen kendi Firebase projenizin yapılandırma ayarlarını aşağıdaki satırlara girin.
+        // Bu sayede Ziyaretçi Defteri ve diğer Firebase'e bağlı özellikler çalışacaktır.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         const app = initializeApp(firebaseConfig);
