@@ -785,8 +785,13 @@
                 const button = document.createElement('button');
                 button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300', 'w-20', 'h-20');
                 button.dataset.index = i;
-                // Using Font Awesome icon for cross-browser compatibility
-                button.innerHTML = `<i class="fas fa-heart"></i>`;
+                
+                // SVG olarak kalp simgesi ekle - GÜNCEL KISIM BURASI
+                button.innerHTML = `
+                    <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                    </svg>
+                `;
 
                 // Add click event listener
                 button.addEventListener('click', () => {
