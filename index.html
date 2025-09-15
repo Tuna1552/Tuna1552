@@ -276,6 +276,7 @@
         // --- Core Application Variables ---
         let app, auth, db;
         let isFirebaseReady = false;
+        let unsubscribeGuestbook = null; // Ziyaretçi defteri dinleyicisini kontrol etmek için
 
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -617,6 +618,12 @@
         }
 
         function renderPage(pageName) {
+            // Mevcut bir dinleyici varsa bağlantıyı kes
+            if (unsubscribeGuestbook) {
+                unsubscribeGuestbook();
+                unsubscribeGuestbook = null;
+            }
+
             contentArea.classList.add('opacity-0');
             setTimeout(() => {
                 contentArea.innerHTML = '';
@@ -641,7 +648,7 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    setTimeout(attachGuestbookListeners, 100);
+                    attachGuestbookListeners(); // setTimeout olmadan doğrudan çağır
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
@@ -806,7 +813,8 @@
                 const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
                 const q = query(commentsCollectionRef, orderBy('timestamp', 'desc'));
 
-                onSnapshot(q, (snapshot) => {
+                // Firestore dinleyicisini başlat ve abonelikten çıkma fonksiyonunu kaydet
+                unsubscribeGuestbook = onSnapshot(q, (snapshot) => {
                     commentsList.innerHTML = '';
                     snapshot.forEach(doc => {
                         const comment = doc.data();
