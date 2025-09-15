@@ -648,7 +648,7 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    attachGuestbookListeners(); // setTimeout olmadan doğrudan çağır
+                    attachGuestbookListeners(); 
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
