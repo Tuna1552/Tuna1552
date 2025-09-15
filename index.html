@@ -202,7 +202,7 @@
                 <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                     Şifreyi Göster
                 </button>
-                <p id="feedback-message" class="mt-4 text-red-400 font-medium opacity-0 transition-opacity duration-300">
+                <p id="feedback-message" class="mt-4 text-red-400 font-medium hidden">
                     Yanlış bir dokunuş yaptın, tekrar dene.
                 </p>
             </div>
@@ -267,21 +267,60 @@
         </div>
     </div>
     
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // Tüm JavaScript kodunu tek bir blokta birleştiriyoruz.
+        // Bu, sayfa yüklendiğinde her şeyin doğru sırayla çalışmasını sağlar.
 
         // --- Firebase Variables and Services ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        setLogLevel('debug');
+        // Firebase kütüphaneleri DOM'dan sonra yüklenmeli
+        function loadFirebaseScripts(callback) {
+            const firebaseAppScript = document.createElement('script');
+            firebaseAppScript.src = "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+            firebaseAppScript.type = "module";
+            firebaseAppScript.onload = () => {
+                const firebaseAuthScript = document.createElement('script');
+                firebaseAuthScript.src = "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+                firebaseAuthScript.type = "module";
+                firebaseAuthScript.onload = () => {
+                    const firebaseFirestoreScript = document.createElement('script');
+                    firebaseFirestoreScript.src = "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+                    firebaseFirestoreScript.type = "module";
+                    firebaseFirestoreScript.onload = callback;
+                    document.head.appendChild(firebaseFirestoreScript);
+                };
+                document.head.appendChild(firebaseAuthScript);
+            };
+            document.head.appendChild(firebaseAppScript);
+        }
 
+        let app, auth, db;
+        let isFirebaseReady = false;
+
+        async function initializeFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+                const { getAuth, signInAnonymously, signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+                const { getFirestore, setLogLevel } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setLogLevel('debug');
+
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                isFirebaseReady = true;
+                console.log("Firebase Authentication successful.");
+            } catch (error) {
+                console.error("Firebase Authentication error: ", error);
+            }
+        }
+        
         // --- Select Page Elements ---
         const passwordPage = document.getElementById('password-page');
         const appContainer = document.getElementById('app-container');
@@ -790,6 +829,12 @@
         
         // --- Guestbook Logic ---
         function attachGuestbookListeners() {
+            if (!isFirebaseReady) {
+                console.error("Firebase henüz hazır değil, Ziyaretçi Defteri çalışmayacak.");
+                return;
+            }
+            const { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } = require('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+
             const commentForm = document.getElementById('commentForm');
             if (commentForm) {
                 commentForm.addEventListener('submit', async (e) => {
@@ -800,6 +845,7 @@
                     if (!commentName || !commentText) return;
         
                     try {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                         await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook-comments`), {
                             name: commentName,
                             text: commentText,
@@ -815,6 +861,7 @@
             // Start listening to comments
             const commentsList = document.getElementById('commentsList');
             if (commentsList) {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
                 const q = query(commentsCollectionRef, orderBy('timestamp', 'desc'));
 
@@ -859,25 +906,7 @@
         navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
-    </script>
-    <script type="module">
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        // --- Core Constants and Variables ---
-        let sequence = [];
-        let userSequence = [];
-        const heartButtonCount = 9;
-        const sequenceLength = 4;
-        let isPlaying = false;
-        
-        const passwordPage = document.getElementById('password-page');
-        const appContainer = document.getElementById('app-container');
-        const heartGrid = document.getElementById('heart-grid');
-        const startButton = document.getElementById('start-button');
-        const feedbackMessage = document.getElementById('feedback-message');
-        
-        const auth = getAuth();
-
         // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
@@ -957,10 +986,10 @@
                                 renderPage('home');
                             }, 500);
                         } else {
-                            feedbackMessage.classList.remove('opacity-0');
+                            feedbackMessage.classList.remove('hidden');
                             userSequence = [];
                             setTimeout(() => {
-                                feedbackMessage.classList.add('opacity-0');
+                                feedbackMessage.classList.add('hidden');
                             }, 2000);
                             setTimeout(() => {
                                 sequence = generateSequence();
@@ -973,22 +1002,6 @@
             }
         }
 
-        // Initialize Firebase Auth & Start
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        async function initializeApp() {
-             try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                console.log("Firebase Authentication successful.");
-            } catch (error) {
-                console.error("Firebase Authentication error: ", error);
-            }
-        }
-        
         // Start the password game
         startButton.addEventListener('click', () => {
             userSequence = [];
@@ -996,25 +1009,14 @@
             playSequence();
         });
         
-        // Call the initial functions on load
-        window.addEventListener('load', () => {
-             createHeartButtons();
-             initializeApp();
-             // Canvas functions
-             const canvas = document.getElementById('hearts-canvas');
-             function resizeCanvas() {
-                 canvas.width = window.innerWidth;
-                 canvas.height = window.innerHeight;
-             }
-             function animate() {
-                // Simplified animation call
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                requestAnimationFrame(animate);
-             }
-             resizeCanvas();
-             animate();
-             window.addEventListener('resize', resizeCanvas);
+        // DOM içeriği yüklendikten sonra her şeyi başlat
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM içeriği yüklendi, uygulamayı başlatılıyor.");
+            createHeartButtons();
+            initializeFirebase();
+            resizeCanvas();
+            animate();
+            window.addEventListener('resize', resizeCanvas);
         });
 
     </script>
