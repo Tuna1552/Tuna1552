@@ -197,7 +197,7 @@
                 <p class="text-md text-gray-400 mb-6 font-light">
                     Bu sürpriz siteye erişmek için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
                 </p>
-                <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6">
+                <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6 min-h-[150px]">
                     <!-- Kalp butonları buraya JS ile eklenecek -->
                 </div>
                 <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
@@ -781,47 +781,51 @@
         
         // Şifre ekranı için kalp butonları oluşturur
         function createHeartButtons() {
-            heartGrid.innerHTML = '';
-            for(let i = 0; i < heartButtonCount; i++) {
-                const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
-                button.dataset.index = i;
-                button.innerHTML = `&hearts;`;
+            // Butonları oluşturmadan önce mevcut içeriği temizle
+            if (heartGrid) {
+                heartGrid.innerHTML = ''; 
+                for(let i = 0; i < heartButtonCount; i++) {
+                    const button = document.createElement('button');
+                    button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
+                    button.dataset.index = i;
+                    // Basit bir Unicode kalp sembolü kullanmak, Font Awesome'a bağımlılığı azaltır.
+                    button.innerHTML = `&hearts;`; 
 
-                // Tıklama olayı dinleyicisi
-                button.addEventListener('click', (event) => {
-                    if (isPlaying) return;
-                    const index = parseInt(event.currentTarget.dataset.index);
-                    userSequence.push(index);
+                    // Tıklama olayı dinleyicisi
+                    button.addEventListener('click', (event) => {
+                        if (isPlaying) return;
+                        const index = parseInt(event.currentTarget.dataset.index);
+                        userSequence.push(index);
 
-                    const clickedHeart = event.currentTarget;
-                    clickedHeart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        clickedHeart.classList.remove('lighted-heart');
-                    }, 500);
-                    
-                    if (userSequence.length === sequence.length) {
-                        if (checkSequence()) {
-                            passwordPage.classList.add('password-page-hidden');
-                            setTimeout(() => {
-                                passwordPage.classList.add('hidden');
-                                appContainer.classList.remove('hidden');
-                                renderPage('home');
-                            }, 500);
-                        } else {
-                            feedbackMessage.classList.remove('opacity-0');
-                            userSequence = [];
-                            setTimeout(() => {
-                                feedbackMessage.classList.add('opacity-0');
-                            }, 2000);
-                            setTimeout(() => {
-                                sequence = generateSequence();
-                                playSequence();
-                            }, 2500);
+                        const clickedHeart = event.currentTarget;
+                        clickedHeart.classList.add('lighted-heart');
+                        setTimeout(() => {
+                            clickedHeart.classList.remove('lighted-heart');
+                        }, 500);
+                        
+                        if (userSequence.length === sequence.length) {
+                            if (checkSequence()) {
+                                passwordPage.classList.add('password-page-hidden');
+                                setTimeout(() => {
+                                    passwordPage.classList.add('hidden');
+                                    appContainer.classList.remove('hidden');
+                                    renderPage('home');
+                                }, 500);
+                            } else {
+                                feedbackMessage.classList.remove('opacity-0');
+                                userSequence = [];
+                                setTimeout(() => {
+                                    feedbackMessage.classList.add('opacity-0');
+                                }, 2000);
+                                setTimeout(() => {
+                                    sequence = generateSequence();
+                                    playSequence();
+                                }, 2500);
+                            }
                         }
-                    }
-                });
-                heartGrid.appendChild(button);
+                    });
+                    heartGrid.appendChild(button);
+                }
             }
         }
 
