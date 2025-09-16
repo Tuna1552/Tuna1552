@@ -554,7 +554,7 @@
                         <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
                         <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
                     </div>
-                    <button type="submit" id="commentSubmitBtn" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <button type="button" id="commentSubmitBtn" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                         Yorumu Bırak
                     </button>
                 </form>
@@ -801,24 +801,19 @@
                 return;
             }
 
-            if (commentForm) {
-                commentForm.addEventListener('submit', async (e) => {
-                    e.preventDefault(); 
-                    if (!commentSubmitBtn) return;
+            if (commentSubmitBtn) {
+                commentSubmitBtn.addEventListener('click', async () => {
+                    const commentName = document.getElementById('commentName').value.trim();
+                    const commentText = document.getElementById('commentText').value.trim();
+
+                    if (!commentName || !commentText) {
+                        return; // Boş alanlar varsa işlemi durdur
+                    }
 
                     const originalText = commentSubmitBtn.textContent;
                     commentSubmitBtn.textContent = 'Gönderiliyor...';
                     commentSubmitBtn.disabled = true;
 
-                    const commentName = document.getElementById('commentName').value.trim();
-                    const commentText = document.getElementById('commentText').value.trim();
-        
-                    if (!commentName || !commentText) {
-                        commentSubmitBtn.textContent = 'Yorumu Bırak';
-                        commentSubmitBtn.disabled = false;
-                        return;
-                    }
-        
                     try {
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                         await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook-comments`), {
@@ -826,7 +821,7 @@
                             text: commentText,
                             timestamp: serverTimestamp()
                         });
-                        commentForm.reset();
+                        if (commentForm) commentForm.reset();
                     } catch (error) {
                         console.error("Yorum eklenirken hata oluştu: ", error);
                     } finally {
@@ -835,7 +830,7 @@
                     }
                 });
             }
-            
+
             if (commentsList) {
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
