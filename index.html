@@ -179,6 +179,13 @@
             border-radius: 1.5rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
+        .comment-submit-btn {
+            transition: all 0.3s ease-in-out;
+        }
+        .comment-submit-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
         
     </style>
 </head>
@@ -276,7 +283,7 @@
         // --- Core Application Variables ---
         let app, auth, db;
         let isFirebaseReady = false;
-        let unsubscribeGuestbook = null; // Ziyaretçi defteri dinleyicisini kontrol etmek için
+        let unsubscribeGuestbook = null; 
 
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -547,7 +554,7 @@
                         <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
                         <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
                     </div>
-                    <button type="submit" class="w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <button type="submit" id="commentSubmitBtn" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                         Yorumu Bırak
                     </button>
                 </form>
@@ -650,7 +657,7 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    attachGuestbookListeners(); 
+                    setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
@@ -781,19 +788,36 @@
         }
         
         function attachGuestbookListeners() {
+            const commentForm = document.getElementById('commentForm');
+            const commentSubmitBtn = document.getElementById('commentSubmitBtn');
+            const commentsList = document.getElementById('commentsList');
+
             if (!isFirebaseReady) {
                 console.error("Firebase henüz hazır değil, Ziyaretçi Defteri çalışmayacak.");
+                if (commentSubmitBtn) {
+                    commentSubmitBtn.disabled = true;
+                    commentSubmitBtn.textContent = 'Veritabanı Hazır Değil';
+                }
                 return;
             }
-            
-            const commentForm = document.getElementById('commentForm');
+
             if (commentForm) {
                 commentForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
+                    e.preventDefault(); 
+                    if (!commentSubmitBtn) return;
+
+                    const originalText = commentSubmitBtn.textContent;
+                    commentSubmitBtn.textContent = 'Gönderiliyor...';
+                    commentSubmitBtn.disabled = true;
+
                     const commentName = document.getElementById('commentName').value.trim();
                     const commentText = document.getElementById('commentText').value.trim();
         
-                    if (!commentName || !commentText) return;
+                    if (!commentName || !commentText) {
+                        commentSubmitBtn.textContent = 'Yorumu Bırak';
+                        commentSubmitBtn.disabled = false;
+                        return;
+                    }
         
                     try {
                         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -803,13 +827,15 @@
                             timestamp: serverTimestamp()
                         });
                         commentForm.reset();
-                    } catch (e) {
-                        console.error("Yorum eklenirken hata oluştu: ", e);
+                    } catch (error) {
+                        console.error("Yorum eklenirken hata oluştu: ", error);
+                    } finally {
+                        commentSubmitBtn.textContent = originalText;
+                        commentSubmitBtn.disabled = false;
                     }
                 });
             }
-
-            const commentsList = document.getElementById('commentsList');
+            
             if (commentsList) {
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
@@ -824,7 +850,7 @@
                         commentElement.classList.add('comment-card');
                         
                         let formattedDate = 'Şimdi';
-                        if (comment.timestamp) {
+                        if (comment.timestamp && typeof comment.timestamp.toDate === 'function') {
                             const date = new Date(comment.timestamp.toDate());
                             formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
                         }
