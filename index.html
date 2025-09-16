@@ -795,9 +795,20 @@
                 console.error("Ziyaretçi defteri butonları veya listesi bulunamadı.");
                 return;
             }
+            
+            commentSubmitBtn.disabled = true;
+            commentSubmitBtn.textContent = 'Veritabanı Yükleniyor...';
 
-            commentSubmitBtn.disabled = false;
-            commentSubmitBtn.textContent = 'Yorumu Bırak';
+            // Firebase authentication status check to enable the button
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    commentSubmitBtn.disabled = false;
+                    commentSubmitBtn.textContent = 'Yorumu Bırak';
+                } else {
+                    commentSubmitBtn.disabled = true;
+                    commentSubmitBtn.textContent = 'Veritabanı Yükleniyor...';
+                }
+            });
 
             commentSubmitBtn.addEventListener('click', async () => {
                 const commentName = document.getElementById('commentName').value.trim();
@@ -984,9 +995,11 @@
             db = getFirestore(app);
             setLogLevel('debug');
             
+            // Firebase Auth durumunu dinle ve yorum butonunu aktif et
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.log("Firebase bağlantısı başarılı.");
+                    // Yorum butonu Ziyaretçi Defteri sayfasında olduğu için orada aktif edilecek.
                 } else {
                     console.log("Kullanıcı anonim olarak giriş yaptı.");
                 }
