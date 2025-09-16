@@ -800,7 +800,9 @@
 
             // Yorum gönderme formunu dinle
             commentForm.addEventListener('submit', async (e) => {
+                // Formun varsayılan davranışını (sayfa yeniden yüklenmesini) engelle
                 e.preventDefault();
+                
                 // Firebase bağlantısı hazır değilse işlemi durdur
                 if (!isFirebaseReady) {
                     console.error("Firebase henüz hazır değil.");
