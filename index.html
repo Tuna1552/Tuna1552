@@ -278,7 +278,7 @@
         // --- Firebase Imports and Configuration ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Core Application Variables ---
         let app, auth, db;
@@ -409,7 +409,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-2xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -648,7 +648,18 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    setTimeout(attachGuestbookListeners, 100);
+                    // Firebase bağlantısı hazır olduğunda dinleyicileri ata
+                    if (isFirebaseReady) {
+                        attachGuestbookListeners();
+                    } else {
+                        // Bağlantı hazır olana kadar bekle
+                        const checkInterval = setInterval(() => {
+                            if (isFirebaseReady) {
+                                clearInterval(checkInterval);
+                                attachGuestbookListeners();
+                            }
+                        }, 100);
+                    }
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
@@ -790,6 +801,12 @@
             // Yorum gönderme formunu dinle
             commentForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                // Firebase bağlantısı hazır değilse işlemi durdur
+                if (!isFirebaseReady) {
+                    console.error("Firebase henüz hazır değil.");
+                    return;
+                }
+
                 const commentName = document.getElementById('commentName').value.trim();
                 const commentText = document.getElementById('commentText').value.trim();
                 const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -816,18 +833,26 @@
             // Yorumları real-time olarak çek
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
             const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
-            const q = query(commentsCollectionRef, orderBy('timestamp', 'desc'));
 
-            onSnapshot(q, (snapshot) => {
+            // Veriyi çek ve sıralamayı JavaScript ile yap
+            onSnapshot(commentsCollectionRef, (snapshot) => {
                 commentsList.innerHTML = '';
-                snapshot.forEach(doc => {
+                
+                // Firestore'dan gelen belgeleri sıralama
+                const sortedDocs = snapshot.docs.sort((a, b) => {
+                    const timeA = a.data().timestamp ? a.data().timestamp.toMillis() : 0;
+                    const timeB = b.data().timestamp ? b.data().timestamp.toMillis() : 0;
+                    return timeB - timeA;
+                });
+                
+                sortedDocs.forEach(doc => {
                     const comment = doc.data();
                     const commentElement = document.createElement('div');
                     commentElement.classList.add('comment-card');
                     
                     let formattedDate = 'Şimdi';
                     if (comment.timestamp) {
-                        const date = new Date(comment.timestamp.toDate());
+                        const date = comment.timestamp.toDate();
                         formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
                     }
 
@@ -969,6 +994,7 @@
             db = getFirestore(app);
             setLogLevel('debug');
             
+            // Firebase bağlantısı kurulduktan sonra isFirebaseReady flag'ini true yap
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.log("Kullanıcı Firebase'e bağlandı:", user.uid);
