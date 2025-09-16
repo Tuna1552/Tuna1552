@@ -179,6 +179,13 @@
             border-radius: 1.5rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
+        .comment-submit-btn {
+            transition: all 0.3s ease-in-out;
+        }
+        .comment-submit-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
         
     </style>
 </head>
@@ -270,7 +277,7 @@
     <script type="module">
         // --- Firebase Imports and Configuration ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Core Application Variables ---
@@ -546,7 +553,7 @@
                         <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
                         <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
                     </div>
-                    <button type="submit" class="w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <button type="submit" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                         Yorumu Bırak
                     </button>
                 </form>
@@ -772,64 +779,68 @@
         }
         
         function attachGuestbookListeners() {
-            if (!isFirebaseReady) {
-                console.error("Firebase henüz hazır değil, Ziyaretçi Defteri çalışmayacak.");
+            const commentForm = document.getElementById('commentForm');
+            const commentsList = document.getElementById('commentsList');
+
+            if (!commentForm || !commentsList) {
+                console.error("Ziyaretçi Defteri elementleri bulunamadı.");
                 return;
             }
-            
-            const commentForm = document.getElementById('commentForm');
-            if (commentForm) {
-                commentForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const commentName = document.getElementById('commentName').value.trim();
-                    const commentText = document.getElementById('commentText').value.trim();
-        
-                    if (!commentName || !commentText) return;
-        
-                    try {
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                        await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook-comments`), {
-                            name: commentName,
-                            text: commentText,
-                            timestamp: serverTimestamp()
-                        });
-                        commentForm.reset();
-                    } catch (e) {
-                        console.error("Yorum eklenirken hata oluştu: ", e);
-                    }
-                });
-            }
 
-            const commentsList = document.getElementById('commentsList');
-            if (commentsList) {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
-                const q = query(commentsCollectionRef, orderBy('timestamp', 'desc'));
-
-                onSnapshot(q, (snapshot) => {
-                    commentsList.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const comment = doc.data();
-                        const commentElement = document.createElement('div');
-                        commentElement.classList.add('comment-card');
-                        
-                        let formattedDate = 'Şimdi';
-                        if (comment.timestamp) {
-                            const date = new Date(comment.timestamp.toDate());
-                            formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
-                        }
-
-                        commentElement.innerHTML = `
-                            <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                            <p class="mt-2 text-text-light text-md">${comment.text}</p>
-                            <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
-                        `;
-                        commentsList.appendChild(commentElement);
+            // Yorum gönderme formunu dinle
+            commentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const commentName = document.getElementById('commentName').value.trim();
+                const commentText = document.getElementById('commentText').value.trim();
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+    
+                if (!commentName || !commentText) return;
+    
+                submitBtn.disabled = true;
+                
+                try {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook-comments`), {
+                        name: commentName,
+                        text: commentText,
+                        timestamp: serverTimestamp()
                     });
-                }, (error) => {
-                    console.error("Yorumları çekerken hata oluştu: ", error);
+                    commentForm.reset();
+                } catch (e) {
+                    console.error("Yorum eklenirken hata oluştu: ", e);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Yorumları real-time olarak çek
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
+            const q = query(commentsCollectionRef, orderBy('timestamp', 'desc'));
+
+            onSnapshot(q, (snapshot) => {
+                commentsList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const comment = doc.data();
+                    const commentElement = document.createElement('div');
+                    commentElement.classList.add('comment-card');
+                    
+                    let formattedDate = 'Şimdi';
+                    if (comment.timestamp) {
+                        const date = new Date(comment.timestamp.toDate());
+                        formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
+                    }
+
+                    commentElement.innerHTML = `
+                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
+                        <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
+                    `;
+                    commentsList.appendChild(commentElement);
                 });
-            }
+            }, (error) => {
+                console.error("Yorumları çekerken hata oluştu: ", error);
+            });
         }
         
         // --- Password Game Logic ---
@@ -958,14 +969,23 @@
             db = getFirestore(app);
             setLogLevel('debug');
             
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log("Kullanıcı Firebase'e bağlandı:", user.uid);
+                    isFirebaseReady = true;
+                } else {
+                    console.log("Kullanıcı Firebase'den ayrıldı.");
+                }
+            });
+
             if (initialAuthToken) {
                 signInWithCustomToken(auth, initialAuthToken).then(() => {
-                    isFirebaseReady = true;
-                }).catch((error) => console.error("Firebase Auth Error:", error));
+                    console.log("Özel kimlik doğrulama belirteci ile oturum açıldı.");
+                }).catch((error) => console.error("Firebase Auth Hatası:", error));
             } else {
                 signInAnonymously(auth).then(() => {
-                    isFirebaseReady = true;
-                }).catch((error) => console.error("Firebase Anonim Auth Error:", error));
+                    console.log("Anonim olarak oturum açıldı.");
+                }).catch((error) => console.error("Firebase Anonim Auth Hatası:", error));
             }
 
             resizeCanvas();
