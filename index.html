@@ -553,7 +553,7 @@
                         <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
                         <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
                     </div>
-                    <button type="submit" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                         Yorumu Bırak
                     </button>
                 </form>
@@ -790,32 +790,38 @@
         }
         
         function attachGuestbookListeners() {
+            // Fonksiyon çağrıldığında elementleri tekrar bul
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
+            const submitBtn = document.getElementById('submit-comment-btn');
 
-            if (!commentForm || !commentsList) {
-                console.error("Ziyaretçi Defteri elementleri bulunamadı.");
+            if (!commentForm || !commentsList || !submitBtn) {
+                console.error("Ziyaretçi Defteri elementleri bulunamadı. Dinleyiciler eklenemiyor.");
                 return;
             }
 
-            // Yorum gönderme formunu dinle
-            commentForm.addEventListener('submit', async (e) => {
-                // Formun varsayılan davranışını (sayfa yeniden yüklenmesini) engelle
-                e.preventDefault();
-                
-                // Firebase bağlantısı hazır değilse işlemi durdur
-                if (!isFirebaseReady) {
-                    console.error("Firebase henüz hazır değil.");
+            // Yorum gönderme butonunu dinle (form submit değil, tıklama olayı)
+            submitBtn.addEventListener('click', async (e) => {
+                // e.preventDefault() artık zorunlu değil çünkü button tipi "button" olarak değiştirildi.
+                // Ancak form validasyonunu manuel olarak kontrol edelim.
+                const commentName = document.getElementById('commentName').value.trim();
+                const commentText = document.getElementById('commentText').value.trim();
+    
+                if (!commentName || !commentText) {
+                    console.warn("Yorum adı veya metni boş bırakılamaz.");
                     return;
                 }
 
-                const commentName = document.getElementById('commentName').value.trim();
-                const commentText = document.getElementById('commentText').value.trim();
-                const submitBtn = e.target.querySelector('button[type="submit"]');
-    
-                if (!commentName || !commentText) return;
-    
+                console.log("Yorum gönderme işlemi başlatıldı...");
+                
+                // Firebase bağlantısı hazır değilse işlemi durdur
+                if (!isFirebaseReady) {
+                    console.error("Firebase henüz hazır değil. Lütfen birkaç saniye bekleyip tekrar deneyin.");
+                    return;
+                }
+
                 submitBtn.disabled = true;
+                submitBtn.textContent = 'Gönderiliyor...';
                 
                 try {
                     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -824,11 +830,13 @@
                         text: commentText,
                         timestamp: serverTimestamp()
                     });
+                    console.log("Yorum başarıyla eklendi.");
                     commentForm.reset();
                 } catch (e) {
                     console.error("Yorum eklenirken hata oluştu: ", e);
                 } finally {
                     submitBtn.disabled = false;
+                    submitBtn.textContent = 'Yorumu Bırak';
                 }
             });
 
