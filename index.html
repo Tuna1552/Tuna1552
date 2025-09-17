@@ -11,6 +11,56 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Auth and Firestore instances will be globally accessible
+        window.firebaseApp = null;
+        window.auth = null;
+        window.db = null;
+        window.userId = null;
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Initialize Firebase with the provided config
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        if (Object.keys(firebaseConfig).length > 0) {
+            window.firebaseApp = initializeApp(firebaseConfig);
+            window.auth = getAuth(window.firebaseApp);
+            window.db = getFirestore(window.firebaseApp);
+            setLogLevel('debug');
+
+            // Authenticate the user
+            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (token) {
+                signInWithCustomToken(window.auth, token)
+                    .then((userCredential) => {
+                        window.userId = userCredential.user.uid;
+                        console.log("Signed in with custom token. User ID:", window.userId);
+                    })
+                    .catch((error) => {
+                        console.error("Custom token sign-in failed:", error);
+                        signInAnonymously(window.auth)
+                            .then((userCredential) => {
+                                window.userId = userCredential.user.uid;
+                                console.log("Signed in anonymously. User ID:", window.userId);
+                            })
+                            .catch(anonError => console.error("Anonymous sign-in failed:", anonError));
+                    });
+            } else {
+                signInAnonymously(window.auth)
+                    .then((userCredential) => {
+                        window.userId = userCredential.user.uid;
+                        console.log("Signed in anonymously. User ID:", window.userId);
+                    })
+                    .catch(anonError => console.error("Anonymous sign-in failed:", anonError));
+            }
+        }
+    </script>
+    
     <!-- Tailwind CSS Custom Configuration & Animations -->
     <script>
         tailwind.config = {
@@ -274,7 +324,12 @@
         </div>
     </div>
     
-    <script>
+    <script type="module">
+        // Import Firestore and Auth modules again inside the script type="module" block for local access
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -560,6 +615,9 @@
                 <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
                     Sevgili Ece, buraya bırakılan her not kalıcıdır ve silinemez.
                 </p>
+                <div id="user-id-display" class="w-full max-w-md mx-auto mb-4 text-sm text-gray-500 break-all hidden">
+                    Kullanıcı ID'n: 
+                </div>
                 <form id="commentForm" class="comment-form w-full max-w-md mx-auto mb-10">
                     <div class="mb-4 text-left">
                         <label for="commentName" class="block text-text-light font-semibold mb-2">Adın:</label>
@@ -575,6 +633,7 @@
                 </form>
                 <div id="commentsList" class="w-full max-w-md space-y-6">
                     <!-- Comments will be added here dynamically -->
+                    <p id="loading-message" class="text-center text-gray-400">Yorumlar yükleniyor...</p>
                 </div>
             </div>
         `;
@@ -794,45 +853,72 @@
             }
         }
 
+        // --- Firebase Ziyaretçi Defteri Logic ---
         function attachGuestbookListeners() {
-            const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
+            const commentForm = document.getElementById('commentForm');
             const submitBtn = document.getElementById('submit-comment-btn');
+            const loadingMessage = document.getElementById('loading-message');
+            const userIdDisplay = document.getElementById('user-id-display');
 
-            if (!commentForm || !commentsList || !submitBtn) {
+            // Show the user's unique ID for demonstration
+            if (userIdDisplay && window.userId) {
+                userIdDisplay.textContent = `Kullanıcı ID'n: ${window.userId}`;
+                userIdDisplay.classList.remove('hidden');
+            }
+
+            if (!commentsList || !commentForm || !submitBtn || !window.db) {
+                console.error("Firebase'e bağlanılamıyor. Ziyaretçi defteri özellikleri kullanılamaz.");
+                loadingMessage.textContent = "Yorumlar yüklenemedi. Lütfen daha sonra tekrar deneyin.";
                 return;
             }
-            
-            // Yorumları localStorage'dan çek ve ekrana bas
-            function displayComments() {
-                commentsList.innerHTML = '';
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yorumları en yenisi en üstte olacak şekilde sırala
-                comments.reverse();
-                
-                comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
-                    
-                    const date = new Date(comment.timestamp);
-                    const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
 
-                    commentElement.innerHTML = `
-                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
-                        <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
-                    `;
-                    commentsList.appendChild(commentElement);
+            // Real-time listener for new comments
+            const commentsRef = collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`);
+            const q = query(commentsRef);
+
+            onSnapshot(q, (querySnapshot) => {
+                const comments = [];
+                querySnapshot.forEach((doc) => {
+                    comments.push({ id: doc.id, ...doc.data() });
                 });
+
+                // Sort comments by timestamp in descending order (newest first)
+                comments.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+                
+                displayComments(comments);
+                loadingMessage.classList.add('hidden'); // Hide loading message once comments are loaded
+            }, (error) => {
+                console.error("Error getting comments:", error);
+                loadingMessage.textContent = "Yorumlar yüklenirken bir hata oluştu.";
+            });
+
+            // Yorumları ekrana basan fonksiyon
+            function displayComments(comments) {
+                commentsList.innerHTML = '';
+                if (comments.length === 0) {
+                    commentsList.innerHTML = `<p class="text-center text-gray-400 mt-10">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
+                } else {
+                    comments.forEach(comment => {
+                        const commentElement = document.createElement('div');
+                        commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
+                        
+                        const date = comment.timestamp ? new Date(comment.timestamp.toDate()) : new Date();
+                        const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
+
+                        commentElement.innerHTML = `
+                            <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                            <p class="mt-2 text-text-light text-md">${comment.text}</p>
+                            <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
+                        `;
+                        commentsList.appendChild(commentElement);
+                    });
+                }
             }
 
-            // Sayfa yüklendiğinde yorumları göster
-            displayComments();
-
             // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', (event) => {
-                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
+            submitBtn.addEventListener('click', async (event) => {
+                event.preventDefault();
                 
                 const commentName = document.getElementById('commentName').value.trim();
                 const commentText = document.getElementById('commentText').value.trim();
@@ -841,27 +927,23 @@
                     return;
                 }
 
-                // Yorumu bir obje olarak hazırla
-                const newComment = {
-                    name: commentName,
-                    text: commentText,
-                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
-                };
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Gönderiliyor...';
 
-                // Eski yorumları localStorage'dan çek
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yeni yorumu listeye ekle
-                comments.push(newComment);
-                
-                // Güncellenmiş listeyi localStorage'a geri kaydet
-                localStorage.setItem('guestbookComments', JSON.stringify(comments));
-
-                // Formu temizle
-                commentForm.reset();
-
-                // Yorumları tekrar yükle
-                displayComments();
+                try {
+                    await addDoc(collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`), {
+                        name: commentName,
+                        text: commentText,
+                        timestamp: new Date()
+                    });
+                    
+                    commentForm.reset();
+                } catch (e) {
+                    console.error("Yorum eklenirken hata oluştu: ", e);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Yorumu Bırak';
+                }
             });
         }
         
