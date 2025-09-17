@@ -16,6 +16,10 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Enable Firestore debug logging
+        setLogLevel('debug');
 
         window.firebase = {
             initializeApp,
@@ -377,10 +381,9 @@
                     userId = 'misafir-' + crypto.randomUUID();
                 }
                 isAuthReady = true;
-                // Herhangi bir sayfada yorum formu varsa, dinleyicileri ekle
-                if (document.getElementById('commentForm')) {
-                    attachGuestbookListeners();
-                }
+                // Since the guestbook page is rendered dynamically, we need to make sure the
+                // listeners are attached only after the page content is loaded.
+                console.log("Firebase auth ready. User ID:", userId);
             });
         }
         
@@ -736,7 +739,18 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    attachGuestbookListeners();
+                    // Check if Firebase is ready before attempting to attach listeners
+                    if (isAuthReady) {
+                        attachGuestbookListeners();
+                    } else {
+                        // If not, wait for it to be ready
+                        const checkReady = setInterval(() => {
+                            if (isAuthReady) {
+                                attachGuestbookListeners();
+                                clearInterval(checkReady);
+                            }
+                        }, 100);
+                    }
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
@@ -873,10 +887,16 @@
             const userIdDisplay = document.getElementById('userIdDisplay');
             const statusMessage = document.getElementById('statusMessage');
 
+            // Check if all necessary elements and Firebase are ready
             if (!isAuthReady || !commentForm || !commentsList || !submitBtn || !db || !userIdDisplay) {
                 console.error("Ziyaretçi Defteri için gerekli elementler veya Firebase henüz hazır değil. Dinleyiciler eklenemiyor.");
+                statusMessage.textContent = "Yükleniyor, lütfen bekleyin...";
                 return;
             }
+
+            console.log("Firebase ve gerekli elementler hazır. Dinleyiciler ekleniyor...");
+            statusMessage.textContent = "Yorum bırakmaya hazırsın!";
+            statusMessage.className = 'mt-4 text-center font-medium text-green-500';
 
             userIdDisplay.textContent = userId;
             
@@ -913,6 +933,8 @@
             submitBtn.addEventListener('click', async (event) => {
                 event.preventDefault(); 
                 
+                console.log("Submit button clicked!"); // Debug log
+
                 const commentNameInput = document.getElementById('commentName');
                 const commentTextInput = document.getElementById('commentText');
 
@@ -1067,7 +1089,8 @@
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
-        if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
+        if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', ()
+        => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
