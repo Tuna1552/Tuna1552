@@ -479,10 +479,13 @@
 
         const artGalleryContent = `
             <div class="w-full max-w-5xl animate-fade-in pb-20">
-                <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Sanat Galerisi</h1>
-                <p class="text-center text-lg md:text-xl text-gray-400 mb-12">
-                    Gözlerin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
-                </p>
+                <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-secondary-pink opacity-10 blur-xl animate-pulse"></div>
+                    <h2 class="text-3xl font-bold text-secondary-pink mb-4 relative z-10">Sanat Galerisi</h2>
+                    <p class="text-lg font-light text-gray-300 relative z-10">
+                        Gözlerin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
+                    </p>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="image-container w-full h-96">
                         <img src="https://i.supaimg.com/8c447232-7310-420a-906c-1700a0773f1c.jpg" alt="Dinamik renkli soyut bir eser" class="w-full h-full object-cover rounded-2xl">
