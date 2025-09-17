@@ -11,38 +11,6 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Enable Firestore debug logging
-        setLogLevel('debug');
-
-        window.firebase = {
-            initializeApp,
-            getAuth,
-            signInAnonymously,
-            signInWithCustomToken,
-            onAuthStateChanged,
-            getFirestore,
-            doc,
-            getDoc,
-            addDoc,
-            setDoc,
-            updateDoc,
-            deleteDoc,
-            onSnapshot,
-            collection,
-            query,
-            where,
-            orderBy,
-            getDocs
-        };
-    </script>
-    
     <!-- Tailwind CSS Custom Configuration & Animations -->
     <script>
         tailwind.config = {
@@ -345,48 +313,6 @@
         const heartColors = ['#F472B6', '#EC4899', '#DB2777', '#C026D3', '#9333EA'];
 
 
-        // --- Firestore Initialization and Authentication ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db = null;
-        let auth = null;
-        let userId = null;
-        let isAuthReady = false;
-
-        async function initializeFirebase() {
-            if (!firebaseConfig) {
-                console.error("Firebase config bulunamadı.");
-                return;
-            }
-            const app = firebase.initializeApp(firebaseConfig);
-            db = firebase.getFirestore(app);
-            auth = firebase.getAuth(app);
-            
-            try {
-                if (initialAuthToken) {
-                    await firebase.signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await firebase.signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Firebase kimlik doğrulama hatası:", error);
-            }
-
-            firebase.onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                } else {
-                    userId = 'misafir-' + crypto.randomUUID();
-                }
-                isAuthReady = true;
-                // Since the guestbook page is rendered dynamically, we need to make sure the
-                // listeners are attached only after the page content is loaded.
-                console.log("Firebase auth ready. User ID:", userId);
-            });
-        }
-        
         // --- Content Templates (HTML Strings) ---
         const homePageContent = `
             <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-5xl">
@@ -638,15 +564,11 @@
                     </div>
                     <div class="mb-6 text-left">
                         <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
-                        <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-ring-primary-blue"></textarea>
+                        <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
                     </div>
                     <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                         Yorumu Bırak
                     </button>
-                    <div id="statusMessage" class="mt-4 text-center font-medium"></div>
-                    <div class="text-center text-xs mt-4 text-gray-500">
-                        Kullanıcı Kimliği: <span id="userIdDisplay"></span>
-                    </div>
                 </form>
                 <div id="commentsList" class="w-full max-w-md space-y-6">
                     <!-- Comments will be added here dynamically -->
@@ -739,18 +661,7 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    // Check if Firebase is ready before attempting to attach listeners
-                    if (isAuthReady) {
-                        attachGuestbookListeners();
-                    } else {
-                        // If not, wait for it to be ready
-                        const checkReady = setInterval(() => {
-                            if (isAuthReady) {
-                                attachGuestbookListeners();
-                                clearInterval(checkReady);
-                            }
-                        }, 100);
-                    }
+                    setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
@@ -884,38 +795,22 @@
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
-            const userIdDisplay = document.getElementById('userIdDisplay');
-            const statusMessage = document.getElementById('statusMessage');
 
-            // Check if all necessary elements and Firebase are ready
-            if (!isAuthReady || !commentForm || !commentsList || !submitBtn || !db || !userIdDisplay) {
-                console.error("Ziyaretçi Defteri için gerekli elementler veya Firebase henüz hazır değil. Dinleyiciler eklenemiyor.");
-                statusMessage.textContent = "Yükleniyor, lütfen bekleyin...";
+            if (!commentForm || !commentsList || !submitBtn) {
                 return;
             }
-
-            console.log("Firebase ve gerekli elementler hazır. Dinleyiciler ekleniyor...");
-            statusMessage.textContent = "Yorum bırakmaya hazırsın!";
-            statusMessage.className = 'mt-4 text-center font-medium text-green-500';
-
-            userIdDisplay.textContent = userId;
             
-            // Yorumları gerçek zamanlı dinlemek için onSnapshot kullan
-            const q = firebase.query(firebase.collection(db, `artifacts/${appId}/public/data/guestbookComments`));
-
-            firebase.onSnapshot(q, (querySnapshot) => {
+            // Yorumları localStorage'dan çek ve ekrana bas
+            function displayComments() {
                 commentsList.innerHTML = '';
-                const comments = [];
-                querySnapshot.forEach((doc) => {
-                    comments.push({ id: doc.id, ...doc.data() });
-                });
+                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
                 
-                // Yorumları tarihe göre ters sırala (en yenisi en üstte)
-                comments.sort((a, b) => b.timestamp - a.timestamp);
-
+                // Yorumları en yenisi en üstte olacak şekilde sırala
+                comments.reverse();
+                
                 comments.forEach(comment => {
                     const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up');
+                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
                     
                     const date = new Date(comment.timestamp);
                     const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
@@ -927,56 +822,43 @@
                     `;
                     commentsList.appendChild(commentElement);
                 });
-            });
+            }
+
+            // Sayfa yüklendiğinde yorumları göster
+            displayComments();
 
             // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', async (event) => {
-                event.preventDefault(); 
+            submitBtn.addEventListener('click', (event) => {
+                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
                 
-                console.log("Submit button clicked!"); // Debug log
-
-                const commentNameInput = document.getElementById('commentName');
-                const commentTextInput = document.getElementById('commentText');
-
-                const commentName = commentNameInput.value.trim();
-                const commentText = commentTextInput.value.trim();
+                const commentName = document.getElementById('commentName').value.trim();
+                const commentText = document.getElementById('commentText').value.trim();
     
                 if (!commentName || !commentText) {
-                    statusMessage.textContent = "Lütfen adınızı ve yorumunuzu girin.";
-                    statusMessage.className = 'mt-4 text-center font-medium text-red-500';
                     return;
                 }
+
+                // Yorumu bir obje olarak hazırla
+                const newComment = {
+                    name: commentName,
+                    text: commentText,
+                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
+                };
+
+                // Eski yorumları localStorage'dan çek
+                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
                 
-                // Butonun görsel durumunu değiştir
-                submitBtn.disabled = true;
-                submitBtn.textContent = "Yükleniyor...";
-                submitBtn.classList.remove('bg-gradient-to-r');
-                submitBtn.classList.add('bg-gray-600', 'animate-pulse');
-                statusMessage.textContent = "";
+                // Yeni yorumu listeye ekle
+                comments.push(newComment);
+                
+                // Güncellenmiş listeyi localStorage'a geri kaydet
+                localStorage.setItem('guestbookComments', JSON.stringify(comments));
 
-                try {
-                    await firebase.addDoc(firebase.collection(db, `artifacts/${appId}/public/data/guestbookComments`), {
-                        name: commentName,
-                        text: commentText,
-                        timestamp: Date.now(),
-                        userId: userId
-                    });
-                    
-                    statusMessage.textContent = "Yorumunuz başarıyla gönderildi!";
-                    statusMessage.className = 'mt-4 text-center font-medium text-green-500';
+                // Formu temizle
+                commentForm.reset();
 
-                    commentForm.reset();
-                    commentNameInput.focus();
-                } catch (e) {
-                    statusMessage.textContent = "Yorum eklenirken bir hata oluştu. Lütfen tekrar deneyin.";
-                    statusMessage.className = 'mt-4 text-center font-medium text-red-500';
-                    console.error("Yorum eklenirken hata oluştu: ", e);
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = "Yorumu Bırak";
-                    submitBtn.classList.remove('bg-gray-600', 'animate-pulse');
-                    submitBtn.classList.add('bg-gradient-to-r');
-                }
+                // Yorumları tekrar yükle
+                displayComments();
             });
         }
         
@@ -1089,19 +971,18 @@
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
-        if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', ()
-        => renderPage('art'));
+        if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
-            initializeFirebase();
             createHeartButtons();
             resizeCanvas();
             animate();
             window.addEventListener('resize', resizeCanvas);
         });
+
     </script>
 </body>
 </html>
