@@ -11,56 +11,6 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase Auth and Firestore instances will be globally accessible
-        window.firebaseApp = null;
-        window.auth = null;
-        window.db = null;
-        window.userId = null;
-        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // Initialize Firebase with the provided config
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        if (Object.keys(firebaseConfig).length > 0) {
-            window.firebaseApp = initializeApp(firebaseConfig);
-            window.auth = getAuth(window.firebaseApp);
-            window.db = getFirestore(window.firebaseApp);
-            setLogLevel('debug');
-
-            // Authenticate the user
-            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-            if (token) {
-                signInWithCustomToken(window.auth, token)
-                    .then((userCredential) => {
-                        window.userId = userCredential.user.uid;
-                        console.log("Signed in with custom token. User ID:", window.userId);
-                    })
-                    .catch((error) => {
-                        console.error("Custom token sign-in failed:", error);
-                        signInAnonymously(window.auth)
-                            .then((userCredential) => {
-                                window.userId = userCredential.user.uid;
-                                console.log("Signed in anonymously. User ID:", window.userId);
-                            })
-                            .catch(anonError => console.error("Anonymous sign-in failed:", anonError));
-                    });
-            } else {
-                signInAnonymously(window.auth)
-                    .then((userCredential) => {
-                        window.userId = userCredential.user.uid;
-                        console.log("Signed in anonymously. User ID:", window.userId);
-                    })
-                    .catch(anonError => console.error("Anonymous sign-in failed:", anonError));
-            }
-        }
-    </script>
-    
     <!-- Tailwind CSS Custom Configuration & Animations -->
     <script>
         tailwind.config = {
@@ -246,27 +196,8 @@
 
     <!-- Ana Arayüz Elemanları -->
     <div class="ui-container flex flex-col min-h-screen">
-        <!-- Password Page -->
-        <div id="password-page" class="flex flex-col items-center justify-center flex-1 p-4 text-center password-page-transition">
-            <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
-                <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg animate-pulse-grow">Merhaba, Ece!</h1>
-                <p class="text-md text-gray-400 mb-6 font-light">
-                    Bu sürpriz siteye erişmek için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
-                </p>
-                <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6 min-h-[150px]">
-                    <!-- Kalp butonları buraya JS ile eklenecek -->
-                </div>
-                <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    Şifreyi Göster
-                </button>
-                <p id="feedback-message" class="mt-4 text-red-400 font-medium hidden">
-                    Yanlış bir dokunuş yaptın, tekrar dene.
-                </p>
-            </div>
-        </div>
-
         <!-- Main Application Container -->
-        <div id="app-container" class="hidden flex-1 flex flex-col p-4 md:p-8 relative">
+        <div id="app-container" class="flex-1 flex flex-col p-4 md:p-8 relative">
             <!-- Dynamic Content Area -->
             <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
                 <!-- Ana Sayfa (Home) content will be loaded here -->
@@ -324,26 +255,11 @@
         </div>
     </div>
     
-    <script type="module">
-        // Import Firestore and Auth modules again inside the script type="module" block for local access
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
-        let sequence = [];
-        let userSequence = [];
-        const heartButtonCount = 9;
-        const sequenceLength = 4;
-        let isPlaying = false;
         
         // --- Element Selectors ---
-        const passwordPage = document.getElementById('password-page');
-        const appContainer = document.getElementById('app-container');
-        const heartGrid = document.getElementById('heart-grid');
-        const startButton = document.getElementById('start-button');
-        const feedbackMessage = document.getElementById('feedback-message');
         const contentArea = document.getElementById('content-area');
 
         // Mobile Nav
@@ -615,9 +531,6 @@
                 <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
                     Sevgili Ece, buraya bırakılan her not kalıcıdır ve silinemez.
                 </p>
-                <div id="user-id-display" class="w-full max-w-md mx-auto mb-4 text-sm text-gray-500 break-all hidden">
-                    Kullanıcı ID'n: 
-                </div>
                 <form id="commentForm" class="comment-form w-full max-w-md mx-auto mb-10">
                     <div class="mb-4 text-left">
                         <label for="commentName" class="block text-text-light font-semibold mb-2">Adın:</label>
@@ -853,209 +766,101 @@
             }
         }
 
-        // --- Firebase Ziyaretçi Defteri Logic ---
-        function attachGuestbookListeners() {
-            const commentsList = document.getElementById('commentsList');
+        // --- Ziyaretçi Defteri Logic (API Tabanlı) ---
+        const API_URL = 'https://crudcrud.com/api/666c891404174092b6a51d4592078833/comments'; // Örnek bir ücretsiz API servisi
+
+        async function fetchComments() {
             const loadingMessage = document.getElementById('loading-message');
-            const userIdDisplay = document.getElementById('user-id-display');
-            const commentForm = document.getElementById('commentForm');
+            loadingMessage.textContent = 'Yorumlar yükleniyor...';
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('API\'den yorumlar alınamadı.');
+                }
+                const comments = await response.json();
+                displayComments(comments);
+            } catch (error) {
+                console.error('Yorumlar getirilirken hata oluştu:', error);
+                loadingMessage.textContent = 'Yorumlar yüklenemedi. Lütfen daha sonra tekrar deneyin.';
+            } finally {
+                loadingMessage.classList.add('hidden');
+            }
+        }
+
+        async function postComment(name, text) {
             const submitBtn = document.getElementById('submit-comment-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Gönderiliyor...';
 
-            if (!commentsList || !commentForm || !submitBtn || !loadingMessage) {
-                console.error("Gerekli HTML elementleri bulunamadı.");
-                loadingMessage.textContent = "Yorumlar yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.";
-                return;
-            }
-            
-            // Veritabanı bağlantısının hazır olmasını bekle
-            onAuthStateChanged(window.auth, (user) => {
-                if (user) {
-                    // Kullanıcı oturum açtı, artık veritabanı işlemleri yapılabilir
-                    if (userIdDisplay) {
-                        userIdDisplay.textContent = `Kullanıcı ID'n: ${user.uid}`;
-                        userIdDisplay.classList.remove('hidden');
-                    }
-                    
-                    // Yorumları gerçek zamanlı olarak dinle
-                    const commentsRef = collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`);
-                    const q = query(commentsRef);
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        text: text,
+                        timestamp: new Date().toISOString()
+                    })
+                });
 
-                    onSnapshot(q, (querySnapshot) => {
-                        const comments = [];
-                        querySnapshot.forEach((doc) => {
-                            comments.push({ id: doc.id, ...doc.data() });
-                        });
-
-                        comments.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
-                        
-                        displayComments(comments);
-                        loadingMessage.classList.add('hidden');
-                    }, (error) => {
-                        console.error("Yorumlar alınırken hata oluştu:", error);
-                        loadingMessage.textContent = "Yorumlar yüklenemedi. Lütfen daha sonra tekrar deneyin.";
-                    });
-
-                    // Yorum gönderme formunu dinle
-                    commentForm.addEventListener('submit', async (event) => {
-                        event.preventDefault();
-                        
-                        const commentName = document.getElementById('commentName').value.trim();
-                        const commentText = document.getElementById('commentText').value.trim();
-            
-                        if (!commentName || !commentText) {
-                            return;
-                        }
-
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = 'Gönderiliyor...';
-
-                        try {
-                            await addDoc(collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`), {
-                                name: commentName,
-                                text: commentText,
-                                timestamp: new Date()
-                            });
-                            
-                            commentForm.reset();
-                        } catch (e) {
-                            console.error("Yorum eklenirken hata oluştu: ", e);
-                        } finally {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Yorumu Bırak';
-                        }
-                    });
-
-                } else {
-                    // Kullanıcı oturum açmadı, hata mesajı gösterilebilir
-                    loadingMessage.textContent = "Veritabanına bağlanılamadı. Lütfen tekrar deneyin.";
+                if (!response.ok) {
+                    throw new Error('Yorum gönderilirken hata oluştu.');
                 }
-            });
-
-            // Yorumları ekrana basan fonksiyon
-            function displayComments(comments) {
-                commentsList.innerHTML = '';
-                if (comments.length === 0) {
-                    commentsList.innerHTML = `<p class="text-center text-gray-400 mt-10">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
-                } else {
-                    comments.forEach(comment => {
-                        const commentElement = document.createElement('div');
-                        commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
-                        
-                        const date = comment.timestamp ? new Date(comment.timestamp.toDate()) : new Date();
-                        const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
-
-                        commentElement.innerHTML = `
-                            <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                            <p class="mt-2 text-text-light text-md">${comment.text}</p>
-                            <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
-                        `;
-                        commentsList.appendChild(commentElement);
-                    });
-                }
+                document.getElementById('commentForm').reset();
+                fetchComments(); // Yeni yorumu ekledikten sonra listeyi güncelle
+            } catch (error) {
+                console.error('Yorum gönderilirken hata:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Yorumu Bırak';
             }
         }
-        
-        // --- Password Game Logic ---
-        function generateSequence() {
-            const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) {
-                newSequence.push(Math.floor(Math.random() * heartButtonCount));
-            }
-            return newSequence;
-        }
 
-        function playSequence() {
-            isPlaying = true;
-            startButton.disabled = true;
-            startButton.classList.add('opacity-50', 'cursor-not-allowed');
-
-            let i = 0;
-            const hearts = document.querySelectorAll('#heart-grid .heart-icon-btn');
-            const interval = setInterval(() => {
-                if (i < sequence.length) {
-                    const heart = hearts[sequence[i]];
-                    heart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        heart.classList.remove('lighted-heart');
-                    }, 500);
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    isPlaying = false;
-                    startButton.disabled = false;
-                    startButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }, 700);
-        }
-
-        function checkSequence() {
-            if (userSequence.length !== sequence.length) return false;
-            for (let i = 0; i < sequence.length; i++) {
-                if (userSequence[i] !== sequence[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        function createHeartButtons() {
-            if (!heartGrid) {
-                console.error("Hata: 'heart-grid' elementi bulunamadı. Butonlar oluşturulamıyor.");
-                return;
-            }
-            
-            heartGrid.innerHTML = ''; 
-            for(let i = 0; i < heartButtonCount; i++) {
-                const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
-                button.dataset.index = i;
-                button.innerHTML = `&hearts;`; 
-
-                button.addEventListener('click', (event) => {
-                    if (isPlaying) return;
-                    const index = parseInt(event.currentTarget.dataset.index);
-                    userSequence.push(index);
-
-                    const clickedHeart = event.currentTarget;
-                    clickedHeart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        clickedHeart.classList.remove('lighted-heart');
-                    }, 500);
-                    
-                    if (userSequence.length === sequence.length) {
-                        if (checkSequence()) {
-                            passwordPage.classList.add('password-page-hidden');
-                            setTimeout(() => {
-                                passwordPage.classList.add('hidden');
-                                appContainer.classList.remove('hidden');
-                                renderPage('home');
-                            }, 500);
-                        } else {
-                            feedbackMessage.classList.remove('hidden');
-                            userSequence = [];
-                            setTimeout(() => {
-                                feedbackMessage.classList.add('hidden');
-                            }, 2000);
-                            setTimeout(() => {
-                                sequence = generateSequence();
-                                playSequence();
-                            }, 2500);
-                        }
+        function attachGuestbookListeners() {
+            const commentForm = document.getElementById('commentForm');
+            if (commentForm) {
+                commentForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const name = document.getElementById('commentName').value.trim();
+                    const text = document.getElementById('commentText').value.trim();
+                    if (name && text) {
+                        postComment(name, text);
                     }
                 });
-                heartGrid.appendChild(button);
+            }
+            fetchComments();
+        }
+
+        function displayComments(comments) {
+            const commentsList = document.getElementById('commentsList');
+            if (!commentsList) return;
+
+            comments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            commentsList.innerHTML = '';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = `<p class="text-center text-gray-400 mt-10">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
+            } else {
+                comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
+                    
+                    const date = new Date(comment.timestamp);
+                    const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
+
+                    commentElement.innerHTML = `
+                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
+                        <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
+                    `;
+                    commentsList.appendChild(commentElement);
+                });
             }
         }
-        
+
         // --- Event Listeners ---
-        if (startButton) {
-            startButton.addEventListener('click', () => {
-                userSequence = [];
-                sequence = generateSequence();
-                playSequence();
-            });
-        }
-        
         if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
@@ -1070,10 +875,10 @@
         
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
-            createHeartButtons();
             resizeCanvas();
             animate();
             window.addEventListener('resize', resizeCanvas);
+            renderPage('home'); 
         });
 
     </script>
