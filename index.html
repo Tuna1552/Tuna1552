@@ -201,16 +201,16 @@
             <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
                 <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg animate-pulse-grow">Merhaba, Ece!</h1>
                 <p class="text-md text-gray-400 mb-6 font-light">
-                    Bu sürpriz siteye erişmek için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
+                    Bu sürpriz siteye erişmek için özel şifreni gir.
                 </p>
-                <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6 min-h-[150px]">
-                    <!-- Kalp butonları buraya JS ile eklenecek -->
+                <div class="flex flex-col gap-4">
+                    <input type="password" id="password-input" placeholder="Şifreyi gir" class="w-full p-3 rounded-2xl bg-gray-700 text-text-light border border-gray-600 text-center focus:outline-none focus:ring-2 focus:ring-primary-blue transition-all duration-300">
+                    <button id="login-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Giriş Yap
+                    </button>
                 </div>
-                <button id="start-button" class="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    Şifreyi Göster
-                </button>
-                <p id="feedback-message" class="mt-4 text-red-400 font-medium hidden">
-                    Yanlış bir dokunuş yaptın, tekrar dene.
+                <p id="feedback-message" class="mt-4 font-medium hidden">
+                    <!-- Feedback messages will be displayed here -->
                 </p>
             </div>
         </div>
@@ -283,18 +283,13 @@
 
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
-        let sequence = [];
-        let userSequence = [];
-        const heartButtonCount = 9;
-        const sequenceLength = 4;
-        let isPlaying = false;
         
         // --- Element Selectors ---
         const passwordPage = document.getElementById('password-page');
-        const appContainer = document.getElementById('app-container');
-        const heartGrid = document.getElementById('heart-grid');
-        const startButton = document.getElementById('start-button');
+        const passwordInput = document.getElementById('password-input');
+        const loginButton = document.getElementById('login-button');
         const feedbackMessage = document.getElementById('feedback-message');
+        const appContainer = document.getElementById('app-container');
         const contentArea = document.getElementById('content-area');
 
         // Mobile Nav
@@ -894,104 +889,41 @@
             });
         }
         
-        // --- Password Game Logic ---
-        function generateSequence() {
-            const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) {
-                newSequence.push(Math.floor(Math.random() * heartButtonCount));
-            }
-            return newSequence;
-        }
+        // --- Password Logic (NEW) ---
+        const correctPassword = '2008'; // Ece'nin doğum günü 29 Mayıs
 
-        function playSequence() {
-            isPlaying = true;
-            startButton.disabled = true;
-            startButton.classList.add('opacity-50', 'cursor-not-allowed');
+        function handleLogin() {
+            const enteredPassword = passwordInput.value.trim();
+            if (enteredPassword === correctPassword) {
+                feedbackMessage.textContent = "Giriş başarılı! Yönlendiriliyorsun...";
+                feedbackMessage.classList.remove('hidden', 'text-red-400');
+                feedbackMessage.classList.add('text-green-400', 'animate-pulse');
 
-            let i = 0;
-            const hearts = document.querySelectorAll('#heart-grid .heart-icon-btn');
-            const interval = setInterval(() => {
-                if (i < sequence.length) {
-                    const heart = hearts[sequence[i]];
-                    heart.classList.add('lighted-heart');
+                setTimeout(() => {
+                    passwordPage.classList.add('password-page-hidden');
                     setTimeout(() => {
-                        heart.classList.remove('lighted-heart');
+                        passwordPage.classList.add('hidden');
+                        appContainer.classList.remove('hidden');
+                        renderPage('home');
                     }, 500);
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    isPlaying = false;
-                    startButton.disabled = false;
-                    startButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }, 700);
-        }
-
-        function checkSequence() {
-            if (userSequence.length !== sequence.length) return false;
-            for (let i = 0; i < sequence.length; i++) {
-                if (userSequence[i] !== sequence[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        function createHeartButtons() {
-            if (!heartGrid) {
-                console.error("Hata: 'heart-grid' elementi bulunamadı. Butonlar oluşturulamıyor.");
-                return;
-            }
-            
-            heartGrid.innerHTML = ''; 
-            for(let i = 0; i < heartButtonCount; i++) {
-                const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
-                button.dataset.index = i;
-                button.innerHTML = `&hearts;`; 
-
-                button.addEventListener('click', (event) => {
-                    if (isPlaying) return;
-                    const index = parseInt(event.currentTarget.dataset.index);
-                    userSequence.push(index);
-
-                    const clickedHeart = event.currentTarget;
-                    clickedHeart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        clickedHeart.classList.remove('lighted-heart');
-                    }, 500);
-                    
-                    if (userSequence.length === sequence.length) {
-                        if (checkSequence()) {
-                            passwordPage.classList.add('password-page-hidden');
-                            setTimeout(() => {
-                                passwordPage.classList.add('hidden');
-                                appContainer.classList.remove('hidden');
-                                renderPage('home');
-                            }, 500);
-                        } else {
-                            feedbackMessage.classList.remove('hidden');
-                            userSequence = [];
-                            setTimeout(() => {
-                                feedbackMessage.classList.add('hidden');
-                            }, 2000);
-                            setTimeout(() => {
-                                sequence = generateSequence();
-                                playSequence();
-                            }, 2500);
-                        }
-                    }
-                });
-                heartGrid.appendChild(button);
+                }, 1000);
+            } else {
+                feedbackMessage.textContent = "Yanlış şifre. Lütfen tekrar dene.";
+                feedbackMessage.classList.remove('hidden', 'text-green-400');
+                feedbackMessage.classList.add('text-red-400');
             }
         }
         
         // --- Event Listeners ---
-        if (startButton) {
-            startButton.addEventListener('click', () => {
-                userSequence = [];
-                sequence = generateSequence();
-                playSequence();
+        if (loginButton) {
+            loginButton.addEventListener('click', handleLogin);
+        }
+
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
             });
         }
         
@@ -1009,7 +941,6 @@
         
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
-            createHeartButtons();
             resizeCanvas();
             animate();
             window.addEventListener('resize', resizeCanvas);
