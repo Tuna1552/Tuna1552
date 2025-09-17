@@ -464,7 +464,7 @@
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14 - Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d26-b3f5ef70.jpg" alt="Anı 14 - Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -627,7 +627,7 @@
                         <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
                         <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
                     </div>
-                    <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <button id="submit-comment-btn" type="submit" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
                         Yorumu Bırak
                     </button>
                 </form>
@@ -856,41 +856,79 @@
         // --- Firebase Ziyaretçi Defteri Logic ---
         function attachGuestbookListeners() {
             const commentsList = document.getElementById('commentsList');
-            const commentForm = document.getElementById('commentForm');
-            const submitBtn = document.getElementById('submit-comment-btn');
             const loadingMessage = document.getElementById('loading-message');
             const userIdDisplay = document.getElementById('user-id-display');
+            const commentForm = document.getElementById('commentForm');
+            const submitBtn = document.getElementById('submit-comment-btn');
 
-            // Show the user's unique ID for demonstration
-            if (userIdDisplay && window.userId) {
-                userIdDisplay.textContent = `Kullanıcı ID'n: ${window.userId}`;
-                userIdDisplay.classList.remove('hidden');
-            }
-
-            if (!commentsList || !commentForm || !submitBtn || !window.db) {
-                console.error("Firebase'e bağlanılamıyor. Ziyaretçi defteri özellikleri kullanılamaz.");
-                loadingMessage.textContent = "Yorumlar yüklenemedi. Lütfen daha sonra tekrar deneyin.";
+            if (!commentsList || !commentForm || !submitBtn || !loadingMessage) {
+                console.error("Gerekli HTML elementleri bulunamadı.");
+                loadingMessage.textContent = "Yorumlar yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.";
                 return;
             }
+            
+            // Veritabanı bağlantısının hazır olmasını bekle
+            onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    // Kullanıcı oturum açtı, artık veritabanı işlemleri yapılabilir
+                    if (userIdDisplay) {
+                        userIdDisplay.textContent = `Kullanıcı ID'n: ${user.uid}`;
+                        userIdDisplay.classList.remove('hidden');
+                    }
+                    
+                    // Yorumları gerçek zamanlı olarak dinle
+                    const commentsRef = collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`);
+                    const q = query(commentsRef);
 
-            // Real-time listener for new comments
-            const commentsRef = collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`);
-            const q = query(commentsRef);
+                    onSnapshot(q, (querySnapshot) => {
+                        const comments = [];
+                        querySnapshot.forEach((doc) => {
+                            comments.push({ id: doc.id, ...doc.data() });
+                        });
 
-            onSnapshot(q, (querySnapshot) => {
-                const comments = [];
-                querySnapshot.forEach((doc) => {
-                    comments.push({ id: doc.id, ...doc.data() });
-                });
+                        comments.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+                        
+                        displayComments(comments);
+                        loadingMessage.classList.add('hidden');
+                    }, (error) => {
+                        console.error("Yorumlar alınırken hata oluştu:", error);
+                        loadingMessage.textContent = "Yorumlar yüklenemedi. Lütfen daha sonra tekrar deneyin.";
+                    });
 
-                // Sort comments by timestamp in descending order (newest first)
-                comments.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
-                
-                displayComments(comments);
-                loadingMessage.classList.add('hidden'); // Hide loading message once comments are loaded
-            }, (error) => {
-                console.error("Error getting comments:", error);
-                loadingMessage.textContent = "Yorumlar yüklenirken bir hata oluştu.";
+                    // Yorum gönderme formunu dinle
+                    commentForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        
+                        const commentName = document.getElementById('commentName').value.trim();
+                        const commentText = document.getElementById('commentText').value.trim();
+            
+                        if (!commentName || !commentText) {
+                            return;
+                        }
+
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Gönderiliyor...';
+
+                        try {
+                            await addDoc(collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`), {
+                                name: commentName,
+                                text: commentText,
+                                timestamp: new Date()
+                            });
+                            
+                            commentForm.reset();
+                        } catch (e) {
+                            console.error("Yorum eklenirken hata oluştu: ", e);
+                        } finally {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Yorumu Bırak';
+                        }
+                    });
+
+                } else {
+                    // Kullanıcı oturum açmadı, hata mesajı gösterilebilir
+                    loadingMessage.textContent = "Veritabanına bağlanılamadı. Lütfen tekrar deneyin.";
+                }
             });
 
             // Yorumları ekrana basan fonksiyon
@@ -915,36 +953,6 @@
                     });
                 }
             }
-
-            // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', async (event) => {
-                event.preventDefault();
-                
-                const commentName = document.getElementById('commentName').value.trim();
-                const commentText = document.getElementById('commentText').value.trim();
-    
-                if (!commentName || !commentText) {
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Gönderiliyor...';
-
-                try {
-                    await addDoc(collection(window.db, `artifacts/${window.appId}/public/data/guestbook-comments`), {
-                        name: commentName,
-                        text: commentText,
-                        timestamp: new Date()
-                    });
-                    
-                    commentForm.reset();
-                } catch (e) {
-                    console.error("Yorum eklenirken hata oluştu: ", e);
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Yorumu Bırak';
-                }
-            });
         }
         
         // --- Password Game Logic ---
