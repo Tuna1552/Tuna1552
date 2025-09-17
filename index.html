@@ -455,7 +455,7 @@
                 </div>
             </div>
         `;
-        
+
         const artGalleryContent = `
             <div class="w-full max-w-5xl animate-fade-in pb-20">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Sanat Galerisi</h1>
@@ -640,7 +640,7 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    attachGuestbookListeners();
+                    setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
@@ -789,7 +789,7 @@
                 
                 comments.forEach(comment => {
                     const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-card', 'animate-fade-in');
+                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
                     
                     const date = new Date(comment.timestamp);
                     const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
@@ -807,7 +807,9 @@
             displayComments();
 
             // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', () => {
+            submitBtn.addEventListener('click', (event) => {
+                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
+                
                 const commentName = document.getElementById('commentName').value.trim();
                 const commentText = document.getElementById('commentText').value.trim();
     
