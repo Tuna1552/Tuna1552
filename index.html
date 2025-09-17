@@ -274,7 +274,13 @@
         </div>
     </div>
     
-    <script>
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -421,7 +427,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -791,7 +797,35 @@
             }
         }
 
-        function attachGuestbookListeners() {
+        // Firestore ve Kimlik Doğrulama değişkenleri
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        setLogLevel('debug'); // Firestore'un loglarını görmek için
+
+        let userId = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Kimlik doğrulama durumu değiştiğinde çalışacak listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+            } else {
+                try {
+                     if (typeof __initial_auth_token !== 'undefined') {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                     console.error("Firebase authentication failed: ", error);
+                     userId = crypto.randomUUID();
+                }
+            }
+        });
+
+        async function attachGuestbookListeners() {
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
@@ -800,19 +834,26 @@
                 return;
             }
             
-            // Yorumları localStorage'dan çek ve ekrana bas
-            function displayComments() {
+            // Veritabanı referansı
+            const commentsCollectionRef = collection(db, `artifacts/${appId}/public/data/guestbook-comments`);
+            const q = query(commentsCollectionRef);
+            
+            // Yorumları gerçek zamanlı olarak dinle
+            onSnapshot(q, (querySnapshot) => {
                 commentsList.innerHTML = '';
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yorumları en yenisi en üstte olacak şekilde sırala
-                comments.reverse();
-                
+                const comments = [];
+                querySnapshot.forEach((doc) => {
+                    comments.push(doc.data());
+                });
+
+                // Yorumları tarihe göre tersten sırala (en yenisi en üstte)
+                comments.sort((a, b) => b.timestamp - a.timestamp);
+
                 comments.forEach(comment => {
                     const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
+                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up');
                     
-                    const date = new Date(comment.timestamp);
+                    const date = new Date(comment.timestamp.toDate());
                     const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
 
                     commentElement.innerHTML = `
@@ -822,14 +863,13 @@
                     `;
                     commentsList.appendChild(commentElement);
                 });
-            }
-
-            // Sayfa yüklendiğinde yorumları göster
-            displayComments();
+            }, (error) => {
+                 console.error("Error fetching comments: ", error);
+            });
 
             // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', (event) => {
-                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
+            submitBtn.addEventListener('click', async (event) => {
+                event.preventDefault(); 
                 
                 const commentName = document.getElementById('commentName').value.trim();
                 const commentText = document.getElementById('commentText').value.trim();
@@ -838,27 +878,19 @@
                     return;
                 }
 
-                // Yorumu bir obje olarak hazırla
-                const newComment = {
-                    name: commentName,
-                    text: commentText,
-                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
-                };
-
-                // Eski yorumları localStorage'dan çek
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yeni yorumu listeye ekle
-                comments.push(newComment);
-                
-                // Güncellenmiş listeyi localStorage'a geri kaydet
-                localStorage.setItem('guestbookComments', JSON.stringify(comments));
-
-                // Formu temizle
-                commentForm.reset();
-
-                // Yorumları tekrar yükle
-                displayComments();
+                try {
+                    // Yorumu Firestore'a ekle
+                    await addDoc(commentsCollectionRef, {
+                        name: commentName,
+                        text: commentText,
+                        timestamp: new Date()
+                    });
+                    
+                    // Formu temizle
+                    commentForm.reset();
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                }
             });
         }
         
