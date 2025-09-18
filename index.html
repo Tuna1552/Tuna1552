@@ -852,7 +852,7 @@
             }
             
             // Yorumları Firestore'dan gerçek zamanlı olarak dinle
-            onSnapshot(collection(db, `/artifacts/${appId}/public/data/comments`), (snapshot) => {
+            onSnapshot(collection(db, "comments"), (snapshot) => {
                 const comments = [];
                 snapshot.forEach(doc => {
                     const data = doc.data() || {};
@@ -898,7 +898,8 @@
                 }
 
                 try {
-                    await addDoc(collection(db, `/artifacts/${appId}/public/data/comments`), {
+                    await addDoc(collection(db, "comments"), {
+});
                         name: commentName,
                         text: commentText,
                         timestamp: serverTimestamp()
