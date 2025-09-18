@@ -874,7 +874,7 @@
                     const commentElement = document.createElement('div');
                     commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
                     
-                    const formattedDate = comment.timestamp.toLocaleDateString('tr-TR') + ' ' + comment.toLocaleTimeString('tr-TR');
+                    const formattedDate = comment.timestamp.toLocaleDateString('tr-TR') + ' ' + comment.timestamp.toLocaleTimeString('tr-TR');
 
                     commentElement.innerHTML = `
                         <p class="font-bold text-lg text-primary-blue">${escapeHtml(comment.name)}</p>
