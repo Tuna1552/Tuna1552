@@ -11,14 +11,6 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <!-- Firebase SDK (uygulama ve servisleri için) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        window.firebase = { initializeApp, getAuth, signInAnonymously, signInWithCustomToken, getFirestore, collection, addDoc, onSnapshot, serverTimestamp, setLogLevel };
-    </script>
-    
     <!-- Tailwind CSS Custom Configuration & Animations -->
     <script>
         tailwind.config = {
@@ -282,11 +274,7 @@
         </div>
     </div>
     
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+    <script>
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -433,7 +421,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -803,93 +791,46 @@
             }
         }
 
-        async function attachGuestbookListeners() {
+        function attachGuestbookListeners() {
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
 
             if (!commentForm || !commentsList || !submitBtn) {
-                console.warn("Ziyaretçi Defteri elementleri bulunamadı. Dinleyiciler eklenemiyor.");
                 return;
             }
-
-            // Firebase yapılandırması
-            const firebaseConfig = {
-              apiKey: "AIzaSyAdGqvAvDOuAhWWRSGRx_8kbS4_7H5UXLQ",
-              authDomain: "ece-dogumgunu.firebaseapp.com",
-              projectId: "ece-dogumgunu",
-              storageBucket: "ece-dogumgunu.firebasestorage.app",
-              messagingSenderId: "674444269604",
-              appId: "1:674444269604:web:149c1cc265faba9fdfa0b1",
-              measurementId: "G-T9HV91TDZP"
-            };
             
-            // Firebase'i global değişkenlerle veya varsayılan konfigürasyonla başlat
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const finalFirebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : JSON.stringify(firebaseConfig));
-            
-            const app = initializeApp(finalFirebaseConfig, appId);
-            const db = getFirestore(app);
-            const auth = getAuth(app);
-            setLogLevel('debug');
-
-            // Kullanıcı girişi yap
-            if (typeof __initial_auth_token !== 'undefined') {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-
-            // XSS koruması için escape fonksiyonu
-            function escapeHtml(str) {
-                if (!str) return '';
-                return String(str)
-                  .replaceAll('&', '&amp;')
-                  .replaceAll('<', '&lt;')
-                  .replaceAll('>', '&gt;')
-                  .replaceAll('"', '&quot;')
-                  .replaceAll("'", '&#39;');
-            }
-            
-            // Yorumları Firestore'dan gerçek zamanlı olarak dinle
-            onSnapshot(collection(db, "comments"), (snapshot) => {
-                const comments = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data() || {};
-                    const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
-                    comments.push({
-                        id: doc.id,
-                        name: data.name || 'Misafir',
-                        text: data.text || '',
-                        timestamp: timestamp
-                    });
-                });
-
-                // Yorumları en yenisi en üstte olacak şekilde JavaScript içinde sırala
-                comments.sort((a, b) => b.timestamp - a.timestamp);
-
-                // Ekranı temizle ve yorumları yeniden oluştur
+            // Yorumları localStorage'dan çek ve ekrana bas
+            function displayComments() {
                 commentsList.innerHTML = '';
+                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
+                
+                // Yorumları en yenisi en üstte olacak şekilde sırala
+                comments.reverse();
+                
                 comments.forEach(comment => {
                     const commentElement = document.createElement('div');
                     commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
                     
-                    const formattedDate = comment.timestamp.toLocaleDateString('tr-TR') + ' ' + comment.timestamp.toLocaleTimeString('tr-TR');
+                    const date = new Date(comment.timestamp);
+                    const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
 
                     commentElement.innerHTML = `
-                        <p class="font-bold text-lg text-primary-blue">${escapeHtml(comment.name)}</p>
-                        <p class="mt-2 text-text-light text-md">${escapeHtml(comment.text)}</p>
+                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
                         <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
                     `;
                     commentsList.appendChild(commentElement);
                 });
-            }, (error) => {
-                console.error("Firestore'dan yorumlar alınırken hata oluştu: ", error);
-            });
+            }
 
-            // Yorum gönderme butonu dinleyicisi
-            submitBtn.addEventListener('click', async (event) => {
-                event.preventDefault();
+            // Sayfa yüklendiğinde yorumları göster
+            displayComments();
+
+            // Yorum gönderme butonuna tıklama olayı
+            submitBtn.addEventListener('click', (event) => {
+                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
+                
                 const commentName = document.getElementById('commentName').value.trim();
                 const commentText = document.getElementById('commentText').value.trim();
     
@@ -897,17 +838,27 @@
                     return;
                 }
 
-                try {
-                    await addDoc(collection(db, "comments"), {
-});
-                        name: commentName,
-                        text: commentText,
-                        timestamp: serverTimestamp()
-                    });
-                    commentForm.reset();
-                } catch (e) {
-                    console.error("Yorum eklenirken hata oluştu: ", e);
-                }
+                // Yorumu bir obje olarak hazırla
+                const newComment = {
+                    name: commentName,
+                    text: commentText,
+                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
+                };
+
+                // Eski yorumları localStorage'dan çek
+                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
+                
+                // Yeni yorumu listeye ekle
+                comments.push(newComment);
+                
+                // Güncellenmiş listeyi localStorage'a geri kaydet
+                localStorage.setItem('guestbookComments', JSON.stringify(comments));
+
+                // Formu temizle
+                commentForm.reset();
+
+                // Yorumları tekrar yükle
+                displayComments();
             });
         }
         
