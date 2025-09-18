@@ -278,103 +278,117 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Firebase yapılandırmasını ortam değişkenlerinden al
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        import { getFirestore, collection, addDoc, onSnapshot, query, FieldValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         let db, auth;
         let userId = null;
+        
+        // Bu, farklı ortamlar için akıllıca Firebase'i başlatacak olan fonksiyondur.
+        async function initializeFirebaseAndListen() {
+            // Ortamdan gelen global değişkenleri kullanmaya çalış.
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        async function initializeFirebase() {
+            // Eğer konfigürasyon yoksa hata ver.
             if (!firebaseConfig) {
                 console.error("Firebase yapılandırma bilgileri bulunamadı.");
                 return;
             }
 
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+            try {
+                // Firebase uygulamasını başlat.
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
 
-            // Özel token ile veya anonim olarak giriş yap
-            if (initialAuthToken) {
-                try {
+                // Özel token varsa giriş yap, yoksa anonim olarak devam et.
+                if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
-                    console.log("Firebase: Özel token ile giriş yapıldı.");
-                } catch (error) {
-                    console.error("Özel token ile giriş yapılamadı, anonim olarak deneniyor:", error);
+                } else {
                     await signInAnonymously(auth);
                 }
-            } else {
-                await signInAnonymously(auth);
+                
+                // Auth durumu değiştiğinde kullanıcı bilgilerini al ve dinlemeyi başlat.
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase: Kullanıcı doğrulandı, UID:", userId);
+                        attachGuestbookListeners(appId);
+                    } else {
+                        console.log("Firebase: Anonim oturum.");
+                        userId = null;
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase başlatma hatası: ", error);
             }
-
-            // Auth durumunu dinle
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    console.log("Firebase: Kullanıcı doğrulandı, UID:", userId);
-                    // Ziyaretçi defterini sadece kullanıcı doğrulandığında dinlemeye başla
-                    listenForComments();
-                } else {
-                    console.log("Firebase: Kullanıcı oturumu kapattı veya anonim olarak giriş yapmadı.");
-                    userId = null;
-                }
-            });
         }
         
-        // Yeni yorumu veritabanına ekle
-        async function saveComment(name, text) {
-            try {
-                if (!db || !userId) {
-                    console.error("Firestore veya kullanıcı kimliği hazır değil.");
-                    return;
-                }
-                // Yorumları "artifacts/{appId}/public/data/guestbook" koleksiyonuna ekliyoruz
-                // Herkes tarafından görülebilir olması için "public" yolunu kullandık.
-                const collectionRef = collection(db, `artifacts/${appId}/public/data/guestbook`);
-
-                await addDoc(collectionRef, {
-                    name: name,
-                    text: text,
-                    timestamp: new Date()
-                });
-                console.log("Yorum veritabanına başarıyla kaydedildi.");
-            } catch (e) {
-                console.error("Yorum eklenirken hata oluştu: ", e);
-            }
-        }
-
-        // Yorumları veritabanından dinle ve ekrana yansıt
-        function listenForComments() {
+        // Ziyaretçi defteri için event listener'ları ve Firestore dinleyicilerini bağlar.
+        function attachGuestbookListeners(appId) {
+            const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
-            if (!commentsList || !db) return;
+            const submitBtn = document.getElementById('submit-comment-btn');
 
+            if (!commentForm || !commentsList || !submitBtn) {
+                console.warn('Ziyaretçi defteri elementleri henüz hazır değil. Tekrar deneniyor...');
+                setTimeout(() => attachGuestbookListeners(appId), 100);
+                return;
+            }
+
+            // Yorum gönderme (server timestamp kullanıyoruz)
+            submitBtn.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const commentName = document.getElementById('commentName').value.trim();
+                const commentText = document.getElementById('commentText').value.trim();
+
+                if (!commentName || !commentText) return;
+
+                submitBtn.disabled = true;
+
+                try {
+                    // Yorumları herkese açık bir koleksiyonda sakla.
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook`), {
+                        name: commentName,
+                        text: commentText,
+                        timestamp: new Date()
+                    });
+                    commentForm.reset();
+                    console.log("Yorum veritabanına başarıyla kaydedildi.");
+                } catch (err) {
+                    console.error("Yorum eklenirken hata oluştu: ", err);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Yorumları gerçek zamanlı dinle
             const q = query(collection(db, `artifacts/${appId}/public/data/guestbook`));
-
             onSnapshot(q, (querySnapshot) => {
                 const comments = [];
                 querySnapshot.forEach((doc) => {
-                    const comment = doc.data();
-                    comments.push(comment);
+                    const commentData = doc.data();
+                    comments.push({
+                        ...commentData,
+                        id: doc.id
+                    });
                 });
 
-                // Yorumları JavaScript içinde timestamp'e göre sırala
-                comments.sort((a, b) => b.timestamp.toDate().getTime() - a.timestamp.toDate().getTime());
+                // Yorumları JavaScript içinde timestamp'e göre sırala (yeni yorumlar en üstte)
+                comments.sort((a, b) => (b.timestamp?.toDate()?.getTime() || 0) - (a.timestamp?.toDate()?.getTime() || 0));
 
                 commentsList.innerHTML = '';
                 comments.forEach(comment => {
                     const commentElement = document.createElement('div');
                     commentElement.classList.add('comment-card', 'animate-fade-in');
-
-                    const date = comment.timestamp.toDate();
+                    
+                    const date = comment.timestamp?.toDate ? comment.timestamp.toDate() : new Date();
                     const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
-
+                    
                     commentElement.innerHTML = `
-                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
+                        <p class="font-bold text-lg text-primary-blue">${escapeHtml(comment.name)}</p>
+                        <p class="mt-2 text-text-light text-md">${escapeHtml(comment.text)}</p>
                         <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
                     `;
                     commentsList.appendChild(commentElement);
@@ -382,10 +396,21 @@
             }, (error) => {
                 console.error("Yorumlar dinlenirken hata oluştu: ", error);
             });
+            
+            // Basit XSS koruması için escape fonksiyonu
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#39;');
+            }
         }
     
         // Başlangıçta Firebase'i başlat
-        initializeFirebase();
+        initializeFirebaseAndListen();
 
     </script>
     <script>
@@ -393,7 +418,7 @@
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
         let userSequence = [];
-        const heartButtonCount = 4;
+        const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
         
@@ -507,437 +532,117 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/24a704b3-f764-4835-baf0-aa849350ffa9.jpg" alt="Anı 10 - Ece'nin özel bir günü" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/d5c808f1-6101-4475-b467-34f31c4fdf4c.jpg" alt="Anı 10 - Ece'nin eğlenceli anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Anı 11 - Ece'nin huzurlu bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-2xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13 - Ece'nin parlayan anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14 - Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15 - Ece'nin içten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16 - Ece'nin tatlı bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/a4f0b1ea-bd51-48a5-974c-b630082afe48.jpg" alt="Yeni eklenen özel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/2d8f1a7d-4596-44cd-b4c9-d65e10332887.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/54ee9c30-4341-44ef-944f-28bd3fe0d7c1.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/74cbfbb7-4c1c-4f63-bcdd-f1ed63f06419.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/d88da605-4ffa-429c-aa41-c6e3dc879b76.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/4de1165f-12ed-4f4f-93e7-714416c7a5c5.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/d056a0fd-1a8f-408a-a933-677033c03656.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <!-- Yeni eklenen fotoğraflar -->
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0d7c3a17-110f-4efd-a390-cf7158491a4c.jpg" alt="Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin harika bir pozu</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/e856e36c-ffa4-4dd9-a5a3-627443e234cb.jpg" alt="Ece'nin neşeli anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin neşeli anısı</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/1e1e9673-888a-4b37-9d86-afefda5465b5.jpg" alt="Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/3b4d1d97-0ba0-415d-aa56-50a263a1cb3d.jpg" alt="Ece'nin anlamlı bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin anlamlı bir anı fotoğrafı</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/aa71997c-9b33-4c73-9df8-dc333058e130.jpg" alt="Ece'nin içten gülüşü" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin içten gülüşü</div>
                     </div>
                 </div>
             </div>
         `;
 
-        const artGalleryContent = `
-            <div class="w-full max-w-5xl animate-fade-in pb-20">
-                <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Sanat Galerisi</h1>
-                <p class="text-center text-lg md:text-xl text-gray-400 mb-12">
-                    Gözlerin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/8c447232-7310-420a-906c-1700a0773f1c.jpg" alt="Dinamik renkli soyut bir eser" class="w-full h-full object-cover rounded-2xl">
+        const artPageContent = `
+            <div class="w-full max-w-5xl text-center pb-20 animate-fade-in">
+                <div class="bg-card-dark rounded-3xl p-6 mb-12 relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
+                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Sanat Galerisi</h2>
+                    <p class="text-lg font-light text-gray-300 relative z-10">
+                        Sanat her zaman Ece'nin ilgi alanı olmuştur, kendisi çok güzel resimler yapar.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="photo-card bg-card-dark p-4 rounded-xl shadow-lg">
+                        <img src="https://i.supaimg.com/71231f46-6084-48f8-b4b1-e221990c01a9.jpeg" alt="Sanat Eseri 1" class="w-full h-auto rounded-lg mb-4">
+                        <h3 class="font-bold text-primary-blue text-xl">Ay ve Deniz</h3>
+                        <p class="text-sm text-gray-400">Canım sevgilimin bir eseri</p>
                     </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/5299cf87-57ec-4042-b472-3f49b67c1b40.jpg" alt="Ahenkli soyut bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
+                    <div class="photo-card bg-card-dark p-4 rounded-xl shadow-lg">
+                        <img src="https://i.supaimg.com/13ec1dfc-7164-4e94-a15f-5dd64082269c.jpeg" alt="Sanat Eseri 2" class="w-full h-auto rounded-lg mb-4">
+                        <h3 class="font-bold text-primary-blue text-xl">Kırmızı</h3>
+                        <p class="text-sm text-gray-400">Canım sevgilimin bir eseri</p>
                     </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/a23646ac-a259-4fc3-ac83-01ffae58baf2.jpg" alt="Soyut bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
+                    <div class="photo-card bg-card-dark p-4 rounded-xl shadow-lg">
+                        <img src="https://i.supaimg.com/de668c2d-88f5-4422-9577-4402660a56e9.jpeg" alt="Sanat Eseri 3" class="w-full h-auto rounded-lg mb-4">
+                        <h3 class="font-bold text-primary-blue text-xl">Yansımalar</h3>
+                        <p class="text-sm text-gray-400">Canım sevgilimin bir eseri</p>
                     </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/fa97566f-cfe5-4a9b-b7ce-ed1af9b8a680.jpg" alt="Neşeli renklerde bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/97b200fc-9896-4a06-9893-39a0e915e28d.jpg" alt="Rüya gibi bir manzara tablosu" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/843ab53c-bef6-4a4f-87fb-c8c60b500026.jpg" alt="Canlı renklerle modern sanat eseri" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/438e8db9-3f5f-4763-b79e-694629c38421.jpg" alt="Huzurlu bir deniz manzarası" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/db7f6149-6588-4f15-93f9-7582f8a69996.jpg" alt="Güneşli bir ortamı yansıtan eser" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/a9a84669-1ee9-4729-9724-932183af61e9.jpg" alt="Canlı bir şehir tablosu" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/f7f18d07-0fda-423e-bd42-5b5293b4824a.jpg" alt="Sakin bir göl manzarası" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/5689c1c9-b037-4611-a853-0904eff948d0.jpg" alt="Ruhani bir yolculuk" class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <div class="image-container w-full h-96">
-                        <img src="https://i.supaimg.com/c79fc417-1606-430a-b474-159293cf67ae.jpg" alt="Sana özel bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
+                    <div class="photo-card bg-card-dark p-4 rounded-xl shadow-lg">
+                        <img src="https://i.supaimg.com/181284d7-1335-4148-be2e-2e652a233b00.jpeg" alt="Sanat Eseri 4" class="w-full h-auto rounded-lg mb-4">
+                        <h3 class="font-bold text-primary-blue text-xl">Mavinin Büyüsü</h3>
+                        <p class="text-sm text-gray-400">Canım sevgilimin bir eseri</p>
                     </div>
                 </div>
             </div>
         `;
 
         const messagePageContent = `
-            <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center pb-20">
-                <div class="relative bg-gradient-to-br from-secondary-pink to-fuchsia-500 w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl">
-                    <i class="fas fa-heart text-4xl text-white"></i>
+            <div class="w-full max-w-2xl text-center animate-message-appear pb-20">
+                <div class="relative w-full overflow-hidden rounded-3xl bg-card-dark p-8 shadow-2xl">
+                    <div class="absolute inset-0 bg-secondary-pink opacity-5 blur-xl animate-pulse-grow"></div>
+                    <h2 class="message-title text-4xl md:text-5xl lg:text-6xl font-extrabold text-secondary-pink relative z-10 drop-shadow-lg">
+                        Sana Özel Mesajım
+                    </h2>
+                    <div class="w-20 h-1 mt-6 mb-8 bg-secondary-pink mx-auto relative z-10"></div>
+                    <p id="message-text" class="text-lg md:text-xl font-light text-text-light relative z-10 leading-relaxed tracking-wide">
+                        <!-- Yazı animasyonu buraya eklenecek -->
+                    </p>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
-                    Sana Özel Bir Not
-                </h1>
-                <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
-                    Kalbimin en özel yerinden gelen satırlar...
-                </p>
-                <div id="message-container-wrapper" class="w-full">
-                    <button id="show-message-btn" class="message-button-transition w-full max-w-xs md:max-w-md py-4 rounded-3xl font-bold text-white text-lg bg-gradient-to-r from-primary-blue to-cyan-500 hover:from-cyan-500 hover:to-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse">
-                        <i class="fas fa-envelope mr-2"></i> Mesajı Oku
-                    </button>
-                    <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative message-box-transition">
-                        <!-- Messages will be written here dynamically -->
-                    </div>
-                </div>
+                <button onclick="copyToClipboard()" class="mt-8 px-6 py-3 rounded-full font-bold text-white bg-primary-blue transition-transform hover:scale-105 transform duration-300 shadow-xl">
+                    Mesajı Kopyala
+                </button>
             </div>
         `;
-        
+
         const guestbookPageContent = `
-            <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center pb-20">
-                <div class="relative w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl text-primary-blue">
-                    <i class="fas fa-book-open text-6xl"></i>
+            <div class="w-full max-w-3xl pb-20 animate-fade-in">
+                <div class="bg-card-dark rounded-3xl p-6 mb-8 text-center shadow-2xl">
+                    <h2 class="text-3xl font-bold text-primary-blue mb-4">Ziyaretçi Defteri</h2>
+                    <p class="text-lg font-light text-gray-300">
+                        Ece'nin hatıraları bizim için çok değerli. Lütfen sen de güzel bir mesaj bırak!
+                    </p>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
-                    Ziyaretçi Defteri
-                </h1>
-                <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
-                    Sevgili Ece, buraya bırakılan her not kalıcıdır ve silinemez.
-                </p>
-                <form id="commentForm" class="comment-form w-full max-w-md mx-auto mb-10">
-                    <div class="mb-4 text-left">
-                        <label for="commentName" class="block text-text-light font-semibold mb-2">Adın:</label>
-                        <input type="text" id="commentName" placeholder="Adını yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
-                    </div>
-                    <div class="mb-6 text-left">
-                        <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
-                        <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
-                    </div>
-                    <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Yorumu Bırak
-                    </button>
-                </form>
-                <div id="commentsList" class="w-full max-w-md space-y-6">
-                    <!-- Comments will be added here dynamically -->
+                
+                <!-- Yorum Ekleme Formu -->
+                <div id="commentForm" class="comment-form rounded-xl mb-8 animate-slide-up">
+                    <h3 class="text-2xl font-bold mb-4 text-center text-secondary-pink">Yorum Bırak</h3>
+                    <form onsubmit="return false;">
+                        <div class="mb-4">
+                            <label for="commentName" class="block text-sm font-medium text-gray-400 mb-2">Adınız</label>
+                            <input type="text" id="commentName" required class="w-full p-3 bg-gray-700 text-text-light border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue transition-colors">
+                        </div>
+                        <div class="mb-4">
+                            <label for="commentText" class="block text-sm font-medium text-gray-400 mb-2">Mesajınız</label>
+                            <textarea id="commentText" rows="4" required class="w-full p-3 bg-gray-700 text-text-light border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue transition-colors"></textarea>
+                        </div>
+                        <button id="submit-comment-btn" type="submit" class="w-full py-3 bg-gradient-to-r from-primary-blue to-blue-500 text-white font-bold rounded-lg shadow-lg hover:from-blue-500 hover:to-primary-blue transition-all duration-300">
+                            Gönder
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Yorum Listesi -->
+                <div id="commentsList" class="flex flex-col gap-6">
+                    <!-- Yorumlar buraya yüklenecek -->
                 </div>
             </div>
         `;
-        
-        // --- Core Functions ---
-        
-        function resizeCanvas() {
-            if (canvas) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+
+        // --- Fonksiyonlar ---
+
+        function setupHearts() {
+            heartGrid.innerHTML = '';
+            for (let i = 0; i < heartButtonCount; i++) {
+                const button = document.createElement('button');
+                button.classList.add('heart-button', 'w-16', 'h-16', 'bg-gray-700', 'rounded-2xl', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-pink-300', 'transition-all', 'duration-300', 'transform', 'hover:scale-110', 'hover:shadow-pink-glow');
+                button.innerHTML = '❤️';
+                button.dataset.index = i;
+                button.addEventListener('click', handleHeartClick);
+                heartGrid.appendChild(button);
             }
+            hearts = document.querySelectorAll('.heart-button');
         }
 
-        function createHeart() {
-            const size = Math.random() * 20 + 20; 
-            const color = heartColors[Math.floor(Math.random() * heartColors.length)];
-            hearts.push({
-                x: Math.random() * canvas.width,
-                y: -size, 
-                size: size,
-                speed: Math.random() * 0.5 + 0.5,
-                color: color,
-                opacity: 0.1,
-            });
-        }
-        
-        function drawHearts() {
-            if (ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                for (let i = 0; i < hearts.length; i++) {
-                    const h = hearts[i];
-                    ctx.save();
-                    ctx.translate(h.x, h.y);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(0, h.size * 0.4);
-                    ctx.bezierCurveTo(0, -h.size * 0.2, h.size * 0.6, h.size * 0.4, 0, h.size);
-                    ctx.bezierCurveTo(-h.size * 0.6, h.size * 0.4, 0, -h.size * 0.2, 0, h.size * 0.4);
-                    
-                    ctx.fillStyle = h.color;
-                    ctx.globalAlpha = h.opacity;
-                    ctx.fill();
-                    ctx.restore();
-                }
-            }
-        }
-        
-        function updateHearts() {
-            for (let i = 0; i < hearts.length; i++) {
-                hearts[i].y += hearts[i].speed;
-            }
-            hearts = hearts.filter(h => h.y < canvas.height + 20);
-
-            if (hearts.length < heartCount) {
-                createHeart();
-            }
-        }
-        
-        function animate() {
-            updateHearts();
-            drawHearts();
-            requestAnimationFrame(animate);
-        }
-
-        function renderPage(pageName) {
-            contentArea.classList.add('opacity-0');
-            setTimeout(() => {
-                contentArea.innerHTML = '';
-                if (pageName === 'home') {
-                    contentArea.innerHTML = homePageContent;
-                    updateCountdown(); 
-                    startCountdown();
-                    setActiveNav('home');
-                } else if (pageName === 'memories') {
-                    contentArea.innerHTML = memoriesPageContent;
-                    setActiveNav('memories');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (pageName === 'art') {
-                    contentArea.innerHTML = artGalleryContent;
-                    setActiveNav('art');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (pageName === 'message') {
-                    contentArea.innerHTML = messagePageContent;
-                    setActiveNav('message');
-                    setTimeout(attachMessageButtonListener, 100);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (pageName === 'guestbook') {
-                    contentArea.innerHTML = guestbookPageContent;
-                    setActiveNav('guestbook');
-                    // Ziyaretçi defterine özel işlevleri bağla
-                    setTimeout(attachGuestbookListeners, 100);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-                contentArea.classList.remove('opacity-0');
-            }, 500);
-        }
-
-        function setActiveNav(pageName) {
-            // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navArtBtn, navMessageBtn, navGuestbookBtn];
-            allNavs.forEach(btn => {
-                btn.classList.remove('text-secondary-pink');
-                btn.classList.add('text-gray-400');
-            });
-
-            if (pageName === 'home') navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'memories') navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'guestbook') navGuestbookBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-
-            // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn, navGuestbookDesktopBtn];
-            allNavsDesktop.forEach(btn => {
-                btn.classList.remove('bg-primary-blue', 'shadow-lg');
-                btn.classList.add('hover:bg-gray-700');
-            });
-            
-            if (pageName === 'home') {
-                navHomeDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navHomeDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'memories') {
-                navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'art') {
-                navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navArtDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'message') {
-                navMessageDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'guestbook') {
-                 navGuestbookDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                 navGuestbookDesktopBtn.classList.remove('hover:bg-gray-700');
-            }
-        }
-        
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = birthdayDate - now;
-
-            if (distance > 0) {
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                const daysEl = document.getElementById('days');
-                const hoursEl = document.getElementById('hours');
-                const minutesEl = document.getElementById('minutes');
-                const secondsEl = document.getElementById('seconds');
-                
-                if(daysEl) daysEl.textContent = days;
-                if(hoursEl) hoursEl.textContent = hours;
-                if(minutesEl) minutesEl.textContent = minutes;
-                if(secondsEl) secondsEl.textContent = seconds;
-            } else {
-                const countdownTextEl = document.getElementById('countdown-text');
-                if(countdownTextEl) countdownTextEl.textContent = "Doğum Günün Kutlu Olsun!";
-            }
-        }
-        
-        function startCountdown() {
-            setInterval(() => {
-                updateCountdown();
-            }, 1000);
-        }
-
-        const messages = [
-            "Sen hayatıma girdiğinden beri her şey daha anlamlı, daha güzel ve daha renkli.",
-            "Sen, bu dünyadaki en harika, en tatlı, en içten ve en özel insanlardan birisin. Her anınla, her gülüşünle ve her bakışınla etrafına ışık saçıyosun.",
-            "Seninle vakit geçirmek, bana en büyük mutluluğu veriyor. Paylaştığımız her an, her espri, her dertleşme, her saniye benim için gerçekten çok değerli ve anlamlı.",
-            "Senin gibi bir dostum olduğu için kendimi çok şanslı hissediyorum. İyiki varsın, iyiki benimlesin.",
-            "Bu siteyi yapma ve oluşturma amacım, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile seni çok seviyorum iyiki varsın.",
-            "Sevgilerimle, Tuna."
-        ];
-        
-        const typingDelay = 50; 
-        const paragraphDelay = 1500; 
-        
-        async function typeMessageContent() {
-            const allMessagesContainer = document.getElementById('all-messages-container');
-            if (!allMessagesContainer) return;
-            allMessagesContainer.innerHTML = ''; 
-
-            for (let i = 0; i < messages.length; i++) {
-                const p = document.createElement('p');
-                p.classList.add('font-light', 'text-base', 'md:text-lg', 'mb-4'); 
-                allMessagesContainer.appendChild(p);
-
-                for (let j = 0; j < messages[i].length; j++) {
-                    p.textContent += messages[i][j];
-                    await new Promise(resolve => setTimeout(resolve, typingDelay));
-                }
-
-                if (i === messages.length - 1) {
-                    const cursor = document.createElement('span');
-                    cursor.id = 'cursor';
-                    cursor.classList.add('text-sm', 'md:text-md', 'text-secondary-pink', 'inline-block', 'w-2', 'h-4', 'bg-secondary-pink', 'animate-blinking-cursor', 'align-middle');
-                    allMessagesContainer.appendChild(cursor);
-                } else {
-                    await new Promise(resolve => setTimeout(resolve, paragraphDelay));
-                }
-            }
-        }
-
-        function attachMessageButtonListener() {
-            const showMessageBtn = document.getElementById('show-message-btn');
-            const allMessagesContainer = document.getElementById('all-messages-container');
-            if (showMessageBtn) {
-                showMessageBtn.addEventListener('click', () => {
-                    showMessageBtn.classList.add('opacity-0', 'scale-90');
-                    setTimeout(() => {
-                        showMessageBtn.classList.add('hidden');
-                        allMessagesContainer.classList.remove('hidden');
-                        typeMessageContent(); 
-                    }, 500); 
-                });
-            }
-        }
-
-        function attachGuestbookListeners() {
-            const commentForm = document.getElementById('commentForm');
-            const submitBtn = document.getElementById('submit-comment-btn');
-
-            if (!commentForm || !submitBtn) {
-                return;
-            }
-            
-            // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', async (event) => {
-                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
-                
-                const commentName = document.getElementById('commentName').value.trim();
-                const commentText = document.getElementById('commentText').value.trim();
-    
-                if (!commentName || !commentText) {
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                await saveComment(commentName, commentText);
-                submitBtn.disabled = false;
-
-                // Formu temizle
-                commentForm.reset();
-            });
-        }
-        
-        // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < heartButtonCount; i++) {
+            for (let i = 0; i < sequenceLength; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
@@ -946,114 +651,276 @@
         function playSequence() {
             isPlaying = true;
             startButton.disabled = true;
-            startButton.classList.add('opacity-50', 'cursor-not-allowed');
-
+            userSequence = [];
+            hearts.forEach(heart => heart.classList.remove('lighted-heart'));
+            feedbackMessage.classList.add('hidden');
+            
             let i = 0;
-            const hearts = document.querySelectorAll('#heart-grid .heart-icon-btn');
             const interval = setInterval(() => {
                 if (i < sequence.length) {
                     const heart = hearts[sequence[i]];
                     heart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        heart.classList.remove('lighted-heart');
-                    }, 500);
+                    setTimeout(() => heart.classList.remove('lighted-heart'), 500);
                     i++;
                 } else {
                     clearInterval(interval);
                     isPlaying = false;
-                    startButton.disabled = false;
-                    startButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             }, 700);
         }
 
-        function checkSequence() {
-            if (userSequence.length !== sequence.length) return false;
-            for (let i = 0; i < sequence.length; i++) {
-                if (userSequence[i] !== sequence[i]) {
-                    return false;
+        function handleHeartClick(event) {
+            if (isPlaying) {
+                const clickedIndex = parseInt(event.target.dataset.index);
+                userSequence.push(clickedIndex);
+                
+                if (userSequence.length <= sequence.length) {
+                    if (userSequence[userSequence.length - 1] === sequence[userSequence.length - 1]) {
+                        // Correct click
+                        event.target.classList.add('lighted-heart');
+                        setTimeout(() => event.target.classList.remove('lighted-heart'), 500);
+                        
+                        if (userSequence.length === sequence.length) {
+                            // Password correct
+                            setTimeout(showMainApp, 800);
+                        }
+                    } else {
+                        // Wrong click
+                        userSequence = [];
+                        feedbackMessage.classList.remove('hidden');
+                        setTimeout(() => {
+                            feedbackMessage.classList.add('hidden');
+                            startButton.disabled = false;
+                        }, 1500);
+                    }
                 }
             }
-            return true;
         }
-        
-        function createHeartButtons() {
-            if (!heartGrid) {
-                console.error("Hata: 'heart-grid' elementi bulunamadı. Butonlar oluşturulamıyor.");
-                return;
+
+        function showMainApp() {
+            passwordPage.classList.add('password-page-hidden');
+            setTimeout(() => {
+                passwordPage.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                appContainer.classList.add('animate-fade-in');
+                loadContent('home');
+            }, 700);
+        }
+
+        function loadContent(page) {
+            let content = '';
+            let activeNavButton = null;
+
+            // Önceki aktif düğmeleri ve içeriği temizle
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('bg-primary-blue', 'shadow-lg', 'text-secondary-pink');
+                btn.classList.add('hover:bg-gray-700', 'text-gray-400');
+            });
+            
+            // Ana içerik alanını temizle
+            contentArea.innerHTML = '';
+            
+            switch (page) {
+                case 'home':
+                    content = homePageContent;
+                    activeNavButton = navHomeBtn || navHomeDesktopBtn;
+                    break;
+                case 'memories':
+                    content = memoriesPageContent;
+                    activeNavButton = navMemoriesBtn || navMemoriesDesktopBtn;
+                    break;
+                case 'art':
+                    content = artPageContent;
+                    activeNavButton = navArtBtn || navArtDesktopBtn;
+                    break;
+                case 'message':
+                    content = messagePageContent;
+                    activeNavButton = navMessageBtn || navMessageDesktopBtn;
+                    break;
+                case 'guestbook':
+                    content = guestbookPageContent;
+                    activeNavButton = navGuestbookBtn || navGuestbookDesktopBtn;
+                    break;
+                default:
+                    content = homePageContent;
+                    activeNavButton = navHomeBtn || navHomeDesktopBtn;
+            }
+
+            // Aktif navigasyon butonunu işaretle
+            if (activeNavButton) {
+                activeNavButton.classList.remove('hover:bg-gray-700', 'text-gray-400');
+                activeNavButton.classList.add('bg-primary-blue', 'shadow-lg', 'text-secondary-pink');
             }
             
-            heartGrid.innerHTML = ''; 
-            for(let i = 0; i < heartButtonCount; i++) {
-                const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
-                button.dataset.index = i;
-                button.innerHTML = `&hearts;`; 
-
-                button.addEventListener('click', (event) => {
-                    if (isPlaying) return;
-                    const index = parseInt(event.currentTarget.dataset.index);
-                    userSequence.push(index);
-
-                    const clickedHeart = event.currentTarget;
-                    clickedHeart.classList.add('lighted-heart');
-                    setTimeout(() => {
-                        clickedHeart.classList.remove('lighted-heart');
-                    }, 500);
-                    
-                    if (userSequence.length === sequence.length) {
-                        if (checkSequence()) {
-                            passwordPage.classList.add('password-page-hidden');
-                            setTimeout(() => {
-                                passwordPage.classList.add('hidden');
-                                appContainer.classList.remove('hidden');
-                                renderPage('home');
-                            }, 500);
-                        } else {
-                            feedbackMessage.classList.remove('hidden');
-                            userSequence = [];
-                            setTimeout(() => {
-                                feedbackMessage.classList.add('hidden');
-                            }, 2000);
-                            setTimeout(() => {
-                                sequence = generateSequence();
-                                playSequence();
-                            }, 2500);
-                        }
-                    }
-                });
-                heartGrid.appendChild(button);
+            contentArea.innerHTML = content;
+            
+            // Özel sayfa fonksiyonlarını çalıştır
+            if (page === 'home') {
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }
+            if (page === 'message') {
+                typewriterEffect();
             }
         }
-        
-        // --- Event Listeners ---
-        if (startButton) {
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = birthdayDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            if (distance < 0) {
+                document.getElementById('countdown-text').innerText = "Mutlu Yıllar, Ece!";
+                return;
+            }
+
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = hours;
+            document.getElementById('minutes').innerText = minutes;
+            document.getElementById('seconds').innerText = seconds;
+        }
+
+        const messageText = "Canım sevgilim, seninle geçirdiğim her an, kalbimde büyüyen bir hikayenin en güzel bölümü. İyi ki doğmuşsun. Hayatım, seninle anlam buluyor. Seni çok seviyorum. ❤️";
+        let messageIndex = 0;
+        let typingInterval;
+
+        function typewriterEffect() {
+            const textElement = document.getElementById('message-text');
+            if (!textElement) return;
+            textElement.innerText = '';
+            messageIndex = 0;
+            
+            if (typingInterval) clearInterval(typingInterval);
+            
+            typingInterval = setInterval(() => {
+                if (messageIndex < messageText.length) {
+                    textElement.innerHTML += messageText.charAt(messageIndex);
+                    messageIndex++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 50); // Yazma hızı (ms)
+        }
+
+        function copyToClipboard() {
+            const text = messageText;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'Kopyalandı!' : 'Kopyalanamadı.';
+                showModal(msg);
+            } catch (err) {
+                showModal('Kopyalama başarısız oldu.');
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        function showModal(message) {
+            const modal = document.createElement('div');
+            modal.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'z-50', 'p-4');
+            modal.innerHTML = `
+                <div class="bg-card-dark rounded-xl p-6 text-center shadow-lg transform scale-100 transition-transform duration-300">
+                    <p class="text-xl text-text-light font-bold mb-4">${message}</p>
+                    <button class="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-blue-600 transition-colors" onclick="this.parentNode.parentNode.remove()">Tamam</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // --- Canvas Animations ---
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createHearts() {
+            hearts = [];
+            for (let i = 0; i < heartCount; i++) {
+                hearts.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 5 + 2,
+                    speedY: Math.random() * 0.5 + 0.1,
+                    opacity: Math.random() * 0.5 + 0.3,
+                    color: heartColors[Math.floor(Math.random() * heartColors.length)],
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.01,
+                });
+            }
+        }
+
+        function drawHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                ctx.save();
+                ctx.translate(heart.x, heart.y);
+                ctx.rotate(heart.rotation);
+                ctx.fillStyle = heart.color;
+                ctx.globalAlpha = heart.opacity;
+                ctx.beginPath();
+                ctx.moveTo(0, -heart.size);
+                ctx.bezierCurveTo(heart.size, -heart.size, heart.size, 0, 0, heart.size * 1.5);
+                ctx.bezierCurveTo(-heart.size, 0, -heart.size, -heart.size, 0, -heart.size);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function updateHearts() {
+            hearts.forEach(heart => {
+                heart.y -= heart.speedY;
+                heart.rotation += heart.rotationSpeed;
+                if (heart.y < -20) {
+                    heart.y = canvas.height + 20;
+                    heart.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function animate() {
+            updateHearts();
+            drawHearts();
+            requestAnimationFrame(animate);
+        }
+
+
+        // --- Event Listeners and Initial Setup ---
+
+        window.onload = function() {
+            setupHearts();
+            resizeCanvas();
+            createHearts();
+            animate();
+            
             startButton.addEventListener('click', () => {
-                userSequence = [];
                 sequence = generateSequence();
                 playSequence();
             });
-        }
-        
-        if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
-        if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
-        if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
-        if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
-        if (navGuestbookBtn) navGuestbookBtn.addEventListener('click', () => renderPage('guestbook'));
 
-        if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
-        if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
-        if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
-        if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
-        if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
-        
-        // DOM içeriği yüklendikten sonra her şeyi başlat
-        document.addEventListener('DOMContentLoaded', () => {
-            createHeartButtons();
-            resizeCanvas();
-            animate();
-            window.addEventListener('resize', resizeCanvas);
-        });
+            // Navigasyon butonları
+            navHomeBtn.addEventListener('click', () => loadContent('home'));
+            navMemoriesBtn.addEventListener('click', () => loadContent('memories'));
+            navArtBtn.addEventListener('click', () => loadContent('art'));
+            navMessageBtn.addEventListener('click', () => loadContent('message'));
+            navGuestbookBtn.addEventListener('click', () => loadContent('guestbook'));
+            
+            navHomeDesktopBtn.addEventListener('click', () => loadContent('home'));
+            navMemoriesDesktopBtn.addEventListener('click', () => loadContent('memories'));
+            navArtDesktopBtn.addEventListener('click', () => loadContent('art'));
+            navMessageDesktopBtn.addEventListener('click', () => loadContent('message'));
+            navGuestbookDesktopBtn.addEventListener('click', () => loadContent('guestbook'));
+        };
+
+        window.addEventListener('resize', resizeCanvas);
 
     </script>
 </body>
