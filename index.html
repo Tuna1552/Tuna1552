@@ -301,10 +301,9 @@
         const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
-        let firebaseReady = false;
         let db;
         let auth;
-        let userId;
+        let userId = 'Yükleniyor...';
         let appId;
         
         // --- Element Selectors ---
@@ -328,7 +327,6 @@
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
-
 
         // Canvas Elements
         const canvas = document.getElementById('hearts-canvas');
@@ -830,16 +828,7 @@
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
             
-            if (!firebaseReady) {
-                if (userIdValueEl) {
-                    userIdValueEl.textContent = 'Yükleniyor...';
-                }
-                // Firebase hazır değilse 200ms sonra tekrar dene
-                setTimeout(attachGuestbookListeners, 200);
-                return;
-            }
-
-            // Firebase hazır, şimdi UI'ı güncelle
+            // Kullanıcı kimliğini güncelle
             if (userIdValueEl) {
                 userIdValueEl.textContent = userId;
             }
@@ -1044,8 +1033,11 @@
                     } else {
                         userId = crypto.randomUUID();
                     }
-                    // Firebase hazır olduğunu belirt
-                    firebaseReady = true;
+                    
+                    // Sadece kimlik hazır olduğunda Ziyaretçi Defteri dinleyicilerini ata
+                    if (document.getElementById('userIdValue')) {
+                        attachGuestbookListeners();
+                    }
                 });
                 
                 if (typeof __initial_auth_token !== 'undefined') {
