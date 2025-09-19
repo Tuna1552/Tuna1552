@@ -291,7 +291,15 @@
     <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
         // Set Firebase log level to debug for better console output
@@ -585,22 +593,49 @@
                 <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
                     Sevgili Ece, buraya bırakılan her not kalıcıdır ve silinemez.
                 </p>
-                <form id="commentForm" class="comment-form w-full max-w-md mx-auto mb-10">
-                    <div class="mb-4 text-left">
-                        <label for="commentName" class="block text-text-light font-semibold mb-2">Adın:</label>
-                        <input type="text" id="commentName" placeholder="Adını yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
+
+                <!-- Authentication UI -->
+                <div id="auth-ui" class="w-full max-w-md mx-auto mb-10">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-primary-blue">Giriş Yap veya Kayıt Ol</h2>
+                        <p class="text-sm text-gray-400 mt-2">Yorum yazmak için bir hesap oluşturman gerekiyor.</p>
                     </div>
-                    <div class="mb-6 text-left">
-                        <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
-                        <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
-                    </div>
-                    <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Yorumu Bırak
-                    </button>
-                </form>
-                
-                <div id="user-id-display" class="w-full max-w-md text-sm text-gray-400 mb-4 text-left">
-                    <span class="font-bold">Kullanıcı Kimliğin:</span> <span id="userIdValue">Yükleniyor...</span>
+                    <form id="authForm" class="comment-form">
+                        <div class="mb-4 text-left">
+                            <label for="authEmail" class="block text-text-light font-semibold mb-2">E-posta:</label>
+                            <input type="email" id="authEmail" placeholder="E-posta adresini gir..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
+                        </div>
+                        <div class="mb-6 text-left">
+                            <label for="authPassword" class="block text-text-light font-semibold mb-2">Şifre:</label>
+                            <input type="password" id="authPassword" placeholder="Şifreni gir..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
+                        </div>
+                        <p id="authMessage" class="font-medium mb-4 text-center"></p>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <button id="signInBtn" type="button" class="w-full py-4 rounded-xl font-bold text-white text-lg bg-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                Giriş Yap
+                            </button>
+                            <button id="registerBtn" type="button" class="w-full py-4 rounded-xl font-bold text-white text-lg bg-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                Kayıt Ol
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Comment Form (Initially Hidden) -->
+                <div id="comment-ui" class="w-full max-w-md mx-auto mb-10 hidden">
+                    <p id="user-display" class="text-center text-sm mb-4 text-gray-400">
+                        <span class="font-semibold">Hoş geldin, </span> <span id="userEmailValue" class="text-white"></span>! 
+                        <button id="signOutBtn" class="text-fuchsia-400 hover:text-fuchsia-300 ml-2">Çıkış Yap</button>
+                    </p>
+                    <form id="commentForm" class="comment-form">
+                        <div class="mb-6 text-left">
+                            <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
+                            <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
+                        </div>
+                        <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            Yorumu Bırak
+                        </button>
+                    </form>
                 </div>
                 
                 <div id="commentsList" class="w-full max-w-md space-y-6">
@@ -611,7 +646,7 @@
             </div>
         `;
 
-        // --- Core Functions ---
+        // --- Core Application Logic ---
         
         function resizeCanvas() {
             if (canvas) {
@@ -838,21 +873,86 @@
 
         // --- Ziyaretçi Defteri için Firestore Fonksiyonları ---
         function attachGuestbookListeners() {
-            const userIdValueEl = document.getElementById('userIdValue');
+            const authUi = document.getElementById('auth-ui');
+            const commentUi = document.getElementById('comment-ui');
+            const authForm = document.getElementById('authForm');
+            const authEmailInput = document.getElementById('authEmail');
+            const authPasswordInput = document.getElementById('authPassword');
+            const authMessageEl = document.getElementById('authMessage');
+            const signInBtn = document.getElementById('signInBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const signOutBtn = document.getElementById('signOutBtn');
+
+            const userEmailValueEl = document.getElementById('userEmailValue');
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
             
             // Eğer Firebase veya kullanıcı kimliği hazır değilse, fonksiyonu durdur.
-            if (!db || !userId) {
+            if (!db || !authReady) {
                 return;
             }
-            
-            // Kullanıcı kimliğini güncelle
-            if (userIdValueEl) {
-                userIdValueEl.textContent = userId;
-            }
-            
+
+            // --- Authentication Logic ---
+            const handleAuthMessage = (message, isSuccess = false) => {
+                authMessageEl.textContent = message;
+                authMessageEl.classList.remove('hidden');
+                authMessageEl.classList.remove('text-red-400', 'text-green-400');
+                if (isSuccess) {
+                    authMessageEl.classList.add('text-green-400');
+                } else {
+                    authMessageEl.classList.add('text-red-400');
+                }
+            };
+
+            signInBtn.addEventListener('click', async () => {
+                const email = authEmailInput.value;
+                const password = authPasswordInput.value;
+                authMessageEl.classList.add('hidden');
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    handleAuthMessage("Giriş başarılı!", true);
+                    authForm.reset();
+                } catch (error) {
+                    let message = "Bir hata oluştu. Lütfen tekrar deneyin.";
+                    if (error.code === 'auth/invalid-email') {
+                        message = "Geçersiz e-posta adresi.";
+                    } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        message = "E-posta veya şifre yanlış.";
+                    }
+                    handleAuthMessage(message, false);
+                }
+            });
+
+            registerBtn.addEventListener('click', async () => {
+                const email = authEmailInput.value;
+                const password = authPasswordInput.value;
+                authMessageEl.classList.add('hidden');
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    handleAuthMessage("Kayıt başarılı! Giriş yapabilirsiniz.", true);
+                    authForm.reset();
+                } catch (error) {
+                    let message = "Bir hata oluştu. Lütfen tekrar deneyin.";
+                    if (error.code === 'auth/email-already-in-use') {
+                        message = "Bu e-posta adresi zaten kullanılıyor.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        message = "Geçersiz e-posta adresi.";
+                    } else if (error.code === 'auth/weak-password') {
+                        message = "Şifre en az 6 karakter olmalıdır.";
+                    }
+                    handleAuthMessage(message, false);
+                }
+            });
+
+            signOutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error("Çıkış yapılırken bir hata oluştu:", error);
+                }
+            });
+
             // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
             const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`));
             
@@ -888,7 +988,7 @@
                             const formattedTime = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
                             commentElement.innerHTML = `
-                                <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                                <p class="font-bold text-lg text-primary-blue">${comment.email || 'Bilinmeyen Kullanıcı'}</p>
                                 <p class="mt-2 text-text-light text-md text-left w-full">${comment.text}</p>
                                 <div class="flex justify-between items-center w-full mt-2 text-xs text-gray-500">
                                     <span>${formattedDate}, ${formattedTime}</span>
@@ -910,10 +1010,9 @@
                 submitBtn.addEventListener('click', async (event) => {
                     event.preventDefault();
                     
-                    const commentName = document.getElementById('commentName').value.trim();
                     const commentText = document.getElementById('commentText').value.trim();
                     
-                    if (!commentName || !commentText) {
+                    if (!commentText) {
                         return;
                     }
 
@@ -923,9 +1022,9 @@
 
                     try {
                         const newComment = {
-                            name: commentName,
+                            email: auth.currentUser.email,
                             text: commentText,
-                            userId: userId, // Yorumu yapan kullanıcının kimliği
+                            userId: auth.currentUser.uid, // Yorumu yapan kullanıcının kimliği
                             timestamp: new Date()
                         };
 
@@ -1071,12 +1170,27 @@
                 
                 // onAuthStateChanged dinleyicisi eklenir
                 onAuthStateChanged(auth, (user) => {
+                    authReady = true;
                     if (user) {
                         userId = user.uid;
-                        authReady = true;
+                        // Kullanıcı giriş yaptıysa yorum formunu göster
+                        const authUi = document.getElementById('auth-ui');
+                        const commentUi = document.getElementById('comment-ui');
+                        const userEmailValueEl = document.getElementById('userEmailValue');
+                        if(authUi && commentUi) {
+                            authUi.classList.add('hidden');
+                            commentUi.classList.remove('hidden');
+                            if(userEmailValueEl) userEmailValueEl.textContent = user.email;
+                        }
                     } else {
-                        // For anonymous users, create a unique ID
-                        userId = auth.currentUser?.uid || crypto.randomUUID();
+                        // Kullanıcı çıkış yaptıysa veya anonimse giriş formunu göster
+                        userId = null;
+                        const authUi = document.getElementById('auth-ui');
+                        const commentUi = document.getElementById('comment-ui');
+                        if(authUi && commentUi) {
+                            authUi.classList.remove('hidden');
+                            commentUi.classList.add('hidden');
+                        }
                     }
                     
                     // Ziyaretçi defteri sayfasındaysak ve kimlik hazırsa, dinleyiciyi başlat
