@@ -406,7 +406,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-48">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -826,21 +826,23 @@
         // --- Ziyaretçi Defteri için Firestore Fonksiyonları ---
         function attachGuestbookListeners() {
             const userIdValueEl = document.getElementById('userIdValue');
-            if (userIdValueEl) {
-                // Sadece Firebase hazır olduğunda userId'yi ekrana yazdır.
-                if (firebaseReady) {
-                    userIdValueEl.textContent = userId;
-                } else {
-                    // Firebase hazır değilse bekle ve tekrar dene
-                    userIdValueEl.textContent = 'Yükleniyor...';
-                    setTimeout(attachGuestbookListeners, 200);
-                    return;
-                }
-            }
-            
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
+            
+            if (!firebaseReady) {
+                if (userIdValueEl) {
+                    userIdValueEl.textContent = 'Yükleniyor...';
+                }
+                // Firebase hazır değilse 200ms sonra tekrar dene
+                setTimeout(attachGuestbookListeners, 200);
+                return;
+            }
+
+            // Firebase hazır, şimdi UI'ı güncelle
+            if (userIdValueEl) {
+                userIdValueEl.textContent = userId;
+            }
             
             // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
             const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), orderBy("timestamp", "desc"));
@@ -1042,12 +1044,8 @@
                     } else {
                         userId = crypto.randomUUID();
                     }
+                    // Firebase hazır olduğunu belirt
                     firebaseReady = true;
-                    // userId hazır olduğunda ziyaretçi defterini güncelle
-                    const userIdValueEl = document.getElementById('userIdValue');
-                    if (userIdValueEl) {
-                        userIdValueEl.textContent = userId;
-                    }
                 });
                 
                 if (typeof __initial_auth_token !== 'undefined') {
