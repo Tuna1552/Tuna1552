@@ -292,8 +292,11 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
+        // Set Firebase log level to debug for better console output
+        setLogLevel('debug');
+        
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -306,6 +309,7 @@
         let userId = null;
         let appId;
         let authReady = false;
+        let unsubscribeGuestbook = null; // Unsubscribe function for guestbook listener
         
         // --- Element Selectors ---
         const passwordPage = document.getElementById('password-page');
@@ -671,6 +675,12 @@
             contentArea.classList.add('opacity-0');
             setTimeout(() => {
                 contentArea.innerHTML = '';
+                // Unsubscribe from any previous Firestore listener to prevent memory leaks
+                if (unsubscribeGuestbook) {
+                    unsubscribeGuestbook();
+                    unsubscribeGuestbook = null;
+                }
+                
                 if (pageName === 'home') {
                     contentArea.innerHTML = homePageContent;
                     updateCountdown(); 
@@ -692,8 +702,12 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // If auth is ready, attach listeners immediately
+                    if (authReady) {
+                        attachGuestbookListeners();
+                    }
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -830,15 +844,7 @@
             const submitBtn = document.getElementById('submit-comment-btn');
             
             // Eğer Firebase veya kullanıcı kimliği hazır değilse, fonksiyonu durdur.
-            // Bu, "yükleniyor" durumunu doğru şekilde yönetmek için çok önemli.
             if (!db || !userId) {
-                if (userIdValueEl) {
-                    userIdValueEl.textContent = 'Yükleniyor...';
-                }
-                if (commentsList) {
-                    commentsList.innerHTML = `<div class="flex justify-center items-center mt-8"><div class="loader"></div></div>`;
-                }
-                console.log("Firebase veya kullanıcı kimliği hazır değil, beklemede...");
                 return;
             }
             
@@ -850,7 +856,12 @@
             // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
             const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`));
             
-            onSnapshot(commentsQuery, (querySnapshot) => {
+            // Unsubscribe the previous listener before creating a new one
+            if (unsubscribeGuestbook) {
+                unsubscribeGuestbook();
+            }
+
+            unsubscribeGuestbook = onSnapshot(commentsQuery, (querySnapshot) => {
                 const comments = [];
                 querySnapshot.forEach((doc) => {
                     const commentData = doc.data();
@@ -862,32 +873,36 @@
                 // Yorumları zaman damgasına göre JavaScript'te sırala
                 comments.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
             
-                commentsList.innerHTML = ''; // Yorum listesini temizle
-            
-                if (comments.length === 0) {
-                     commentsList.innerHTML = `<p class="text-center text-gray-500 italic mt-8">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
-                } else {
-                    comments.forEach((comment) => {
-                        const commentElement = document.createElement('div');
-                        commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200', 'flex', 'flex-col', 'items-start');
-                        
-                        const date = new Date(comment.timestamp.toDate());
-                        const formattedDate = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-                        const formattedTime = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                if (commentsList) {
+                    commentsList.innerHTML = ''; // Yorum listesini temizle
+                
+                    if (comments.length === 0) {
+                        commentsList.innerHTML = `<p class="text-center text-gray-500 italic mt-8">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
+                    } else {
+                        comments.forEach((comment) => {
+                            const commentElement = document.createElement('div');
+                            commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200', 'flex', 'flex-col', 'items-start');
+                            
+                            const date = new Date(comment.timestamp.toDate());
+                            const formattedDate = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                            const formattedTime = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-                        commentElement.innerHTML = `
-                            <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                            <p class="mt-2 text-text-light text-md text-left w-full">${comment.text}</p>
-                            <div class="flex justify-between items-center w-full mt-2 text-xs text-gray-500">
-                                <span>${formattedDate}, ${formattedTime}</span>
-                            </div>
-                        `;
-                        commentsList.appendChild(commentElement);
-                    });
+                            commentElement.innerHTML = `
+                                <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                                <p class="mt-2 text-text-light text-md text-left w-full">${comment.text}</p>
+                                <div class="flex justify-between items-center w-full mt-2 text-xs text-gray-500">
+                                    <span>${formattedDate}, ${formattedTime}</span>
+                                </div>
+                            `;
+                            commentsList.appendChild(commentElement);
+                        });
+                    }
                 }
             }, (error) => {
                  console.error("Yorumlar çekilirken bir hata oluştu:", error);
-                 commentsList.innerHTML = `<p class="text-center text-red-400 italic mt-8">Yorumlar yüklenemedi. Lütfen tekrar deneyin.</p>`;
+                 if (commentsList) {
+                     commentsList.innerHTML = `<p class="text-center text-red-400 italic mt-8">Yorumlar yüklenemedi. Lütfen tekrar deneyin.</p>`;
+                 }
             });
 
             // Yorum gönderme butonuna tıklama olayı
@@ -1060,11 +1075,13 @@
                         userId = user.uid;
                         authReady = true;
                     } else {
-                        userId = crypto.randomUUID();
+                        // For anonymous users, create a unique ID
+                        userId = auth.currentUser?.uid || crypto.randomUUID();
                     }
                     
-                    // Sadece kimlik hazır olduğunda Ziyaretçi Defteri dinleyicilerini ata
-                    if (document.getElementById('commentsList')) {
+                    // Ziyaretçi defteri sayfasındaysak ve kimlik hazırsa, dinleyiciyi başlat
+                    const isGuestbookPage = contentArea.innerHTML.includes('Ziyaretçi Defteri');
+                    if (isGuestbookPage && authReady) {
                         attachGuestbookListeners();
                     }
                 });
