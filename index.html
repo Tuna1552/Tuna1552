@@ -693,14 +693,6 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
-                    // Kullanıcı kimliği bilgisini buraya taşıdık.
-                    // Sayfa içeriği oluşturulduktan sonra, kullanıcı kimliği varsa hemen ekrana yazdırıyoruz.
-                    if (userId) {
-                        const userIdValueEl = document.getElementById('userIdValue');
-                        if (userIdValueEl) {
-                            userIdValueEl.textContent = userId;
-                        }
-                    }
                     setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
@@ -833,10 +825,17 @@
 
         // --- Ziyaretçi Defteri için Firestore Fonksiyonları ---
         function attachGuestbookListeners() {
-            if (!firebaseReady) {
-                // Firebase henüz hazır değilse bir süre bekle ve tekrar dene
-                setTimeout(attachGuestbookListeners, 100);
-                return;
+            const userIdValueEl = document.getElementById('userIdValue');
+            if (userIdValueEl) {
+                // Sadece Firebase hazır olduğunda userId'yi ekrana yazdır.
+                if (firebaseReady) {
+                    userIdValueEl.textContent = userId;
+                } else {
+                    // Firebase hazır değilse bekle ve tekrar dene
+                    userIdValueEl.textContent = 'Yükleniyor...';
+                    setTimeout(attachGuestbookListeners, 200);
+                    return;
+                }
             }
             
             const commentForm = document.getElementById('commentForm');
@@ -1036,16 +1035,19 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                // Kimlik doğrulama işlemi tamamlandığında global userId'yi ayarla
+                // onAuthStateChanged dinleyicisi eklenir
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        console.log("Kullanıcı kimliği alındı:", userId);
                     } else {
                         userId = crypto.randomUUID();
-                        console.log("Anonim kullanıcı kimliği oluşturuldu:", userId);
                     }
                     firebaseReady = true;
+                    // userId hazır olduğunda ziyaretçi defterini güncelle
+                    const userIdValueEl = document.getElementById('userIdValue');
+                    if (userIdValueEl) {
+                        userIdValueEl.textContent = userId;
+                    }
                 });
                 
                 if (typeof __initial_auth_token !== 'undefined') {
