@@ -314,8 +314,7 @@
         const startButton = document.getElementById('start-button');
         const feedbackMessage = document.getElementById('feedback-message');
         const contentArea = document.getElementById('content-area');
-        const userIdValueEl = document.getElementById('userIdValue'); // Moved to top for global access
-
+        
         // Mobile Nav
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
@@ -694,6 +693,14 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
+                    // Kullanıcı kimliği bilgisini buraya taşıdık.
+                    // Sayfa içeriği oluşturulduktan sonra, kullanıcı kimliği varsa hemen ekrana yazdırıyoruz.
+                    if (userId) {
+                        const userIdValueEl = document.getElementById('userIdValue');
+                        if (userIdValueEl) {
+                            userIdValueEl.textContent = userId;
+                        }
+                    }
                     setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
@@ -1029,6 +1036,7 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
+                // Kimlik doğrulama işlemi tamamlandığında global userId'yi ayarla
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
@@ -1038,13 +1046,6 @@
                         console.log("Anonim kullanıcı kimliği oluşturuldu:", userId);
                     }
                     firebaseReady = true;
-
-                    // Bu kısım, zamanlama sorununu çözmek için eklendi.
-                    // userId'nin kesinlikle ayarlandığından emin olduktan sonra ekrandaki değeri güncelliyoruz.
-                    const userIdValueEl = document.getElementById('userIdValue');
-                    if (userIdValueEl) {
-                        userIdValueEl.textContent = userId;
-                    }
                 });
                 
                 if (typeof __initial_auth_token !== 'undefined') {
