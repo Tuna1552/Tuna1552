@@ -187,6 +187,20 @@
             opacity: 0.6;
         }
         
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FF69B4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -274,7 +288,12 @@
         </div>
     </div>
     
-    <script>
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -282,6 +301,11 @@
         const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
+        let firebaseReady = false;
+        let db;
+        let auth;
+        let userId;
+        let appId;
         
         // --- Element Selectors ---
         const passwordPage = document.getElementById('password-page');
@@ -304,6 +328,7 @@
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
         const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
+
 
         // Canvas Elements
         const canvas = document.getElementById('hearts-canvas');
@@ -421,7 +446,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -570,12 +595,19 @@
                         Yorumu Bırak
                     </button>
                 </form>
+                
+                <div id="user-id-display" class="w-full max-w-md text-sm text-gray-400 mb-4 text-left">
+                    <span class="font-bold">Kullanıcı Kimliğin:</span> <span id="userIdValue">Yükleniyor...</span>
+                </div>
+                
                 <div id="commentsList" class="w-full max-w-md space-y-6">
-                    <!-- Comments will be added here dynamically -->
+                    <div class="flex justify-center items-center mt-8">
+                        <div class="loader"></div>
+                    </div>
                 </div>
             </div>
         `;
-        
+
         // --- Core Functions ---
         
         function resizeCanvas() {
@@ -791,75 +823,93 @@
             }
         }
 
+        // --- Ziyaretçi Defteri için Firestore Fonksiyonları ---
         function attachGuestbookListeners() {
-            const commentForm = document.getElementById('commentForm');
-            const commentsList = document.getElementById('commentsList');
-            const submitBtn = document.getElementById('submit-comment-btn');
-
-            if (!commentForm || !commentsList || !submitBtn) {
+            if (!firebaseReady) {
+                // Firebase henüz hazır değilse bir süre bekle ve tekrar dene
+                setTimeout(attachGuestbookListeners, 100);
                 return;
             }
             
-            // Yorumları localStorage'dan çek ve ekrana bas
-            function displayComments() {
-                commentsList.innerHTML = '';
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yorumları en yenisi en üstte olacak şekilde sırala
-                comments.reverse();
-                
-                comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
-                    
-                    const date = new Date(comment.timestamp);
-                    const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
-
-                    commentElement.innerHTML = `
-                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
-                        <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
-                    `;
-                    commentsList.appendChild(commentElement);
-                });
+            const commentForm = document.getElementById('commentForm');
+            const commentsList = document.getElementById('commentsList');
+            const submitBtn = document.getElementById('submit-comment-btn');
+            const userIdValueEl = document.getElementById('userIdValue');
+            
+            // Kullanıcı kimliğini ekrana yazdır
+            if (userIdValueEl) {
+                userIdValueEl.textContent = userId;
             }
 
-            // Sayfa yüklendiğinde yorumları göster
-            displayComments();
+            // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
+            const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), orderBy("timestamp", "desc"));
+
+            onSnapshot(commentsQuery, (querySnapshot) => {
+                commentsList.innerHTML = '';
+                if (querySnapshot.empty) {
+                     commentsList.innerHTML = `<p class="text-center text-gray-500 italic mt-8">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const comment = doc.data();
+                        const commentElement = document.createElement('div');
+                        commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
+                        
+                        const date = new Date(comment.timestamp.toDate());
+                        const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
+                        
+                        commentElement.innerHTML = `
+                            <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                            <p class="mt-2 text-text-light text-md">${comment.text}</p>
+                            <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
+                        `;
+                        commentsList.appendChild(commentElement);
+                    });
+                }
+            }, (error) => {
+                 console.error("Yorumlar çekilirken bir hata oluştu:", error);
+                 commentsList.innerHTML = `<p class="text-center text-red-400 italic mt-8">Yorumlar yüklenemedi. Lütfen tekrar deneyin.</p>`;
+            });
 
             // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', (event) => {
-                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
-                
-                const commentName = document.getElementById('commentName').value.trim();
-                const commentText = document.getElementById('commentText').value.trim();
-    
-                if (!commentName || !commentText) {
-                    return;
-                }
+            if (submitBtn && commentForm) {
+                submitBtn.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    
+                    const commentName = document.getElementById('commentName').value.trim();
+                    const commentText = document.getElementById('commentText').value.trim();
+                    
+                    if (!commentName || !commentText) {
+                        return;
+                    }
 
-                // Yorumu bir obje olarak hazırla
-                const newComment = {
-                    name: commentName,
-                    text: commentText,
-                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
-                };
+                    // Butonu devre dışı bırak ve yükleme durumunu göster
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Gönderiliyor...';
 
-                // Eski yorumları localStorage'dan çek
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yeni yorumu listeye ekle
-                comments.push(newComment);
-                
-                // Güncellenmiş listeyi localStorage'a geri kaydet
-                localStorage.setItem('guestbookComments', JSON.stringify(comments));
+                    try {
+                        const newComment = {
+                            name: commentName,
+                            text: commentText,
+                            userId: userId, // Yorumu yapan kullanıcının kimliği
+                            timestamp: new Date()
+                        };
 
-                // Formu temizle
-                commentForm.reset();
+                        const docRef = await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), newComment);
+                        console.log("Yorum başarıyla eklendi, ID:", docRef.id);
+                        
+                        // Formu temizle
+                        commentForm.reset();
 
-                // Yorumları tekrar yükle
-                displayComments();
-            });
+                    } catch (e) {
+                        console.error("Yorum eklenirken hata oluştu: ", e);
+                        // Hata mesajı gösterebilirsiniz
+                    } finally {
+                        // Butonu tekrar etkinleştir
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Yorumu Bırak';
+                    }
+                });
+            }
         }
         
         // --- Password Game Logic ---
@@ -975,14 +1025,45 @@
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
+        // --- Firebase'i Başlatma ve Kimlik Doğrulama ---
+        function initFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Kullanıcı kimliği alındı:", userId);
+                    } else {
+                        userId = crypto.randomUUID();
+                        console.log("Anonim kullanıcı kimliği oluşturuldu:", userId);
+                    }
+                    firebaseReady = true;
+                });
+                
+                if (typeof __initial_auth_token !== 'undefined') {
+                    signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    signInAnonymously(auth);
+                }
+
+            } catch (error) {
+                console.error("Firebase başlatılırken bir hata oluştu:", error);
+            }
+        }
+
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
             createHeartButtons();
             resizeCanvas();
             animate();
             window.addEventListener('resize', resizeCanvas);
+            initFirebase();
         });
-
     </script>
 </body>
 </html>
