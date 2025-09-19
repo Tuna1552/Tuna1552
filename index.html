@@ -303,8 +303,9 @@
         let isPlaying = false;
         let db;
         let auth;
-        let userId = 'Yükleniyor...';
+        let userId = null;
         let appId;
+        let authReady = false;
         
         // --- Element Selectors ---
         const passwordPage = document.getElementById('password-page');
@@ -828,6 +829,19 @@
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
             
+            // Eğer Firebase veya kullanıcı kimliği hazır değilse, fonksiyonu durdur.
+            // Bu, "yükleniyor" durumunu doğru şekilde yönetmek için çok önemli.
+            if (!db || !userId) {
+                if (userIdValueEl) {
+                    userIdValueEl.textContent = 'Yükleniyor...';
+                }
+                if (commentsList) {
+                    commentsList.innerHTML = `<div class="flex justify-center items-center mt-8"><div class="loader"></div></div>`;
+                }
+                console.log("Firebase veya kullanıcı kimliği hazır değil, beklemede...");
+                return;
+            }
+            
             // Kullanıcı kimliğini güncelle
             if (userIdValueEl) {
                 userIdValueEl.textContent = userId;
@@ -835,7 +849,7 @@
             
             // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
             const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), orderBy("timestamp", "desc"));
-
+            
             onSnapshot(commentsQuery, (querySnapshot) => {
                 commentsList.innerHTML = '';
                 if (querySnapshot.empty) {
@@ -907,7 +921,7 @@
         // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) {
+            for (let i = 0; i < heartButtonCount; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
@@ -1030,12 +1044,13 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
+                        authReady = true;
                     } else {
                         userId = crypto.randomUUID();
                     }
                     
                     // Sadece kimlik hazır olduğunda Ziyaretçi Defteri dinleyicilerini ata
-                    if (document.getElementById('userIdValue')) {
+                    if (document.getElementById('commentsList')) {
                         attachGuestbookListeners();
                     }
                 });
