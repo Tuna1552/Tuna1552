@@ -314,6 +314,7 @@
         const startButton = document.getElementById('start-button');
         const feedbackMessage = document.getElementById('feedback-message');
         const contentArea = document.getElementById('content-area');
+        const userIdValueEl = document.getElementById('userIdValue'); // Moved to top for global access
 
         // Mobile Nav
         const navHomeBtn = document.getElementById('nav-home');
@@ -834,13 +835,7 @@
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
-            const userIdValueEl = document.getElementById('userIdValue');
             
-            // Kullanıcı kimliğini ekrana yazdır
-            if (userIdValueEl) {
-                userIdValueEl.textContent = userId;
-            }
-
             // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
             const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), orderBy("timestamp", "desc"));
 
@@ -1043,6 +1038,13 @@
                         console.log("Anonim kullanıcı kimliği oluşturuldu:", userId);
                     }
                     firebaseReady = true;
+
+                    // Bu kısım, zamanlama sorununu çözmek için eklendi.
+                    // userId'nin kesinlikle ayarlandığından emin olduktan sonra ekrandaki değeri güncelliyoruz.
+                    const userIdValueEl = document.getElementById('userIdValue');
+                    if (userIdValueEl) {
+                        userIdValueEl.textContent = userId;
+                    }
                 });
                 
                 if (typeof __initial_auth_token !== 'undefined') {
