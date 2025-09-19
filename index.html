@@ -187,20 +187,6 @@
             opacity: 0.6;
         }
         
-        /* Loading spinner */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #FF69B4;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -288,23 +274,7 @@
         </div>
     </div>
     
-    <!-- Firebase SDK Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            signInWithCustomToken, 
-            onAuthStateChanged,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    
-        // Set Firebase log level to debug for better console output
-        setLogLevel('debug');
-        
+    <script>
         // --- Core Application Variables ---
         const birthdayDate = new Date('May 29, 2026 00:00:00').getTime();
         let sequence = [];
@@ -312,12 +282,6 @@
         const heartButtonCount = 9;
         const sequenceLength = 4;
         let isPlaying = false;
-        let db;
-        let auth;
-        let userId = null;
-        let appId;
-        let authReady = false;
-        let unsubscribeGuestbook = null; // Unsubscribe function for guestbook listener
         
         // --- Element Selectors ---
         const passwordPage = document.getElementById('password-page');
@@ -326,7 +290,7 @@
         const startButton = document.getElementById('start-button');
         const feedbackMessage = document.getElementById('feedback-message');
         const contentArea = document.getElementById('content-area');
-        
+
         // Mobile Nav
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
@@ -417,7 +381,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-48">
+                        <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -457,7 +421,7 @@
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -593,60 +557,26 @@
                 <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
                     Sevgili Ece, buraya bırakılan her not kalıcıdır ve silinemez.
                 </p>
-
-                <!-- Authentication UI -->
-                <div id="auth-ui" class="w-full max-w-md mx-auto mb-10">
-                    <div class="text-center mb-6">
-                        <h2 class="text-2xl font-bold text-primary-blue">Giriş Yap veya Kayıt Ol</h2>
-                        <p class="text-sm text-gray-400 mt-2">Yorum yazmak için bir hesap oluşturman gerekiyor.</p>
+                <form id="commentForm" class="comment-form w-full max-w-md mx-auto mb-10">
+                    <div class="mb-4 text-left">
+                        <label for="commentName" class="block text-text-light font-semibold mb-2">Adın:</label>
+                        <input type="text" id="commentName" placeholder="Adını yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
                     </div>
-                    <form id="authForm" class="comment-form">
-                        <div class="mb-4 text-left">
-                            <label for="authEmail" class="block text-text-light font-semibold mb-2">E-posta:</label>
-                            <input type="email" id="authEmail" placeholder="E-posta adresini gir..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
-                        </div>
-                        <div class="mb-6 text-left">
-                            <label for="authPassword" class="block text-text-light font-semibold mb-2">Şifre:</label>
-                            <input type="password" id="authPassword" placeholder="Şifreni gir..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
-                        </div>
-                        <p id="authMessage" class="font-medium mb-4 text-center"></p>
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <button id="signInBtn" type="button" class="w-full py-4 rounded-xl font-bold text-white text-lg bg-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                Giriş Yap
-                            </button>
-                            <button id="registerBtn" type="button" class="w-full py-4 rounded-xl font-bold text-white text-lg bg-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                                Kayıt Ol
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Comment Form (Initially Hidden) -->
-                <div id="comment-ui" class="w-full max-w-md mx-auto mb-10 hidden">
-                    <p id="user-display" class="text-center text-sm mb-4 text-gray-400">
-                        <span class="font-semibold">Hoş geldin, </span> <span id="userEmailValue" class="text-white"></span>! 
-                        <button id="signOutBtn" class="text-fuchsia-400 hover:text-fuchsia-300 ml-2">Çıkış Yap</button>
-                    </p>
-                    <form id="commentForm" class="comment-form">
-                        <div class="mb-6 text-left">
-                            <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
-                            <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
-                        </div>
-                        <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                            Yorumu Bırak
-                        </button>
-                    </form>
-                </div>
-                
+                    <div class="mb-6 text-left">
+                        <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
+                        <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
+                    </div>
+                    <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Yorumu Bırak
+                    </button>
+                </form>
                 <div id="commentsList" class="w-full max-w-md space-y-6">
-                    <div class="flex justify-center items-center mt-8">
-                        <div class="loader"></div>
-                    </div>
+                    <!-- Comments will be added here dynamically -->
                 </div>
             </div>
         `;
-
-        // --- Core Application Logic ---
+        
+        // --- Core Functions ---
         
         function resizeCanvas() {
             if (canvas) {
@@ -710,12 +640,6 @@
             contentArea.classList.add('opacity-0');
             setTimeout(() => {
                 contentArea.innerHTML = '';
-                // Unsubscribe from any previous Firestore listener to prevent memory leaks
-                if (unsubscribeGuestbook) {
-                    unsubscribeGuestbook();
-                    unsubscribeGuestbook = null;
-                }
-                
                 if (pageName === 'home') {
                     contentArea.innerHTML = homePageContent;
                     updateCountdown(); 
@@ -737,12 +661,8 @@
                 } else if (pageName === 'guestbook') {
                     contentArea.innerHTML = guestbookPageContent;
                     setActiveNav('guestbook');
+                    setTimeout(attachGuestbookListeners, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // If auth is ready, attach listeners immediately
-                    if (authReady) {
-                        attachGuestbookListeners();
-                    }
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -871,185 +791,81 @@
             }
         }
 
-        // --- Ziyaretçi Defteri için Firestore Fonksiyonları ---
         function attachGuestbookListeners() {
-            const authUi = document.getElementById('auth-ui');
-            const commentUi = document.getElementById('comment-ui');
-            const authForm = document.getElementById('authForm');
-            const authEmailInput = document.getElementById('authEmail');
-            const authPasswordInput = document.getElementById('authPassword');
-            const authMessageEl = document.getElementById('authMessage');
-            const signInBtn = document.getElementById('signInBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            const signOutBtn = document.getElementById('signOutBtn');
-
-            const userEmailValueEl = document.getElementById('userEmailValue');
             const commentForm = document.getElementById('commentForm');
             const commentsList = document.getElementById('commentsList');
             const submitBtn = document.getElementById('submit-comment-btn');
-            
-            // Eğer Firebase veya kullanıcı kimliği hazır değilse, fonksiyonu durdur.
-            if (!db || !authReady) {
+
+            if (!commentForm || !commentsList || !submitBtn) {
                 return;
             }
-
-            // --- Authentication Logic ---
-            const handleAuthMessage = (message, isSuccess = false) => {
-                authMessageEl.textContent = message;
-                authMessageEl.classList.remove('hidden');
-                authMessageEl.classList.remove('text-red-400', 'text-green-400');
-                if (isSuccess) {
-                    authMessageEl.classList.add('text-green-400');
-                } else {
-                    authMessageEl.classList.add('text-red-400');
-                }
-            };
-
-            signInBtn.addEventListener('click', async () => {
-                const email = authEmailInput.value;
-                const password = authPasswordInput.value;
-                authMessageEl.classList.add('hidden');
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    handleAuthMessage("Giriş başarılı!", true);
-                    authForm.reset();
-                } catch (error) {
-                    let message = "Bir hata oluştu. Lütfen tekrar deneyin.";
-                    if (error.code === 'auth/invalid-email') {
-                        message = "Geçersiz e-posta adresi.";
-                    } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                        message = "E-posta veya şifre yanlış.";
-                    }
-                    handleAuthMessage(message, false);
-                }
-            });
-
-            registerBtn.addEventListener('click', async () => {
-                const email = authEmailInput.value;
-                const password = authPasswordInput.value;
-                authMessageEl.classList.add('hidden');
-                try {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    handleAuthMessage("Kayıt başarılı! Giriş yapabilirsiniz.", true);
-                    authForm.reset();
-                } catch (error) {
-                    let message = "Bir hata oluştu. Lütfen tekrar deneyin.";
-                    if (error.code === 'auth/email-already-in-use') {
-                        message = "Bu e-posta adresi zaten kullanılıyor.";
-                    } else if (error.code === 'auth/invalid-email') {
-                        message = "Geçersiz e-posta adresi.";
-                    } else if (error.code === 'auth/weak-password') {
-                        message = "Şifre en az 6 karakter olmalıdır.";
-                    }
-                    handleAuthMessage(message, false);
-                }
-            });
-
-            signOutBtn.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                } catch (error) {
-                    console.error("Çıkış yapılırken bir hata oluştu:", error);
-                }
-            });
-
-            // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
-            const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`));
             
-            // Unsubscribe the previous listener before creating a new one
-            if (unsubscribeGuestbook) {
-                unsubscribeGuestbook();
+            // Yorumları localStorage'dan çek ve ekrana bas
+            function displayComments() {
+                commentsList.innerHTML = '';
+                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
+                
+                // Yorumları en yenisi en üstte olacak şekilde sırala
+                comments.reverse();
+                
+                comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
+                    
+                    const date = new Date(comment.timestamp);
+                    const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
+
+                    commentElement.innerHTML = `
+                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
+                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
+                        <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
+                    `;
+                    commentsList.appendChild(commentElement);
+                });
             }
 
-            unsubscribeGuestbook = onSnapshot(commentsQuery, (querySnapshot) => {
-                const comments = [];
-                querySnapshot.forEach((doc) => {
-                    const commentData = doc.data();
-                    if (commentData.timestamp) {
-                        comments.push({ ...commentData, id: doc.id });
-                    }
-                });
-            
-                // Yorumları zaman damgasına göre JavaScript'te sırala
-                comments.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
-            
-                if (commentsList) {
-                    commentsList.innerHTML = ''; // Yorum listesini temizle
-                
-                    if (comments.length === 0) {
-                        commentsList.innerHTML = `<p class="text-center text-gray-500 italic mt-8">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
-                    } else {
-                        comments.forEach((comment) => {
-                            const commentElement = document.createElement('div');
-                            commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200', 'flex', 'flex-col', 'items-start');
-                            
-                            const date = new Date(comment.timestamp.toDate());
-                            const formattedDate = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-                            const formattedTime = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-
-                            commentElement.innerHTML = `
-                                <p class="font-bold text-lg text-primary-blue">${comment.email || 'Bilinmeyen Kullanıcı'}</p>
-                                <p class="mt-2 text-text-light text-md text-left w-full">${comment.text}</p>
-                                <div class="flex justify-between items-center w-full mt-2 text-xs text-gray-500">
-                                    <span>${formattedDate}, ${formattedTime}</span>
-                                </div>
-                            `;
-                            commentsList.appendChild(commentElement);
-                        });
-                    }
-                }
-            }, (error) => {
-                 console.error("Yorumlar çekilirken bir hata oluştu:", error);
-                 if (commentsList) {
-                     commentsList.innerHTML = `<p class="text-center text-red-400 italic mt-8">Yorumlar yüklenemedi. Lütfen tekrar deneyin.</p>`;
-                 }
-            });
+            // Sayfa yüklendiğinde yorumları göster
+            displayComments();
 
             // Yorum gönderme butonuna tıklama olayı
-            if (submitBtn && commentForm) {
-                submitBtn.addEventListener('click', async (event) => {
-                    event.preventDefault();
-                    
-                    const commentText = document.getElementById('commentText').value.trim();
-                    
-                    if (!commentText) {
-                        return;
-                    }
+            submitBtn.addEventListener('click', (event) => {
+                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
+                
+                const commentName = document.getElementById('commentName').value.trim();
+                const commentText = document.getElementById('commentText').value.trim();
+    
+                if (!commentName || !commentText) {
+                    return;
+                }
 
-                    // Butonu devre dışı bırak ve yükleme durumunu göster
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Gönderiliyor...';
+                // Yorumu bir obje olarak hazırla
+                const newComment = {
+                    name: commentName,
+                    text: commentText,
+                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
+                };
 
-                    try {
-                        const newComment = {
-                            email: auth.currentUser.email,
-                            text: commentText,
-                            userId: auth.currentUser.uid, // Yorumu yapan kullanıcının kimliği
-                            timestamp: new Date()
-                        };
+                // Eski yorumları localStorage'dan çek
+                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
+                
+                // Yeni yorumu listeye ekle
+                comments.push(newComment);
+                
+                // Güncellenmiş listeyi localStorage'a geri kaydet
+                localStorage.setItem('guestbookComments', JSON.stringify(comments));
 
-                        const docRef = await addDoc(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), newComment);
-                        console.log("Yorum başarıyla eklendi, ID:", docRef.id);
-                        
-                        // Formu temizle
-                        commentForm.reset();
+                // Formu temizle
+                commentForm.reset();
 
-                    } catch (e) {
-                        console.error("Yorum eklenirken hata oluştu: ", e);
-                        // Hata mesajı gösterebilirsiniz
-                    } finally {
-                        // Butonu tekrar etkinleştir
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Yorumu Bırak';
-                    }
-                });
-            }
+                // Yorumları tekrar yükle
+                displayComments();
+            });
         }
         
         // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) { // Sabit uzunlukta dizi oluştur
+            for (let i = 0; i < sequenceLength; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
@@ -1159,66 +975,14 @@
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
-        // --- Firebase'i Başlatma ve Kimlik Doğrulama ---
-        function initFirebase() {
-            try {
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                // onAuthStateChanged dinleyicisi eklenir
-                onAuthStateChanged(auth, (user) => {
-                    authReady = true;
-                    if (user) {
-                        userId = user.uid;
-                        // Kullanıcı giriş yaptıysa yorum formunu göster
-                        const authUi = document.getElementById('auth-ui');
-                        const commentUi = document.getElementById('comment-ui');
-                        const userEmailValueEl = document.getElementById('userEmailValue');
-                        if(authUi && commentUi) {
-                            authUi.classList.add('hidden');
-                            commentUi.classList.remove('hidden');
-                            if(userEmailValueEl) userEmailValueEl.textContent = user.email;
-                        }
-                    } else {
-                        // Kullanıcı çıkış yaptıysa veya anonimse giriş formunu göster
-                        userId = null;
-                        const authUi = document.getElementById('auth-ui');
-                        const commentUi = document.getElementById('comment-ui');
-                        if(authUi && commentUi) {
-                            authUi.classList.remove('hidden');
-                            commentUi.classList.add('hidden');
-                        }
-                    }
-                    
-                    // Ziyaretçi defteri sayfasındaysak ve kimlik hazırsa, dinleyiciyi başlat
-                    const isGuestbookPage = contentArea.innerHTML.includes('Ziyaretçi Defteri');
-                    if (isGuestbookPage && authReady) {
-                        attachGuestbookListeners();
-                    }
-                });
-                
-                if (typeof __initial_auth_token !== 'undefined') {
-                    signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    signInAnonymously(auth);
-                }
-
-            } catch (error) {
-                console.error("Firebase başlatılırken bir hata oluştu:", error);
-            }
-        }
-
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
             createHeartButtons();
             resizeCanvas();
             animate();
             window.addEventListener('resize', resizeCanvas);
-            initFirebase();
         });
+
     </script>
 </body>
 </html>
