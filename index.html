@@ -848,25 +848,39 @@
             }
             
             // Yorumları Firestore'dan dinlemek için anlık dinleyici (onSnapshot)
-            const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`), orderBy("timestamp", "desc"));
+            const commentsQuery = query(collection(db, `artifacts/${appId}/public/data/guestbook_comments`));
             
             onSnapshot(commentsQuery, (querySnapshot) => {
-                commentsList.innerHTML = '';
-                if (querySnapshot.empty) {
+                const comments = [];
+                querySnapshot.forEach((doc) => {
+                    const commentData = doc.data();
+                    if (commentData.timestamp) {
+                        comments.push({ ...commentData, id: doc.id });
+                    }
+                });
+            
+                // Yorumları zaman damgasına göre JavaScript'te sırala
+                comments.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+            
+                commentsList.innerHTML = ''; // Yorum listesini temizle
+            
+                if (comments.length === 0) {
                      commentsList.innerHTML = `<p class="text-center text-gray-500 italic mt-8">Henüz yorum yok. İlk yorumu sen bırak!</p>`;
                 } else {
-                    querySnapshot.forEach((doc) => {
-                        const comment = doc.data();
+                    comments.forEach((comment) => {
                         const commentElement = document.createElement('div');
-                        commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
+                        commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200', 'flex', 'flex-col', 'items-start');
                         
                         const date = new Date(comment.timestamp.toDate());
-                        const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
-                        
+                        const formattedDate = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                        const formattedTime = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
                         commentElement.innerHTML = `
                             <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                            <p class="mt-2 text-text-light text-md">${comment.text}</p>
-                            <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
+                            <p class="mt-2 text-text-light text-md text-left w-full">${comment.text}</p>
+                            <div class="flex justify-between items-center w-full mt-2 text-xs text-gray-500">
+                                <span>${formattedDate}, ${formattedTime}</span>
+                            </div>
                         `;
                         commentsList.appendChild(commentElement);
                     });
@@ -921,7 +935,7 @@
         // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < heartButtonCount; i++) {
+            for (let i = 0; i < sequenceLength; i++) { // Sabit uzunlukta dizi oluştur
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
