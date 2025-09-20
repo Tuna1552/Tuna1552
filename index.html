@@ -210,6 +210,10 @@
                     <i class="fas fa-eye text-xl nav-icon"></i>
                     <span class="mt-1">Gözlerin</span>
                 </button>
+                 <button id="nav-video" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-film text-xl nav-icon"></i>
+                    <span class="mt-1">Video</span>
+                </button>
                 <button id="nav-art" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-palette text-xl nav-icon"></i>
                     <span class="mt-1">Sanat</span>
@@ -234,6 +238,10 @@
                     <button id="nav-eyes-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-eye mr-2"></i>
                         Gözlerin
+                    </button>
+                     <button id="nav-video-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-film mr-2"></i>
+                        Video
                     </button>
                     <button id="nav-art-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-palette mr-2"></i>
@@ -269,6 +277,7 @@
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
         const navEyesBtn = document.getElementById('nav-eyes');
+        const navVideoBtn = document.getElementById('nav-video');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
 
@@ -276,6 +285,7 @@
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
         const navEyesDesktopBtn = document.getElementById('nav-eyes-desktop');
+        const navVideoDesktopBtn = document.getElementById('nav-video-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
 
@@ -475,6 +485,50 @@
                 </div>
             </div>
         `;
+        
+        const videoPageContent = `
+             <div class="w-full max-w-5xl animate-fade-in pb-20 text-center">
+                <div class="bg-card-dark rounded-3xl p-6 mb-12 relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
+                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Sana Özel Videolar</h2>
+                    <p class="text-lg font-light text-gray-300 relative z-10">
+                        Bu videolar, seninle paylaştığımız özel anılardan küçük kesitler.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Video 1 -->
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xl font-semibold mb-4 text-secondary-pink">Video 1</h3>
+                        <div class="w-full rounded-3xl overflow-hidden shadow-2xl">
+                            <video controls class="w-full h-auto rounded-3xl" src="https://drive.google.com/uc?export=download&id=1PwcPtHzPMd6E88FMymnqoCH28_sUe2Oo">
+                                Tarayıcınız video etiketini desteklemiyor.
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- Video 2 -->
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xl font-semibold mb-4 text-secondary-pink">Video 2</h3>
+                        <div class="w-full rounded-3xl overflow-hidden shadow-2xl">
+                            <video controls class="w-full h-auto rounded-3xl" src="https://drive.google.com/uc?export=download&id=1wSHD7ZhivKlsste_bivvSUVL3sUkqJzA">
+                                Tarayıcınız video etiketini desteklemiyor.
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- Video 3 -->
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-xl font-semibold mb-4 text-secondary-pink">Video 3</h3>
+                        <div class="w-full rounded-3xl overflow-hidden shadow-2xl">
+                            <video controls class="w-full h-auto rounded-3xl" src="https://drive.google.com/uc?export=download&id=1O41jASLC4lky3ctWIgHztWmBHu9ouXG_">
+                                Tarayıcınız video etiketini desteklemiyor.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
 
         const artGalleryContent = `
             <div class="w-full max-w-5xl animate-fade-in pb-20">
@@ -622,6 +676,10 @@
                     contentArea.innerHTML = eyesPageContent;
                     setActiveNav('eyes');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (pageName === 'video') {
+                    contentArea.innerHTML = videoPageContent;
+                    setActiveNav('video');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'art') {
                     contentArea.innerHTML = artGalleryContent;
                     setActiveNav('art');
@@ -638,7 +696,7 @@
 
         function setActiveNav(pageName) {
             // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navEyesBtn, navArtBtn, navMessageBtn];
+            const allNavs = [navHomeBtn, navMemoriesBtn, navEyesBtn, navVideoBtn, navArtBtn, navMessageBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
                 btn.classList.add('text-gray-400');
@@ -647,11 +705,12 @@
             if (pageName === 'home') navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'memories') navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'eyes') navEyesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            else if (pageName === 'video') navVideoBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
             // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
+            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navEyesDesktopBtn, navVideoDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
                 btn.classList.add('hover:bg-gray-700');
@@ -666,6 +725,9 @@
             } else if (pageName === 'eyes') {
                 navEyesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navEyesDesktopBtn.classList.remove('hover:bg-gray-700');
+            } else if (pageName === 'video') {
+                navVideoDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navVideoDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'art') {
                 navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navArtDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -863,12 +925,14 @@
         if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         if (navEyesBtn) navEyesBtn.addEventListener('click', () => renderPage('eyes'));
+        if (navVideoBtn) navVideoBtn.addEventListener('click', () => renderPage('video'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
         if (navEyesDesktopBtn) navEyesDesktopBtn.addEventListener('click', () => renderPage('eyes'));
+        if (navVideoDesktopBtn) navVideoDesktopBtn.addEventListener('click', () => renderPage('video'));
         if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         
