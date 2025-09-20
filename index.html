@@ -545,7 +545,7 @@
                 </p>
                 <div id="message-container-wrapper" class="w-full">
                     <button id="show-message-btn" class="message-button-transition w-full max-w-xs md:max-w-md py-4 rounded-3xl font-bold text-white text-lg bg-gradient-to-r from-primary-blue to-cyan-500 hover:from-cyan-500 hover:to-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse">
-                        <i class="fas fa-envelope mr-2"></i> Mesajı Oku
+                        <i class="fas fa-envelope-open-text mr-2"></i> Mesajı Oku
                     </button>
                     <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative message-box-transition">
                         <!-- Messages will be written here dynamically -->
@@ -724,8 +724,8 @@
             "Sevgilerimle, Tuna."
         ];
         
-        const typingDelay = 50; 
-        const paragraphDelay = 1500; 
+        const typingDelay = 40; // Hız tekrar ayarlandı
+        const paragraphDelay = 1500; // Paragraflar arası bekleme tekrar ayarlandı
         
         async function typeMessageContent() {
             const allMessagesContainer = document.getElementById('all-messages-container');
@@ -762,6 +762,7 @@
                     setTimeout(() => {
                         showMessageBtn.classList.add('hidden');
                         allMessagesContainer.classList.remove('hidden');
+                        allMessagesContainer.classList.add('animate-slide-up'); // Mesaj kutusuna animasyon eklendi
                         typeMessageContent(); 
                     }, 500); 
                 });
