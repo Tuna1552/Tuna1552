@@ -161,32 +161,6 @@
             transition: all 1s ease-in-out;
         }
         
-        /* Ziyaretçi Defteri Stilleri */
-        .comment-card {
-            background-color: #1a1a1a;
-            padding: 1.5rem;
-            border-left: 4px solid #4A90E2;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        .comment-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(74, 144, 226, 0.5);
-        }
-        .comment-form {
-            background-color: #1a1a1a;
-            padding: 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
-        .comment-submit-btn {
-            transition: all 0.3s ease-in-out;
-        }
-        .comment-submit-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -232,6 +206,10 @@
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
                 </button>
+                <button id="nav-eyes" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-eye text-xl nav-icon"></i>
+                    <span class="mt-1">Gözlerin</span>
+                </button>
                 <button id="nav-art" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-palette text-xl nav-icon"></i>
                     <span class="mt-1">Sanat</span>
@@ -239,10 +217,6 @@
                 <button id="nav-message" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
                     <span class="mt-1">Mesajım</span>
-                </button>
-                <button id="nav-guestbook" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
-                    <i class="fas fa-book-open text-xl nav-icon"></i>
-                    <span class="mt-1">Ziyaretçi Defteri</span>
                 </button>
             </nav>
 
@@ -257,6 +231,10 @@
                         <i class="fas fa-camera mr-2"></i>
                         Anılar
                     </button>
+                    <button id="nav-eyes-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-eye mr-2"></i>
+                        Gözlerin
+                    </button>
                     <button id="nav-art-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-palette mr-2"></i>
                         Sanat Galerisi
@@ -264,10 +242,6 @@
                     <button id="nav-message-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-envelope-open-text mr-2"></i>
                         Sana Özel Mesaj
-                    </button>
-                    <button id="nav-guestbook-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
-                        <i class="fas fa-book-open mr-2"></i>
-                        Ziyaretçi Defteri
                     </button>
                 </div>
             </nav>
@@ -294,16 +268,16 @@
         // Mobile Nav
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
+        const navEyesBtn = document.getElementById('nav-eyes');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
-        const navGuestbookBtn = document.getElementById('nav-guestbook');
 
         // Desktop Nav
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
+        const navEyesDesktopBtn = document.getElementById('nav-eyes-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
-        const navGuestbookDesktopBtn = document.getElementById('nav-guestbook-desktop');
 
         // Canvas Elements
         const canvas = document.getElementById('hearts-canvas');
@@ -452,7 +426,6 @@
                         <img src="https://i.supaimg.com/d056a0fd-1a8f-408a-a933-677033c03656.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin doğal güzelliği</div>
                     </div>
-                    <!-- Yeni eklenen fotoğraflar -->
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/0d7c3a17-110f-4efd-a390-cf7158491a4c.jpg" alt="Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin harika bir pozu</div>
@@ -462,16 +435,42 @@
                         <div class="photo-caption">Ece'nin neşeli anısı</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/1e1e9673-888a-4b37-9d86-afefda5465b5.jpg" alt="Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">Ece'nin doğal güzelliği</div>
-                    </div>
-                    <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/3b4d1d97-0ba0-415d-aa56-50a263a1cb3d.jpg" alt="Ece'nin anlamlı bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin anlamlı bir anı fotoğrafı</div>
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/aa71997c-9b33-4c73-9df8-dc333058e130.jpg" alt="Ece'nin içten gülüşü" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Ece'nin içten gülüşü</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const eyesPageContent = `
+            <div class="w-full max-w-5xl animate-fade-in pb-20">
+                <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
+                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Gözlerin</h2>
+                    <p class="text-lg font-light text-gray-300 relative z-10">
+                        Bu sayfayı açtığında gözlerinin ne kadar özel olduğunu bir kez daha fark edebilirsin.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/96643410-47e5-45c0-88d5-70a3edd29086.jpg" alt="Ece'nin parıldayan gözleri" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Hayatımı aydınlatan o ışıltı.</div>
+                    </div>
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/9b810e43-e506-4f36-9426-607835727d37.jpg" alt="Ece'nin derin bakan gözleri" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Baktıkça içinde kaybolduğum gözlerin.</div>
+                    </div>
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/c0380fc6-4942-4cb4-89e2-0aa71b017ba6.jpg" alt="Ece'nin huzur veren gözleri" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Tüm huzuru bulduğum o eşsiz bakış.</div>
+                    </div>
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/1e1e9673-888a-4b37-9d86-afefda5465b5.jpg" alt="Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">Gözlerinle çektiğin fotoğraf.</div>
                     </div>
                 </div>
             </div>
@@ -542,36 +541,6 @@
                     <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative message-box-transition">
                         <!-- Messages will be written here dynamically -->
                     </div>
-                </div>
-            </div>
-        `;
-        
-        const guestbookPageContent = `
-            <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center pb-20">
-                <div class="relative w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl text-primary-blue">
-                    <i class="fas fa-book-open text-6xl"></i>
-                </div>
-                <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
-                    Ziyaretçi Defteri
-                </h1>
-                <p class="text-lg md:text-xl font-light italic text-gray-300 mb-8">
-                    Sevgili Ece, buraya bırakılan her not kalıcıdır ve silinemez.
-                </p>
-                <form id="commentForm" class="comment-form w-full max-w-md mx-auto mb-10">
-                    <div class="mb-4 text-left">
-                        <label for="commentName" class="block text-text-light font-semibold mb-2">Adın:</label>
-                        <input type="text" id="commentName" placeholder="Adını yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue">
-                    </div>
-                    <div class="mb-6 text-left">
-                        <label for="commentText" class="block text-text-light font-semibold mb-2">Yorumun:</label>
-                        <textarea id="commentText" rows="4" placeholder="Buraya kalbinden geçenleri yaz..." required class="w-full p-3 rounded-xl bg-gray-700 text-text-light border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-blue"></textarea>
-                    </div>
-                    <button id="submit-comment-btn" type="button" class="comment-submit-btn w-full py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-secondary-pink to-fuchsia-500 hover:from-fuchsia-500 hover:to-secondary-pink transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Yorumu Bırak
-                    </button>
-                </form>
-                <div id="commentsList" class="w-full max-w-md space-y-6">
-                    <!-- Comments will be added here dynamically -->
                 </div>
             </div>
         `;
@@ -649,6 +618,10 @@
                     contentArea.innerHTML = memoriesPageContent;
                     setActiveNav('memories');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (pageName === 'eyes') {
+                    contentArea.innerHTML = eyesPageContent;
+                    setActiveNav('eyes');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'art') {
                     contentArea.innerHTML = artGalleryContent;
                     setActiveNav('art');
@@ -658,11 +631,6 @@
                     setActiveNav('message');
                     setTimeout(attachMessageButtonListener, 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (pageName === 'guestbook') {
-                    contentArea.innerHTML = guestbookPageContent;
-                    setActiveNav('guestbook');
-                    setTimeout(attachGuestbookListeners, 100);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 contentArea.classList.remove('opacity-0');
             }, 500);
@@ -670,7 +638,7 @@
 
         function setActiveNav(pageName) {
             // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navArtBtn, navMessageBtn, navGuestbookBtn];
+            const allNavs = [navHomeBtn, navMemoriesBtn, navEyesBtn, navArtBtn, navMessageBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
                 btn.classList.add('text-gray-400');
@@ -678,12 +646,12 @@
 
             if (pageName === 'home') navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'memories') navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            else if (pageName === 'eyes') navEyesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'guestbook') navGuestbookBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
             // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn, navGuestbookDesktopBtn];
+            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
                 btn.classList.add('hover:bg-gray-700');
@@ -695,15 +663,15 @@
             } else if (pageName === 'memories') {
                 navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
+            } else if (pageName === 'eyes') {
+                navEyesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navEyesDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'art') {
                 navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navArtDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'message') {
                 navMessageDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'guestbook') {
-                 navGuestbookDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                 navGuestbookDesktopBtn.classList.remove('hover:bg-gray-700');
             }
         }
         
@@ -791,77 +759,6 @@
             }
         }
 
-        function attachGuestbookListeners() {
-            const commentForm = document.getElementById('commentForm');
-            const commentsList = document.getElementById('commentsList');
-            const submitBtn = document.getElementById('submit-comment-btn');
-
-            if (!commentForm || !commentsList || !submitBtn) {
-                return;
-            }
-            
-            // Yorumları localStorage'dan çek ve ekrana bas
-            function displayComments() {
-                commentsList.innerHTML = '';
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yorumları en yenisi en üstte olacak şekilde sırala
-                comments.reverse();
-                
-                comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-card', 'animate-fade-in', 'slide-up', 'delay-200');
-                    
-                    const date = new Date(comment.timestamp);
-                    const formattedDate = date.toLocaleDateString('tr-TR') + ' ' + date.toLocaleTimeString('tr-TR');
-
-                    commentElement.innerHTML = `
-                        <p class="font-bold text-lg text-primary-blue">${comment.name}</p>
-                        <p class="mt-2 text-text-light text-md">${comment.text}</p>
-                        <p class="text-xs text-gray-500 mt-2">${formattedDate}</p>
-                    `;
-                    commentsList.appendChild(commentElement);
-                });
-            }
-
-            // Sayfa yüklendiğinde yorumları göster
-            displayComments();
-
-            // Yorum gönderme butonuna tıklama olayı
-            submitBtn.addEventListener('click', (event) => {
-                event.preventDefault(); // Butonun varsayılan form gönderme davranışını engelle
-                
-                const commentName = document.getElementById('commentName').value.trim();
-                const commentText = document.getElementById('commentText').value.trim();
-    
-                if (!commentName || !commentText) {
-                    return;
-                }
-
-                // Yorumu bir obje olarak hazırla
-                const newComment = {
-                    name: commentName,
-                    text: commentText,
-                    timestamp: new Date().toISOString() // ISO formatında tarih ve saat
-                };
-
-                // Eski yorumları localStorage'dan çek
-                const comments = JSON.parse(localStorage.getItem('guestbookComments') || '[]');
-                
-                // Yeni yorumu listeye ekle
-                comments.push(newComment);
-                
-                // Güncellenmiş listeyi localStorage'a geri kaydet
-                localStorage.setItem('guestbookComments', JSON.stringify(comments));
-
-                // Formu temizle
-                commentForm.reset();
-
-                // Yorumları tekrar yükle
-                displayComments();
-            });
-        }
-        
         // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
@@ -965,15 +862,15 @@
         
         if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
+        if (navEyesBtn) navEyesBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
-        if (navGuestbookBtn) navGuestbookBtn.addEventListener('click', () => renderPage('guestbook'));
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
+        if (navEyesDesktopBtn) navEyesDesktopBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
-        if (navGuestbookDesktopBtn) navGuestbookDesktopBtn.addEventListener('click', () => renderPage('guestbook'));
         
         // DOM içeriği yüklendikten sonra her şeyi başlat
         document.addEventListener('DOMContentLoaded', () => {
