@@ -129,9 +129,6 @@
             border-radius: 12px;
             box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
             transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
-            /* Resim boyutunu ve oranını koruyacak esnek yapılar */
-            width: 100%;
-            height: auto;
         }
 
         .image-container:hover {
@@ -174,10 +171,10 @@
     <!-- Ana Arayüz Elemanları -->
     <div class="ui-container flex flex-col min-h-screen">
         <!-- Password Page -->
-        <div id="password-page" class="flex flex-col items-center justify-center flex-1 p-4 md:p-8 text-center password-page-transition">
+        <div id="password-page" class="flex flex-col items-center justify-center flex-1 p-4 text-center password-page-transition">
             <div class="w-full max-w-sm p-8 bg-card-dark rounded-3xl shadow-2xl backdrop-blur-md">
                 <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-primary-blue drop-shadow-lg animate-pulse-grow">Merhaba, Ece!</h1>
-                <p class="text-md md:text-lg text-gray-400 mb-6 font-light">
+                <p class="text-md text-gray-400 mb-6 font-light">
                     Bu sürpriz siteye erişmek için kalbinin yolunu izle. Kısa süre yanacak olan kalplerin sırasını hatırla ve doğru şekilde dokun.
                 </p>
                 <div id="heart-grid" class="grid grid-cols-3 gap-4 max-w-xs mx-auto mb-6 min-h-[150px]">
@@ -195,7 +192,7 @@
         <!-- Main Application Container -->
         <div id="app-container" class="hidden flex-1 flex flex-col p-4 md:p-8 relative">
             <!-- Dynamic Content Area -->
-            <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4 md:p-8">
+            <div id="content-area" class="flex-1 flex flex-col items-center justify-center text-center p-4">
                 <!-- Ana Sayfa (Home) content will be loaded here -->
             </div>
 
@@ -208,10 +205,6 @@
                 <button id="nav-memories" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
-                </button>
-                <button id="nav-us" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
-                    <i class="fas fa-users text-xl nav-icon"></i>
-                    <span class="mt-1">Biz</span>
                 </button>
                 <button id="nav-eyes" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-eye text-xl nav-icon"></i>
@@ -238,10 +231,6 @@
                         <i class="fas fa-camera mr-2"></i>
                         Anılar
                     </button>
-                    <button id="nav-us-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
-                        <i class="fas fa-users mr-2"></i>
-                        Biz
-                    </button>
                     <button id="nav-eyes-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-eye mr-2"></i>
                         Gözlerin
@@ -265,7 +254,7 @@
         let sequence = [];
         let userSequence = [];
         const heartButtonCount = 9;
-        const sequenceLength = 4; // Doğru değer 4 olarak ayarlandı
+        const sequenceLength = 4;
         let isPlaying = false;
         
         // --- Element Selectors ---
@@ -279,7 +268,6 @@
         // Mobile Nav
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
-        const navUsBtn = document.getElementById('nav-us');
         const navEyesBtn = document.getElementById('nav-eyes');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
@@ -287,7 +275,6 @@
         // Desktop Nav
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
-        const navUsDesktopBtn = document.getElementById('nav-us-desktop');
         const navEyesDesktopBtn = document.getElementById('nav-eyes-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
@@ -343,161 +330,131 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-20">
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/7fa0f7d7-431f-4aef-95b9-1261f45c6d53.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/7fa0f7d7-431f-4aef-95b9-1261f45c6d53.jpg" alt="Anı 1 - Ece'nin güzel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/d82c0d1c-4f02-4778-9af2-9ffb7cb0d075.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/d82c0d1c-4f02-4778-9af2-9ffb7cb0d075.jpg" alt="Anı 2 - Ece'nin gülüşünü yansıtan bir an" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/fbef034e-ea3e-44b0-acfe-a698482b775d.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/fbef034e-ea3e-44b0-acfe-a698482b775d.jpg" alt="Anı 3 - Ece'nin özel bir pozu" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/d5e346f5-36d6-4f1c-b9c3-6d3199d8d41a.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/d5e346f5-36d6-4f1c-b9c3-6d3199d8d41a.jpg" alt="Anı 4 - Ece'nin eğlenceli anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/3ce8c544-aedc-488b-bae5-c893f8b3d091.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/3ce8c544-aedc-488b-bae5-c893f8b3d091.jpg" alt="Anı 5 - Ece'nin neşeli hali" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/4b5d3059-b770-47ee-9867-89818a640651.jpg" alt="Anı 6 - Ece'nin arkadaşlarıyla anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/aca8f4f0-07b5-41d4-b1ed-3310e9feddd9.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/40eba303-eb3d-4a9d-b99e-78c48341afb9.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/aca8f4f0-07b5-41d4-b1ed-3310e9feddd9.jpg" alt="Anı 8 - Ece'nin unutulmaz anısı" class="w-full h-48">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/24a704b3-f764-4835-baf0-aa849350ffa9.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/40eba303-eb3d-4a9d-b99e-78c48341afb9.jpg" alt="Anı 9 - Ece'nin gülerken bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/24a704b3-f764-4835-baf0-aa849350ffa9.jpg" alt="Anı 10 - Ece'nin özel bir günü" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Anı 11 - Ece'nin huzurlu bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-2xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/bda13bf2-08da-46e4-8315-986ba4eef8dc.jpg" alt="Anı 13 - Ece'nin parlayan anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/2b4f67a4-7f2d-4082-9d29-4d26b3f5ef70.jpg" alt="Anı 14 - Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/a4f0b1ea-bd51-48a5-974c-b630082afe48.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/8c928684-c4ab-4d73-ad60-3d576769de8c.jpg" alt="Anı 15 - Ece'nin içten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/2d8f1a7d-4596-44cd-b4c9-d65e10332887.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/032c8d97-5c32-4592-88c8-4f7e045c0e97.jpg" alt="Anı 16 - Ece'nin tatlı bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/54ee9c30-4341-44ef-944f-28bd3fe0d7c1.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/0a0a6fe2-1d15-4c10-9a9a-9a955386e311.jpg" alt="Anı 17 - Ece'nin masumiyeti" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/74cbfbb7-4c1c-4f63-bcdd-f1ed63f06419.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/a4f0b1ea-bd51-48a5-974c-b630082afe48.jpg" alt="Yeni eklenen özel bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/d88da605-4ffa-429c-aa41-c6e3dc879b76.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/2d8f1a7d-4596-44cd-b4c9-d65e10332887.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/4de1165f-12ed-4f4f-93e7-714416c7a5c5.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/54ee9c30-4341-44ef-944f-28bd3fe0d7c1.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/d056a0fd-1a8f-408a-a933-677033c03656.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/74cbfbb7-4c1c-4f63-bcdd-f1ed63f06419.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/0d7c3a17-110f-4efd-a390-cf7158491a4c.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/d88da605-4ffa-429c-aa41-c6e3dc879b76.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/e856e36c-ffa4-4dd9-a5a3-627443e234cb.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/4de1165f-12ed-4f4f-93e7-714416c7a5c5.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/3b4d1d97-0ba0-415d-aa56-50a263a1cb3d.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/d056a0fd-1a8f-408a-a933-677033c03656.jpg" alt="Ece'nin yeni bir anısı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/aa71997c-9b33-4c73-9df8-dc333058e130.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/0d7c3a17-110f-4efd-a390-cf7158491a4c.jpg" alt="Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
+                    </div>
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/e856e36c-ffa4-4dd9-a5a3-627443e234cb.jpg" alt="Ece'nin neşeli anısı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
+                    </div>
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/3b4d1d97-0ba0-415d-aa56-50a263a1cb3d.jpg" alt="Ece'nin anlamlı bir anı fotoğrafı" class="w-full h-full object-cover rounded-xl">
+                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
+                    </div>
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/aa71997c-9b33-4c73-9df8-dc333058e130.jpg" alt="Ece'nin içten gülüşü" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
                     <!-- Yeni eklenen resimler -->
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/d35ea121-a2b9-4bf0-a8dc-6a7d55cbd188.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/d35ea121-a2b9-4bf0-a8dc-6a7d55cbd188.jpg" alt="Yeni eklenen fotoğraf" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/1966777f-2cff-41a8-aad1-34c64e0c5b88.jpg" alt="" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const usPageContent = `
-            <div class="w-full max-w-5xl animate-fade-in">
-                <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
-                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
-                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Biz</h2>
-                    <p class="text-lg font-light text-gray-300 relative z-10">
-                        Bu sayfa, ikimizin en güzel anılarına ait.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
-                    <div class="image-container w-full h-auto aspect-video">
-                        <img src="https://i.supaimg.com/647722ad-a257-43e1-a139-6fcd6153fae4.jpg" alt="" class="w-full h-full object-contain rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-auto aspect-video">
-                        <img src="https://i.supaimg.com/e6420186-ca2b-4d5e-97c1-4ef332eb6bd2.jpg" alt="" class="w-full h-full object-contain rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pb-20">
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/013763bd-7fe8-493d-969d-b5ddd4811e63.jpg" alt="" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/4b5d3059-b770-47ee-9867-89818a640651.jpg" alt="" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-48">
+                        <img src="https://i.supaimg.com/1966777f-2cff-41a8-aad1-34c64e0c5b88.jpg" alt="Yeni eklenen fotoğraf" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
                 </div>
             </div>
         `;
-
+        
         const eyesPageContent = `
             <div class="w-full max-w-5xl animate-fade-in pb-20">
                 <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
@@ -508,20 +465,20 @@
                     </p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/96643410-47e5-45c0-88d5-70a3edd29086.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/96643410-47e5-45c0-88d5-70a3edd29086.jpg" alt="Ece'nin parıldayan gözleri" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Hayatımı aydınlatan o ışıltı.</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/9b810e43-e506-4f36-9426-607835727d37.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/9b810e43-e506-4f36-9426-607835727d37.jpg" alt="Ece'nin derin bakan gözleri" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Baktıkça içinde kaybolduğum gözlerin.</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/c0380fc6-4942-4cb4-89e2-0aa71b017ba6.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/c0380fc6-4942-4cb4-89e2-0aa71b017ba6.jpg" alt="Ece'nin huzur veren gözleri" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Tüm huzuru bulduğum o eşsiz bakış.</div>
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/1e1e9673-888a-4b37-9d86-afefda5465b5.jpg" alt="" class="w-full h-full object-cover rounded-xl">
+                    <div class="image-container w-full h-64">
+                        <img src="https://i.supaimg.com/1e1e9673-888a-4b37-9d86-afefda5465b5.jpg" alt="Ece'nin doğal güzelliği" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">Gözlerinle çektiğin fotoğraf.</div>
                     </div>
                 </div>
@@ -535,41 +492,41 @@
                     Gözlerin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/8c447232-7310-420a-906c-1700a0773f1c.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/8c447232-7310-420a-906c-1700a0773f1c.jpg" alt="Dinamik renkli soyut bir eser" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/5299cf87-57ec-4042-b472-3f49b67c1b40.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/5299cf87-57ec-4042-b472-3f49b67c1b40.jpg" alt="Ahenkli soyut bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/a23646ac-a259-4fc3-ac83-01ffae58baf2.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/a23646ac-a259-4fc3-ac83-01ffae58baf2.jpg" alt="Soyut bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/fa97566f-cfe5-4a9b-b7ce-ed1af9b8a680.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/fa97566f-cfe5-4a9b-b7ce-ed1af9b8a680.jpg" alt="Neşeli renklerde bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/97b200fc-9896-4a06-9893-39a0e915e28d.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/97b200fc-9896-4a06-9893-39a0e915e28d.jpg" alt="Rüya gibi bir manzara tablosu" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/843ab53c-bef6-4a4f-87fb-c8c60b500026.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/843ab53c-bef6-4a4f-87fb-c8c60b500026.jpg" alt="Canlı renklerle modern sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/438e8db9-3f5f-4763-b79e-694629c38421.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/438e8db9-3f5f-4763-b79e-694629c38421.jpg" alt="Huzurlu bir deniz manzarası" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/db7f6149-6588-4f15-93f9-7582f8a69996.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/db7f6149-6588-4f15-93f9-7582f8a69996.jpg" alt="Güneşli bir ortamı yansıtan eser" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/a9a84669-1ee9-4729-9724-932183af61e9.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/a9a84669-1ee9-4729-9724-932183af61e9.jpg" alt="Canlı bir şehir tablosu" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/f7f18d07-0fda-423e-bd42-5b5293b4824a.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/f7f18d07-0fda-423e-bd42-5b5293b4824a.jpg" alt="Sakin bir göl manzarası" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/5689c1c9-b037-4611-a853-0904eff948d0.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/5689c1c9-b037-4611-a853-0904eff948d0.jpg" alt="Ruhani bir yolculuk" class="w-full h-full object-cover rounded-2xl">
                     </div>
-                    <div class="image-container w-full h-auto">
-                        <img src="https://i.supaimg.com/c79fc417-1606-430a-b474-159293cf67ae.jpg" alt="" class="w-full h-full object-cover rounded-2xl">
+                    <div class="image-container w-full h-96">
+                        <img src="https://i.supaimg.com/c79fc417-1606-430a-b474-159293cf67ae.jpg" alt="Sana özel bir sanat eseri" class="w-full h-full object-cover rounded-2xl">
                     </div>
                 </div>
             </div>
@@ -588,7 +545,7 @@
                 </p>
                 <div id="message-container-wrapper" class="w-full">
                     <button id="show-message-btn" class="message-button-transition w-full max-w-xs md:max-w-md py-4 rounded-3xl font-bold text-white text-lg bg-gradient-to-r from-primary-blue to-cyan-500 hover:from-cyan-500 hover:to-primary-blue transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse">
-                        <i class="fas fa-envelope-open-text mr-2"></i> Mesajı Oku
+                        <i class="fas fa-envelope mr-2"></i> Mesajı Oku
                     </button>
                     <div id="all-messages-container" class="hidden bg-card-dark rounded-3xl p-6 md:p-8 w-full shadow-2xl relative message-box-transition">
                         <!-- Messages will be written here dynamically -->
@@ -670,10 +627,6 @@
                     contentArea.innerHTML = memoriesPageContent;
                     setActiveNav('memories');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (pageName === 'us') {
-                    contentArea.innerHTML = usPageContent;
-                    setActiveNav('us');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'eyes') {
                     contentArea.innerHTML = eyesPageContent;
                     setActiveNav('eyes');
@@ -694,7 +647,7 @@
 
         function setActiveNav(pageName) {
             // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navUsBtn, navEyesBtn, navArtBtn, navMessageBtn];
+            const allNavs = [navHomeBtn, navMemoriesBtn, navEyesBtn, navArtBtn, navMessageBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
                 btn.classList.add('text-gray-400');
@@ -702,13 +655,12 @@
 
             if (pageName === 'home') navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'memories') navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'us') navUsBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'eyes') navEyesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
             // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navUsDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
+            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
                 btn.classList.add('hover:bg-gray-700');
@@ -720,9 +672,6 @@
             } else if (pageName === 'memories') {
                 navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'us') {
-                navUsDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navUsDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'eyes') {
                 navEyesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navEyesDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -775,7 +724,7 @@
             "Sevgilerimle, Tuna."
         ];
         
-        const typingDelay = 40; 
+        const typingDelay = 50; 
         const paragraphDelay = 1500; 
         
         async function typeMessageContent() {
@@ -813,7 +762,6 @@
                     setTimeout(() => {
                         showMessageBtn.classList.add('hidden');
                         allMessagesContainer.classList.remove('hidden');
-                        allMessagesContainer.classList.add('animate-slide-up'); 
                         typeMessageContent(); 
                     }, 500); 
                 });
@@ -823,7 +771,7 @@
         // --- Password Game Logic ---
         function generateSequence() {
             const newSequence = [];
-            for (let i = 0; i < sequenceLength; i++) { // Burası düzeltildi
+            for (let i = 0; i < sequenceLength; i++) {
                 newSequence.push(Math.floor(Math.random() * heartButtonCount));
             }
             return newSequence;
@@ -872,7 +820,7 @@
             heartGrid.innerHTML = ''; 
             for(let i = 0; i < heartButtonCount; i++) {
                 const button = document.createElement('button');
-                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300', 'hover:scale-110');
+                button.classList.add('heart-icon-btn', 'aspect-square', 'bg-gray-700', 'rounded-full', 'flex', 'items-center', 'justify-center', 'text-2xl', 'text-secondary-pink', 'shadow-md', 'hover:bg-gray-600', 'transition-colors', 'duration-300');
                 button.dataset.index = i;
                 button.innerHTML = `&hearts;`; 
 
@@ -923,14 +871,12 @@
         
         if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
-        if (navUsBtn) navUsBtn.addEventListener('click', () => renderPage('us'));
         if (navEyesBtn) navEyesBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
-        if (navUsDesktopBtn) navUsDesktopBtn.addEventListener('click', () => renderPage('us'));
         if (navEyesDesktopBtn) navEyesDesktopBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
