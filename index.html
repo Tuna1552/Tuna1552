@@ -206,6 +206,10 @@
                     <i class="fas fa-camera text-xl nav-icon"></i>
                     <span class="mt-1">Anılar</span>
                 </button>
+                 <button id="nav-us" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
+                    <i class="fas fa-heart text-xl nav-icon"></i>
+                    <span class="mt-1">Biz</span>
+                </button>
                 <button id="nav-eyes" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-eye text-xl nav-icon"></i>
                     <span class="mt-1">Gözlerin</span>
@@ -230,6 +234,10 @@
                     <button id="nav-memories-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-camera mr-2"></i>
                         Anılar
+                    </button>
+                    <button id="nav-us-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
+                        <i class="fas fa-heart mr-2"></i>
+                        Biz
                     </button>
                     <button id="nav-eyes-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-eye mr-2"></i>
@@ -268,6 +276,7 @@
         // Mobile Nav
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
+        const navUsBtn = document.getElementById('nav-us');
         const navEyesBtn = document.getElementById('nav-eyes');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
@@ -275,6 +284,7 @@
         // Desktop Nav
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
+        const navUsDesktopBtn = document.getElementById('nav-us-desktop');
         const navEyesDesktopBtn = document.getElementById('nav-eyes-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
@@ -351,10 +361,6 @@
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
                     <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/4b5d3059-b770-47ee-9867-89818a640651.jpg" alt="Anı 6 - Ece'nin arkadaşlarıyla anısı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/f5278eb3-88e3-48af-a940-81f3511c5dfd.jpg" alt="Anı 7 - Ece'nin kalpten bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
@@ -368,14 +374,6 @@
                     </div>
                     <div class="image-container w-full h-48">
                         <img src="https://i.supaimg.com/24a704b3-f764-4835-baf0-aa849350ffa9.jpg" alt="Anı 10 - Ece'nin özel bir günü" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Anı 11 - Ece'nin huzurlu bir fotoğrafı" class="w-full h-full object-cover rounded-xl">
-                        <div class="photo-caption">İyiki Doğdun Ece ♥</div>
-                    </div>
-                    <div class="image-container w-full h-48">
-                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Anı 12 - Ece'nin harika bir pozu" class="w-full h-full object-cover rounded-2xl">
                         <div class="photo-caption">İyiki Doğdun Ece ♥</div>
                     </div>
                     <div class="image-container w-full h-48">
@@ -454,7 +452,49 @@
                 </div>
             </div>
         `;
-        
+
+        const usPageContent = `
+            <div class="w-full max-w-5xl animate-fade-in pb-20">
+                <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
+                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Biz</h2>
+                    <p class="text-lg font-light text-gray-300 relative z-10">
+                        Hayatımın en güzel hikayesi, birlikte yazdığımız bu hikaye.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="image-container w-full">
+                        <img src="https://i.supaimg.com/647722ad-a257-43e1-a139-6fcd6153fae4.jpg" alt="Birlikte bir fotoğraf" class="w-full h-auto object-cover rounded-xl">
+                        <div class="photo-caption">En güzel anlarımızdan biri.</div>
+                    </div>
+                    <div class="image-container w-full">
+                        <img src="https://i.supaimg.com/e6420186-ca2b-4d5e-97c1-4ef332eb6bd2.jpg" alt="Birlikte bir fotoğraf" class="w-full h-auto object-cover rounded-xl">
+                        <div class="photo-caption">Birlikte geçen her saniye çok değerli.</div>
+                    </div>
+                </div>
+                <div class="flex justify-center mb-6">
+                    <div class="image-container w-full lg:w-1/2">
+                        <img src="https://i.supaimg.com/013763bd-7fe8-493d-969d-b5ddd4811e63.jpg" alt="Birlikte bir fotoğraf" class="w-full h-auto object-cover rounded-xl">
+                        <div class="photo-caption">Her an, birlikte daha anlamlı.</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="image-container w-full">
+                        <img src="https://i.supaimg.com/4b5d3059-b770-47ee-9867-89818a640651.jpg" alt="Ece'nin arkadaşlarıyla anısı" class="w-full h-auto object-cover rounded-xl">
+                        <div class="photo-caption">Birlikte anılar biriktirirken...</div>
+                    </div>
+                    <div class="image-container w-full">
+                        <img src="https://i.supaimg.com/34f64ec1-7b18-4045-9315-a2f9afb45026.jpg" alt="Ece'nin huzurlu bir fotoğrafı" class="w-full h-auto object-cover rounded-xl">
+                        <div class="photo-caption">Seninle huzur bulduğum anlar.</div>
+                    </div>
+                    <div class="image-container w-full">
+                        <img src="https://i.supaimg.com/e354d723-4305-420d-8fcf-2daaac37c19f.jpg" alt="Ece'nin harika bir pozu" class="w-full h-auto object-cover rounded-xl">
+                        <div class="photo-caption">Birlikte her şey daha güzel.</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
         const eyesPageContent = `
             <div class="w-full max-w-5xl animate-fade-in pb-20">
                 <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
@@ -627,6 +667,10 @@
                     contentArea.innerHTML = memoriesPageContent;
                     setActiveNav('memories');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (pageName === 'us') {
+                    contentArea.innerHTML = usPageContent;
+                    setActiveNav('us');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'eyes') {
                     contentArea.innerHTML = eyesPageContent;
                     setActiveNav('eyes');
@@ -647,7 +691,7 @@
 
         function setActiveNav(pageName) {
             // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navEyesBtn, navArtBtn, navMessageBtn];
+            const allNavs = [navHomeBtn, navMemoriesBtn, navUsBtn, navEyesBtn, navArtBtn, navMessageBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
                 btn.classList.add('text-gray-400');
@@ -655,12 +699,13 @@
 
             if (pageName === 'home') navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'memories') navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
+            else if (pageName === 'us') navUsBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'eyes') navEyesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
             // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
+            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navUsDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
                 btn.classList.add('hover:bg-gray-700');
@@ -672,6 +717,9 @@
             } else if (pageName === 'memories') {
                 navMemoriesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMemoriesDesktopBtn.classList.remove('hover:bg-gray-700');
+            } else if (pageName === 'us') {
+                 navUsDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
+                navUsDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'eyes') {
                 navEyesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navEyesDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -871,12 +919,14 @@
         
         if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
+        if (navUsBtn) navUsBtn.addEventListener('click', () => renderPage('us'));
         if (navEyesBtn) navEyesBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
+        if (navUsDesktopBtn) navUsDesktopBtn.addEventListener('click', () => renderPage('us'));
         if (navEyesDesktopBtn) navEyesDesktopBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
