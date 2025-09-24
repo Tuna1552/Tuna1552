@@ -352,8 +352,18 @@
             <button id="close-modal-btn" class="close-btn z-50">
                 <i class="fas fa-times"></i>
             </button>
-            <iframe id="video-iframe" class="rounded-xl w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- The iframe will be moved here dynamically -->
         </div>
+    </div>
+
+    <!-- Pre-loaded hidden iframes to improve loading speed -->
+    <div id="hidden-iframes" class="hidden">
+        <iframe id="video-iframe-1" class="w-full h-full" src="https://www.youtube.com/embed/ZU2AF4lvpWY?autoplay=1&mute=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="video-iframe-2" class="w-full h-full" src="https://www.youtube.com/embed/8nXp--Od3pQ?autoplay=1&mute=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="video-iframe-3" class="w-full h-full" src="https://www.youtube.com/embed/79PeAGiMzEc?autoplay=1&mute=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="video-iframe-4" class="w-full h-full" src="https://www.youtube.com/embed/HomRBvtn-Mc?autoplay=1&mute=1&rel=0&playlist=HomRBvtn-Mc&loop=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="video-iframe-5" class="w-full h-full" src="https://www.youtube.com/embed/rnJAlKaalQE?autoplay=1&mute=1&rel=0&playlist=rnJAlKaalQE&loop=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="video-iframe-6" class="w-full h-full" src="https://www.youtube.com/embed/kvJmcF2dqJM?autoplay=1&mute=1&rel=0&playlist=kvJmcF2dqJM&loop=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
     
     <script>
@@ -393,8 +403,9 @@
 
         // Video Modal Elements
         const videoModal = document.getElementById('video-modal');
-        const videoIframe = document.getElementById('video-iframe');
+        const modalContent = videoModal.querySelector('.video-modal-content');
         const closeModalBtn = document.getElementById('close-modal-btn');
+        const hiddenIframesContainer = document.getElementById('hidden-iframes');
 
         // Canvas Elements
         const canvas = document.getElementById('hearts-canvas');
@@ -562,7 +573,7 @@
                     <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
                     <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Biz</h2>
                     <p class="text-lg font-light text-gray-300 relative z-10">
-                        Seninle birlikte olduğum her fotoğraf benim için çok değerli, İyiki Varsın...
+                        Seninle beraber bu anıları yaşamak çok güzel, iyi ki varsın... ♥
                     </p>
                 </div>
                 <!-- İlk iki fotoğraf yan yana, boyutları sabit kaldı -->
@@ -678,41 +689,41 @@
                     <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
                     <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Videolar</h2>
                     <p class="text-lg font-light text-gray-300 relative z-10">
-                        Ne zaman açıp izlesem yüzümü gülümseten videoların...
+                        Seni gördüğüm her video da yüzümü gülümsettiğin için teşekkür ederim...
                     </p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="video-container group" data-video-id="ZU2AF4lvpWY">
+                    <div class="video-container group" data-video-id="video-iframe-1">
                         <img src="https://img.youtube.com/vi/ZU2AF4lvpWY/hqdefault.jpg" alt="YouTube Video Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
                         <div class="video-overlay rounded-xl">
                             <i class="fas fa-play-circle text-white text-5xl"></i>
                         </div>
                     </div>
-                    <div class="video-container group" data-video-id="8nXp--Od3pQ">
+                    <div class="video-container group" data-video-id="video-iframe-2">
                         <img src="https://img.youtube.com/vi/8nXp--Od3pQ/hqdefault.jpg" alt="YouTube Video Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
                         <div class="video-overlay rounded-xl">
                             <i class="fas fa-play-circle text-white text-5xl"></i>
                         </div>
                     </div>
-                    <div class="video-container group" data-video-id="79PeAGiMzEc">
+                    <div class="video-container group" data-video-id="video-iframe-3">
                         <img src="https://img.youtube.com/vi/79PeAGiMzEc/hqdefault.jpg" alt="YouTube Video Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
                         <div class="video-overlay rounded-xl">
                             <i class="fas fa-play-circle text-white text-5xl"></i>
                         </div>
                     </div>
-                    <div class="video-container group" data-video-id="HomRBvtn-Mc" data-is-short="true">
+                    <div class="video-container group" data-video-id="video-iframe-4">
                         <img src="https://img.youtube.com/vi/HomRBvtn-Mc/hqdefault.jpg" alt="YouTube Shorts Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
                         <div class="video-overlay rounded-xl">
                             <i class="fas fa-play-circle text-white text-5xl"></i>
                         </div>
                     </div>
-                    <div class="video-container group" data-video-id="rnJAlKaalQE" data-is-short="true">
+                    <div class="video-container group" data-video-id="video-iframe-5">
                         <img src="https://img.youtube.com/vi/rnJAlKaalQE/hqdefault.jpg" alt="YouTube Shorts Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
                         <div class="video-overlay rounded-xl">
                             <i class="fas fa-play-circle text-white text-5xl"></i>
                         </div>
                     </div>
-                    <div class="video-container group" data-video-id="kvJmcF2dqJM" data-is-short="true">
+                    <div class="video-container group" data-video-id="video-iframe-6">
                         <img src="https://img.youtube.com/vi/kvJmcF2dqJM/hqdefault.jpg" alt="YouTube Shorts Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
                         <div class="video-overlay rounded-xl">
                             <i class="fas fa-play-circle text-white text-5xl"></i>
@@ -976,25 +987,27 @@
         }
 
         // --- Video Modal Fonksiyonları ---
-        function openVideoModal(videoId, isShort) {
-            // Add parameters to enable autoplay, mute, and prevent related videos
-            let videoSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0`;
-            if (isShort) {
-                // Shorts need a slightly different format for autoplay and looping
-                videoSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&playlist=${videoId}&loop=1`;
-            }
-            
-            // Clear the iframe source first to force a reload and bypass some browser policies
-            videoIframe.src = ''; 
-            videoIframe.src = videoSrc;
+        function openVideoModal(iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if (!iframe) return;
 
+            // Move the pre-loaded iframe to the modal content area
+            modalContent.appendChild(iframe);
+            iframe.classList.remove('hidden');
+            
             // Show the modal
             videoModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
 
         function closeVideoModal() {
-            videoIframe.src = ''; // Clear source to stop video playback
+            const currentIframe = modalContent.querySelector('iframe');
+            if (currentIframe) {
+                // Move the iframe back to its hidden container
+                hiddenIframesContainer.appendChild(currentIframe);
+                currentIframe.classList.add('hidden');
+            }
+
             videoModal.classList.add('hidden');
             document.body.style.overflow = 'auto'; // Re-enable background scrolling
         }
@@ -1003,9 +1016,8 @@
             const videoContainers = document.querySelectorAll('.video-container');
             videoContainers.forEach(container => {
                 container.addEventListener('click', () => {
-                    const videoId = container.dataset.videoId;
-                    const isShort = container.dataset.isShort === 'true';
-                    openVideoModal(videoId, isShort);
+                    const iframeId = container.dataset.videoId;
+                    openVideoModal(iframeId);
                 });
             });
             closeModalBtn.addEventListener('click', closeVideoModal);
