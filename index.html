@@ -161,88 +161,7 @@
             transition: all 1s ease-in-out;
         }
 
-        /* Video modal stilleri */
-        .video-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        .video-modal-content {
-            position: relative;
-            width: 90%;
-            height: 50vw; /* 16:9 aspect ratio */
-            max-height: 90%;
-            max-width: 1000px;
-        }
-        .video-modal-content iframe {
-            width: 100%;
-            height: 100%;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            background-color: #FF69B4;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            transition: transform 0.2s ease-in-out;
-            box-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
-        }
-        .close-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .video-container {
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-            border-radius: 12px;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-            box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-        }
         
-        .video-container img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .video-container:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(255, 105, 180, 0.7);
-        }
-        .video-overlay {
-            position: absolute;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-        .video-container:hover .video-overlay {
-            opacity: 1;
-        }
-
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-bg-dark text-text-light">
@@ -300,10 +219,6 @@
                     <i class="fas fa-palette text-xl nav-icon"></i>
                     <span class="mt-1">Sanat</span>
                 </button>
-                <button id="nav-videos" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
-                    <i class="fas fa-video text-xl nav-icon"></i>
-                    <span class="mt-1">Videolar</span>
-                </button>
                 <button id="nav-message" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-envelope-open-text text-xl nav-icon"></i>
                     <span class="mt-1">Mesajım</span>
@@ -333,26 +248,12 @@
                         <i class="fas fa-palette mr-2"></i>
                         Sanat Galerisi
                     </button>
-                    <button id="nav-videos-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
-                        <i class="fas fa-video mr-2"></i>
-                        Videolar
-                    </button>
                     <button id="nav-message-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-envelope-open-text mr-2"></i>
                         Mesajım
                     </button>
                 </div>
             </nav>
-        </div>
-    </div>
-
-    <!-- Video Modal -->
-    <div id="video-modal" class="video-modal hidden">
-        <div class="video-modal-content">
-            <button id="close-modal-btn" class="close-btn z-50">
-                <i class="fas fa-times"></i>
-            </button>
-            <!-- The iframe will be created and added here dynamically -->
         </div>
     </div>
     
@@ -379,7 +280,6 @@
         const navUsBtn = document.getElementById('nav-us');
         const navEyesBtn = document.getElementById('nav-eyes');
         const navArtBtn = document.getElementById('nav-art');
-        const navVideosBtn = document.getElementById('nav-videos');
         const navMessageBtn = document.getElementById('nav-message');
 
         // Desktop Nav
@@ -388,13 +288,7 @@
         const navUsDesktopBtn = document.getElementById('nav-us-desktop');
         const navEyesDesktopBtn = document.getElementById('nav-eyes-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
-        const navVideosDesktopBtn = document.getElementById('nav-videos-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
-
-        // Video Modal Elements
-        const videoModal = document.getElementById('video-modal');
-        const modalContent = videoModal.querySelector('.video-modal-content');
-        const closeModalBtn = document.getElementById('close-modal-btn');
 
         // Canvas Elements
         const canvas = document.getElementById('hearts-canvas');
@@ -672,56 +566,6 @@
             </div>
         `;
 
-        const videosPageContent = `
-            <div class="w-full max-w-5xl animate-fade-in pb-20">
-                <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
-                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
-                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Videolar</h2>
-                    <p class="text-lg font-light text-gray-300 relative z-10">
-                        Seni gördüğüm her video da yüzümü gülümsettiğin için teşekkür ederim...
-                    </p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="video-container group" data-video-id="ZU2AF4lvpWY">
-                        <img src="https://img.youtube.com/vi/ZU2AF4lvpWY/hqdefault.jpg" alt="YouTube Video Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
-                        <div class="video-overlay rounded-xl">
-                            <i class="fas fa-play-circle text-white text-5xl"></i>
-                        </div>
-                    </div>
-                    <div class="video-container group" data-video-id="8nXp--Od3pQ">
-                        <img src="https://img.youtube.com/vi/8nXp--Od3pQ/hqdefault.jpg" alt="YouTube Video Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
-                        <div class="video-overlay rounded-xl">
-                            <i class="fas fa-play-circle text-white text-5xl"></i>
-                        </div>
-                    </div>
-                    <div class="video-container group" data-video-id="79PeAGiMzEc">
-                        <img src="https://img.youtube.com/vi/79PeAGiMzEc/hqdefault.jpg" alt="YouTube Video Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
-                        <div class="video-overlay rounded-xl">
-                            <i class="fas fa-play-circle text-white text-5xl"></i>
-                        </div>
-                    </div>
-                    <div class="video-container group" data-video-id="HomRBvtn-Mc">
-                        <img src="https://img.youtube.com/vi/HomRBvtn-Mc/hqdefault.jpg" alt="YouTube Shorts Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
-                        <div class="video-overlay rounded-xl">
-                            <i class="fas fa-play-circle text-white text-5xl"></i>
-                        </div>
-                    </div>
-                    <div class="video-container group" data-video-id="rnJAlKaalQE">
-                        <img src="https://img.youtube.com/vi/rnJAlKaalQE/hqdefault.jpg" alt="YouTube Shorts Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
-                        <div class="video-overlay rounded-xl">
-                            <i class="fas fa-play-circle text-white text-5xl"></i>
-                        </div>
-                    </div>
-                    <div class="video-container group" data-video-id="kvJmcF2dqJM">
-                        <img src="https://img.youtube.com/vi/kvJmcF2dqJM/hqdefault.jpg" alt="YouTube Shorts Thumbnail" class="w-full rounded-xl transition-transform duration-300 group-hover:scale-110">
-                        <div class="video-overlay rounded-xl">
-                            <i class="fas fa-play-circle text-white text-5xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
         const messagePageContent = `
             <div class="w-full max-w-2xl mx-auto flex flex-col items-center animate-fade-in text-center pb-20">
                 <div class="relative bg-gradient-to-br from-secondary-pink to-fuchsia-500 w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl">
@@ -829,11 +673,6 @@
                     contentArea.innerHTML = artGalleryContent;
                     setActiveNav('art');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (pageName === 'videos') {
-                    contentArea.innerHTML = videosPageContent;
-                    setActiveNav('videos');
-                    attachVideoClickListeners(); // Videolara tıklama olaylarını ekle
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (pageName === 'message') {
                     contentArea.innerHTML = messagePageContent;
                     setActiveNav('message');
@@ -846,7 +685,7 @@
 
         function setActiveNav(pageName) {
             // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navUsBtn, navEyesBtn, navArtBtn, navVideosBtn, navMessageBtn];
+            const allNavs = [navHomeBtn, navMemoriesBtn, navUsBtn, navEyesBtn, navArtBtn, navMessageBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
                 btn.classList.add('text-gray-400');
@@ -857,11 +696,10 @@
             else if (pageName === 'us') navUsBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'eyes') navEyesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'videos') navVideosBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
             // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navUsDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navVideosDesktopBtn, navMessageDesktopBtn];
+            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navUsDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
                 btn.classList.add('hover:bg-gray-700');
@@ -882,9 +720,6 @@
             } else if (pageName === 'art') {
                 navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navArtDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'videos') {
-                navVideosDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navVideosDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'message') {
                 navMessageDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navMessageDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -973,46 +808,6 @@
                     }, 500); 
                 });
             }
-        }
-
-        // --- Video Modal Fonksiyonları ---
-        function openVideoModal(videoId) {
-            // Create iframe dynamically
-            const iframe = document.createElement('iframe');
-            iframe.classList.add('w-full', 'h-full');
-            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-            iframe.frameborder = "0";
-            iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-            iframe.allowFullscreen = true;
-
-            // Add the new iframe to the modal content
-            modalContent.appendChild(iframe);
-            
-            // Show the modal
-            videoModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-        }
-
-        function closeVideoModal() {
-            // Remove the iframe from the modal to stop playback and free up resources
-            const currentIframe = modalContent.querySelector('iframe');
-            if (currentIframe) {
-                currentIframe.remove();
-            }
-
-            videoModal.classList.add('hidden');
-            document.body.style.overflow = 'auto'; // Re-enable background scrolling
-        }
-        
-        function attachVideoClickListeners() {
-            const videoContainers = document.querySelectorAll('.video-container');
-            videoContainers.forEach(container => {
-                container.addEventListener('click', () => {
-                    const videoId = container.dataset.videoId;
-                    openVideoModal(videoId);
-                });
-            });
-            closeModalBtn.addEventListener('click', closeVideoModal);
         }
 
         // --- Password Game Logic ---
@@ -1121,7 +916,6 @@
         if (navUsBtn) navUsBtn.addEventListener('click', () => renderPage('us'));
         if (navEyesBtn) navEyesBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
-        if (navVideosBtn) navVideosBtn.addEventListener('click', () => renderPage('videos'));
         if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
@@ -1129,7 +923,6 @@
         if (navUsDesktopBtn) navUsDesktopBtn.addEventListener('click', () => renderPage('us'));
         if (navEyesDesktopBtn) navEyesDesktopBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
-        if (navVideosDesktopBtn) navVideosDesktopBtn.addEventListener('click', () => renderPage('videos'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         
         // DOM içeriği yüklendikten sonra her şeyi başlat
