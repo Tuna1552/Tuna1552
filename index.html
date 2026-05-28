@@ -219,10 +219,6 @@
                     <i class="fas fa-heart text-xl nav-icon"></i>
                     <span class="mt-1">Biz</span>
                 </button>
-                <button id="nav-eyes" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
-                    <i class="fas fa-eye text-xl nav-icon"></i>
-                    <span class="mt-1">Gözlerin</span>
-                </button>
                 <button id="nav-art" class="nav-button flex-1 flex flex-col items-center justify-center text-xs text-gray-400 font-semibold p-2 transition-colors duration-200">
                     <i class="fas fa-palette text-xl nav-icon"></i>
                     <span class="mt-1">Sanat</span>
@@ -247,10 +243,6 @@
                     <button id="nav-us-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-heart mr-2"></i>
                         Biz
-                    </button>
-                    <button id="nav-eyes-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
-                        <i class="fas fa-eye mr-2"></i>
-                        Gözlerin
                     </button>
                     <button id="nav-art-desktop" class="nav-button flex items-center px-6 py-2 rounded-full text-text-light font-bold transition-all duration-300 hover:bg-gray-700">
                         <i class="fas fa-palette mr-2"></i>
@@ -286,7 +278,6 @@
         const navHomeBtn = document.getElementById('nav-home');
         const navMemoriesBtn = document.getElementById('nav-memories');
         const navUsBtn = document.getElementById('nav-us');
-        const navEyesBtn = document.getElementById('nav-eyes');
         const navArtBtn = document.getElementById('nav-art');
         const navMessageBtn = document.getElementById('nav-message');
 
@@ -294,7 +285,6 @@
         const navHomeDesktopBtn = document.getElementById('nav-home-desktop');
         const navMemoriesDesktopBtn = document.getElementById('nav-memories-desktop');
         const navUsDesktopBtn = document.getElementById('nav-us-desktop');
-        const navEyesDesktopBtn = document.getElementById('nav-eyes-desktop');
         const navArtDesktopBtn = document.getElementById('nav-art-desktop');
         const navMessageDesktopBtn = document.getElementById('nav-message-desktop');
 
@@ -576,41 +566,11 @@
             </div>
         `;
 
-        const eyesPageContent = `
-            <div class="w-full max-w-5xl animate-fade-in pb-24">
-                <div class="bg-card-dark rounded-3xl p-6 mb-12 text-center relative overflow-hidden shadow-2xl">
-                    <div class="absolute inset-0 bg-primary-blue opacity-10 blur-xl animate-pulse"></div>
-                    <h2 class="text-3xl font-bold text-primary-blue mb-4 relative z-10">Gözlerin</h2>
-                    <p class="text-lg font-light text-gray-300 relative z-10">
-                        Gözlerin kadar güzel yılların olsun Mutlu Yıllar Başak
-                    </p>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="image-container w-full h-64">
-                        <img src="https://i.supaimg.com/96643410-47e5-45c0-88d5-70a3edd29086.jpg" alt="Başak'ın parıldayan gözleri" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
-                        <div class="photo-caption">Gözlerin Her Fotoğrafta Çok Güzel Ama Favorim Bu ♥</div>
-                    </div>
-                    <div class="image-container w-full h-64">
-                        <img src="https://i.supaimg.com/9b810e43-e506-4f36-9426-607835727d37.jpg" alt="Başak'ın derin bakan gözleri" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
-                        <div class="photo-caption">İyiki Varsın Başak, Gözlerinin Güzelliği Gibi Bir Yıl Geçirmen Dileğiyle ♥</div>
-                    </div>
-                    <div class="image-container w-full h-64">
-                        <img src="https://i.supaimg.com/c0380fc6-4942-4cb4-89e2-0aa71b017ba6.jpg" alt="Başak'ın huzur veren gözleri" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
-                        <div class="photo-caption">İyiki Varsın Başak, Gözlerinin Güzelliği Gibi Bir Yıl Geçirmen Dileğiyle ♥</div>
-                    </div>
-                    <div class="image-container w-full h-64">
-                        <img src="https://i.supaimg.com/1e1e9673-888a-4b37-9d86-afefda5465b5.jpg" alt="Başak'ın doğal güzelliği" class="w-full h-full object-cover rounded-xl" loading="lazy" decoding="async">
-                        <div class="photo-caption">İyiki Varsın Başak, Gözlerinin Güzelliği Gibi Bir Yıl Geçirmen Dileğiyle ♥</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
         const artGalleryContent = `
             <div class="w-full max-w-5xl animate-fade-in pb-24">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-primary-blue mb-8 text-center drop-shadow-lg">Sanat Galerisi</h1>
                 <p class="text-center text-lg md:text-xl text-gray-400 mb-12">
-                    Gözlerin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
+            Kalbin kadar güzel çizimlerin. Bu galeri, senin el emeğinle çizdiğin parçalardan oluşuyor.
                 </p>
                 <!-- TAM BOYUTLU ÖZEL FOTOĞRAF -->
                 <div class="image-container w-full mb-8 shadow-pink-glow bg-card-dark"> <!-- Siyah çubukları gizlemek için arkaplan rengi eklendi -->
@@ -764,9 +724,6 @@
                 } else if (pageName === 'us') {
                     contentArea.innerHTML = usPageContent;
                     setActiveNav('us');
-                } else if (pageName === 'eyes') {
-                    contentArea.innerHTML = eyesPageContent;
-                    setActiveNav('eyes');
                 } else if (pageName === 'art') {
                     contentArea.innerHTML = artGalleryContent;
                     setActiveNav('art');
@@ -781,7 +738,7 @@
 
         function setActiveNav(pageName) {
             // Mobile Navigation
-            const allNavs = [navHomeBtn, navMemoriesBtn, navUsBtn, navEyesBtn, navArtBtn, navMessageBtn];
+            const allNavs = [navHomeBtn, navMemoriesBtn, navUsBtn, navArtBtn, navMessageBtn];
             allNavs.forEach(btn => {
                 btn.classList.remove('text-secondary-pink');
                 btn.classList.add('text-gray-400');
@@ -790,12 +747,11 @@
             if (pageName === 'home') navHomeBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'memories') navMemoriesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'us') navUsBtn.classList.replace('text-gray-400', 'text-secondary-pink');
-            else if (pageName === 'eyes') navEyesBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'art') navArtBtn.classList.replace('text-gray-400', 'text-secondary-pink');
             else if (pageName === 'message') navMessageBtn.classList.replace('text-gray-400', 'text-secondary-pink');
 
             // Desktop Navigation
-            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navUsDesktopBtn, navEyesDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
+            const allNavsDesktop = [navHomeDesktopBtn, navMemoriesDesktopBtn, navUsDesktopBtn, navArtDesktopBtn, navMessageDesktopBtn];
             allNavsDesktop.forEach(btn => {
                 btn.classList.remove('bg-primary-blue', 'shadow-lg');
                 btn.classList.add('hover:bg-gray-700');
@@ -810,9 +766,6 @@
             } else if (pageName === 'us') {
                  navUsDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navUsDesktopBtn.classList.remove('hover:bg-gray-700');
-            } else if (pageName === 'eyes') {
-                navEyesDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
-                navEyesDesktopBtn.classList.remove('hover:bg-gray-700');
             } else if (pageName === 'art') {
                 navArtDesktopBtn.classList.add('bg-primary-blue', 'shadow-lg');
                 navArtDesktopBtn.classList.remove('hover:bg-gray-700');
@@ -858,13 +811,13 @@
 
         const messages = [
             "Merhaba Başak", 
-            "Bugün hayatımda çok değer verdiğim birinin doğum günü, yani senin doğum günün. Doğum gününü tüm kalbimle ve içtenliğimle kutluyorum. Dünyaya geldiğin ve birçok insanın hayatına renk kattığın o gün bugün. 18 yaşına girdiğin için tebrik ediyorum dinom. Yeni yaşının sana huzur, mutluluk ve içten gülümsemeler getirmesini diliyorum.",
+            "Bugün hayatımda çok değer verdiğim birinin doğum günü, yani senin doğum günün. Doğum gününü tüm kalbimle ve içtenliğimle kutluyorum. Dünyaya geldiğin ve birçok insanın hayatına renk kattığın o gün bugün. 18 yaşına girdiğin için tebrik ediyorum canım ablam. Yeni yaşının sana huzur, mutluluk ve içten gülümsemeler getirmesini diliyorum.",
             "Klasik ve bir çok kişinin söyleyeceği şeyleri bitirdiğim için şimdi sıra kendi söyleyeceklerimde ve duygularımda. Gerçekleri konuşmak gerekirse seninle tanıştığım günden beri hayatımda bir şeyler değişti. En basitinden; varlığın, en sıradan günleri bile güzel yapmayı başardı, gülüşün içimi ısıttı, enerjin her şeye renk kattı. Ne zaman moralim yerinde olmasa, seni görünce veya seninle konuşunca kendimi güvende hissettim, mutlu hissettim ve en önemliside senin sevgini hissettim Başak. Bu yüzden varlığın için gerçekten çok teşekkür ederim",
             "Bazen seninle sadece sohbet etmek, sessizce yan yana durmak bile yetiyor. Çünkü senin yanında yaptığım her şey de doğalım ve kendim olabiliyorum. Senin varlığın ve kendin bana huzur vermeye yeterli oluyor. O yüzden seninle geçirdiğim her an benim için çok değerli ve anlamlı.",
             "Yeri geldi güldük, kimi zaman üzüldük ama ne olursa olsun senin yanında olmak, seni anlamak ve desteklemek benim için hep çok özel bir şey ve öylede kalacak. Hayat bazen her ne kadar zor olsa da, senin gibi birini tanımış olmak gerçekten her şeye değer.",
-            "Biliyorum bazen bazı şeyler için üzülebiliyosun ya da kalbin kırılabiliyor, ama bilmeni isterim ki ben seni her zaman destekledim ve her zaman da destekleyeceğim. Bazen bazı şeyler için kendini çok fazla üzdüğünü düşünüyorum ve kalbindekileri hissedebiliyorum, belki bazen kendini yanlız hissediyor olabilirsin ama bilmeni isterim ki ne yaşarsan yaşa ya da ne olursa olsun ben daima seni dinleyeceğim ve seni tüm kalbimle sonuna kadar destekleyeceğim. İçini dökmek istediğinde veya içinden gelen herhangi bir şeyi anlatmak istediğinde ben hep senin için burada olacağım. Senden yaşadığın acılardan kaçmanı değil onlarla savaşmanı istiyorum,her acının altından daha güçlü bir şekilde kalk, yaşadıklarına karşı kendini üzüp boyun eğme ve her zaman diren. Çünkü senin gibi güçlü ve tatlı bir hanımefendiye bunları yapmak yakışır.",
+            "Biliyorum bazen bazı şeyler için üzülebiliyosun ya da kalbin kırılabiliyor, ama bilmeni isterim ki ben seni her zaman destekledim ve her zaman da destekleyeceğim. Bazen bazı şeyler için kendini çok fazla üzdüğünü düşünüyorum ve kalbindekileri hissedebiliyorum, belki bazen kendini yanlız hissediyor olabilirsin ama bilmeni isterim ki ne yaşarsan yaşa ya da ne olursa olsun ben daima seni dinleyeceğim ve seni tüm kalbimle sonuna kadar destekleyeceğim. Tıpkı senin en ihtiyacım olduğu anda benim yanımda olman gibi... İçini dökmek istediğinde veya içinden gelen herhangi bir şeyi anlatmak istediğinde ben hep senin için burada olacağım. Senden yaşadığın acılardan kaçmanı değil onlarla savaşmanı istiyorum,her acının altından daha güçlü bir şekilde kalk, yaşadıklarına karşı kendini üzüp boyun eğme ve her zaman diren. Çünkü senin gibi güçlü ve tatlı bir hanımefendiye bunları yapmak yakışır.",
             "İyi ki doğdun, iyi ki benim ablamsın, iyi ki yollarımız kesişti Başak. Senin gibi bir arkadaşa sahip olduğum için kendimi gerçekten çok şanslı hissediyorum. Umarım bu yeni yaşında her şey gönlünce olur, kalbinden ne geçiyorsa hepsi birer birer gerçekleşir.",
-            "Bu siteyi oluşturma amacım, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile. Seni çok seviyorum ve her zaman seveceğim canım ablam, hem bu kadar iyi bir arkadaş, hem bu kadar iyi bir abla, hem de bu kadar iyi bi dost olduğun için alnından öpüyorum. iyi ki varsın",
+            "Bu siteyi oluşturma amacım, sadece sana özel anılarımızı ve sana olan sevgimi ölümsüzleştirmek için bir hediye. Lütfen her sayfanın tadını çıkar ve bu küçük sürprizin sana ne kadar değer verdiğimi hatırlatmasını dile. Seni çok seviyorum ve her zaman seveceğim canım ablam. Hem bu kadar iyi bir arkadaş, hem bu kadar iyi bir abla, hem de bu kadar iyi bi dost olduğun için alnından öpüyorum, iyi ki varsın",
             "Sevgilerimle, Tuna..."
         ];
         
@@ -1017,14 +970,12 @@
         if (navHomeBtn) navHomeBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesBtn) navMemoriesBtn.addEventListener('click', () => renderPage('memories'));
         if (navUsBtn) navUsBtn.addEventListener('click', () => renderPage('us'));
-        if (navEyesBtn) navEyesBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtBtn) navArtBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageBtn) navMessageBtn.addEventListener('click', () => renderPage('message'));
 
         if (navHomeDesktopBtn) navHomeDesktopBtn.addEventListener('click', () => renderPage('home'));
         if (navMemoriesDesktopBtn) navMemoriesDesktopBtn.addEventListener('click', () => renderPage('memories'));
         if (navUsDesktopBtn) navUsDesktopBtn.addEventListener('click', () => renderPage('us'));
-        if (navEyesDesktopBtn) navEyesDesktopBtn.addEventListener('click', () => renderPage('eyes'));
         if (navArtDesktopBtn) navArtDesktopBtn.addEventListener('click', () => renderPage('art'));
         if (navMessageDesktopBtn) navMessageDesktopBtn.addEventListener('click', () => renderPage('message'));
         
